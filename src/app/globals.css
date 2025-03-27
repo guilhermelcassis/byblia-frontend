@@ -1,26 +1,154 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+  --bible-brown-rgb: 139, 69, 19;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground-rgb: 255, 255, 255;
+    --background-rgb: 0, 0, 0;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--background-rgb));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 102, 102, 1.0);
+}
+
+/* Animação suave para o streaming */
+@keyframes smooth-fade {
+  from { opacity: 0.9; }
+  to { opacity: 1; }
+}
+
+/* Estilo para o conteúdo em streaming */
+.streaming-content {
+  position: relative;
+  transition: all 0.03s ease-out;
+  animation: smooth-fade 0.3s ease-out;
+}
+
+/* Estilos para o componente MessageText */
+.message-text-content {
+  transition: color 0.03s ease-out;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message-text-content.streaming-content {
+  position: relative;
+}
+
+/* Estilos fortemente específicos para mensagens do usuário */
+.user-message-container,
+.user-message-text,
+.user-message-content,
+.user-message-inner {
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+/* Forçar o texto branco com alta especificidade */
+[data-user-message="true"] * {
+  color: white !important;
+}
+
+/* Estilos para mensagens do usuário (texto branco em fundo marrom) - Com alta prioridade */
+.bg-bible-brown {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Forçar texto branco para todas as mensagens do usuário, sobrepondo qualquer outra regra */
+.bg-bible-brown .message-text,
+.bg-bible-brown .prose,
+.bg-bible-brown .prose-sm,
+.bg-bible-brown .message-text-content,
+.bg-bible-brown .prose-invert,
+.bg-bible-brown * {
+  color: white !important;
+}
+
+.bg-bible-brown .message-text strong {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: white !important;
+}
+
+.prose-invert strong {
+  color: white !important;
+  font-weight: 700;
+}
+
+/* Corrigir a coloração de texto em mensagens do usuário */
+.prose .user-message-inner,
+.prose-sm .user-message-inner,
+.prose-sm.user-message-text,
+.prose.user-message-text {
+  color: white !important;
+}
+
+/* Make sure message content wraps correctly */
+.prose p, .prose-sm p {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.65;
+  margin-bottom: 0.75em;
+  transition: none !important;
+}
+
+/* Melhorar espaçamento dos parágrafos finais */
+.prose p:last-child, .prose-sm p:last-child {
+  margin-bottom: 0;
+}
+
+/* Controle de scroll suave quando necessário */
+.manual-scroll {
+  /* Permitir scroll suave somente quando programaticamente acionado */
+  scroll-behavior: smooth;
+  /* Permitir controle manual do scroll*/
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* Remove o comportamento de anchor que mantém o scroll preso ao fundo */
+  overflow-anchor: none;
+}
+
+/* Otimização para o container de streaming */
+.message-list {
+  position: relative;
+}
+
+/* Estilos para mensagens em streaming */
+.streaming-message {
+  position: relative;
+}
+
+/* Otimização de especificamente para o contêiner de mensagens */
+#chat-messages {
+  transform: translateZ(0);
 }

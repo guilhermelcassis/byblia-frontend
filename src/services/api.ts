@@ -1,0 +1,214 @@
+import axios from 'axios';
+import { ChatRequest, ChatResponse, FeedbackRequest, FeedbackResponse, StreamChunk } from '../types';
+
+// Use the local proxy instead of directly accessing the API
+// This avoids CORS issues because requests will be made from the same origin
+const API_URL = '/api';
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+});
+
+export const sendMessage = async (
+  prompt: string, 
+  onChunk: (chunk: string) => void,
+  onComplete: (response: Omit<ChatResponse, 'message'>) => void
+): Promise<void> => {
+  try {
+    console.log('Enviando mensagem para a API:', prompt.substring(0, 30) + '...');
+    
+    // Use fetch para ter suporte a streaming
+    const response = await fetch(`${API_URL}/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream',
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('Response body is null');
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    // Log para debugging
+    console.log('Iniciando leitura do stream de resposta...');
+
+    // Processar o stream com atualização em tempo real
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        console.log('Stream completo');
+        break;
+      }
+
+      // Decodificar o chunk
+      const chunk = decoder.decode(value, { stream: true });
+      console.log('Recebido chunk bruto:', chunk.length, 'bytes');
+      
+      // Adicionar ao buffer e processar mensagens SSE completas
+      buffer += chunk;
+      buffer = processSSEBuffer(buffer, onChunk, onComplete);
+    }
+
+    // Processar qualquer dado restante no buffer
+    if (buffer.trim()) {
+      processSSEBuffer(buffer, onChunk, onComplete, true);
+    }
+
+    // Garantir que onComplete seja chamado se ainda não foi
+    onComplete({
+      token_usage: 0,
+      temperature: 0,
+      interaction_id: 0
+    });
+    
+    console.log('Processamento do stream concluído');
+  } catch (error) {
+    console.error('Erro ao enviar mensagem:', error);
+    throw error;
+  }
+};
+
+// Helper function to process SSE buffer
+function processSSEBuffer(
+  buffer: string,
+  onChunk: (chunk: string) => void,
+  onComplete: (response: Omit<ChatResponse, 'message'>) => void,
+  isLastChunk: boolean = false
+): string {
+  // Log para debugging
+  console.log('Processando buffer com tamanho:', buffer.length);
+  
+  // Split buffer by lines
+  const lines = buffer.split('\n');
+  let remainingBuffer = '';
+  let completionCalled = false;
+
+  // Process each line
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Skip empty lines
+    if (!line) continue;
+    
+    // Check if this is a data line
+    if (line.startsWith('data:')) {
+      try {
+        const dataStr = line.substring(5).trim();
+        
+        // Handle end of stream marker
+        if (dataStr === '[DONE]') {
+          console.log('Received [DONE] marker');
+          completionCalled = true;
+          onComplete({
+            token_usage: 0,
+            temperature: 0,
+            interaction_id: 0
+          });
+          continue;
+        }
+        
+        const data = JSON.parse(dataStr) as StreamChunk;
+        console.log('Parsed data:', data.type);
+        
+        if (data.type === 'chunk' && data.content) {
+          // Receber e processar o chunk mantendo toda a formatação original
+          const content = data.content as string;
+          
+          // Verificar apenas se o chunk está completamente vazio
+          if (!content) continue;
+          
+          // Log do chunk que está sendo processado
+          console.log('Processing chunk:', content.length, 'chars');
+          
+          // Enviar o chunk para o frontend - preservando TODA a formatação original
+          onChunk(content);
+        } else if (data.type === 'complete') {
+          console.log('Processing complete:', data);
+          completionCalled = true;
+          onComplete({
+            token_usage: data.token_usage ?? 0,
+            temperature: data.temperature ?? 0,
+            interaction_id: data.interaction_id ?? 0
+          });
+        }
+      } catch (error) {
+        console.error('Error parsing SSE data:', error, 'Line:', line);
+        // Try to extract content even if JSON parsing fails
+        try {
+          // Check if this might be a plain text chunk
+          const contentMatch = line.match(/data:\s*(.+)/);
+          if (contentMatch && contentMatch[1]) {
+            const content = contentMatch[1].trim();
+            if (content && content !== '[DONE]') {
+              console.log('Extracted text content:', content);
+              onChunk(content);
+            }
+          }
+        } catch (extractError) {
+          console.error('Failed to extract content from malformed data:', extractError);
+        }
+      }
+    } else {
+      // If this is the last line and not complete, add it to the remaining buffer
+      if (i === lines.length - 1 && !line.endsWith('}')) {
+        remainingBuffer = line;
+      } else {
+        // Try to process this line as well in case it's not properly formatted
+        try {
+          const trimmedLine = line.trim();
+          if (trimmedLine && !trimmedLine.includes('{') && !trimmedLine.includes('}')) {
+            console.log('Processing non-SSE line as content:', trimmedLine);
+            onChunk(trimmedLine);
+          }
+        } catch (err) {
+          console.error('Error processing non-SSE line:', err);
+        }
+      }
+    }
+  }
+  
+  // If this is the last chunk and completion wasn't called, call it now
+  if (isLastChunk && !completionCalled) {
+    console.log('Calling completion at end of stream');
+    onComplete({
+      token_usage: 0,
+      temperature: 0,
+      interaction_id: 0
+    });
+  }
+  
+  return remainingBuffer;
+}
+
+export const sendFeedback = async (
+  interactionId: number,
+  isPositive: boolean
+): Promise<FeedbackResponse> => {
+  try {
+    const request: FeedbackRequest = {
+      interaction_id: interactionId,
+      feedback: isPositive,
+    };
+    const response = await api.post<FeedbackResponse>('/feedback', request);
+    return response.data;
+  } catch (error) {
+    console.error('Error sending feedback:', error);
+    throw error;
+  }
+};
+
+export default api; 
