@@ -3,6 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { ChatState, Message } from '../types';
 import { sendMessage, sendFeedback } from '../services/api';
 import axios, { AxiosError } from 'axios';
+import { logSecurityEvent, isSecurityDefenseActive } from '../utils/securityMonitor';
+import { botDetection } from '../utils/botDetection';
+
+// Configurações de throttling ajustadas para serem mais tolerantes
+const THROTTLE_TIME_MS = 800; // Reduzido para 800ms (era 5000ms)
+const MAX_MESSAGES_PER_MINUTE = 10; // Aumentado para 10 (era 5)
 
 const useChat = () => {
   const [state, setState] = useState<ChatState>({
@@ -26,6 +32,11 @@ const useChat = () => {
   const BUFFER_SIZE_THRESHOLD = 60; // Caracteres mínimos antes de atualizar
   const UPDATE_DELAY_MS = 150;      // Tempo mínimo entre atualizações
   const MAX_UPDATES_PER_SECOND = 5; // Limite de atualizações por segundo
+  
+  // Referências para controle de throttling
+  const lastMessageTimestampRef = useRef<number>(0);
+  const messageCountRef = useRef<number>(0);
+  const messageTimestampsRef = useRef<number[]>([]);
   
   // Debug: log state changes
   useEffect(() => {
@@ -109,7 +120,83 @@ const useChat = () => {
     });
   }, []);
 
+  // Limpar contagem de mensagens a cada minuto
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Remover timestamps mais antigos que 1 minuto
+      const oneMinuteAgo = Date.now() - 60000;
+      messageTimestampsRef.current = messageTimestampsRef.current.filter(
+        timestamp => timestamp > oneMinuteAgo
+      );
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Verifica se o usuário pode enviar mensagem (throttling)
+  const canSendMessage = (): boolean => {
+    const now = Date.now();
+    
+    // Verificar intervalo mínimo entre mensagens
+    if (now - lastMessageTimestampRef.current < THROTTLE_TIME_MS) {
+      return false;
+    }
+    
+    // Verificar limite de mensagens por minuto
+    if (messageTimestampsRef.current.length >= MAX_MESSAGES_PER_MINUTE) {
+      return false;
+    }
+    
+    return true;
+  };
+
   const sendUserMessage = useCallback(async (message: string) => {
+    // Reduzir o limite da pontuação de bot para 20 (era 40)
+    if (botDetection.getScore() < 20) {
+      // Comportamento suspeito de bot
+      logSecurityEvent('bot_behavior_detected', { score: botDetection.getScore() });
+      
+      setState(prev => ({
+        ...prev,
+        error: "Por motivos de segurança, precisamos verificar que você é humano. Por favor, mova o mouse, role a página ou interaja de outra forma por um momento antes de tentar novamente."
+      }));
+      
+      // Não limpar automaticamente este erro para forçar o usuário a interagir
+      return;
+    }
+    
+    // Verificar se as medidas defensivas estão ativas
+    if (isSecurityDefenseActive()) {
+      setState(prev => ({
+        ...prev,
+        error: "Atividade suspeita detectada. Por favor, aguarde alguns minutos antes de tentar novamente."
+      }));
+      return;
+    }
+
+    // Verificar throttling
+    if (!canSendMessage()) {
+      setState(prev => ({
+        ...prev,
+        error: "Por favor, aguarde um momento antes de enviar outra mensagem."
+      }));
+      
+      // Registrar tentativa de exceder o limite de taxa
+      logSecurityEvent('throttling_triggered', { message: message.substring(0, 50) + '...' });
+      
+      // Limpar erro após 3 segundos
+      setTimeout(() => {
+        setState(prev => ({ ...prev, error: null }));
+      }, 3000);
+      
+      return;
+    }
+    
+    // Atualizar timestamps para throttling
+    const now = Date.now();
+    lastMessageTimestampRef.current = now;
+    messageTimestampsRef.current.push(now);
+    
     if (!message.trim()) return;
 
     console.log('Sending message:', message);
@@ -214,7 +301,19 @@ const useChat = () => {
           }, 150); // Reduzir o delay para 150ms para ser mais natural
         }
       );
+
+      // Registrar o evento da mensagem
+      logSecurityEvent('message_send', { 
+        length: message.length, 
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
+      // Registrar erro
+      logSecurityEvent('error', { 
+        errorType: 'api_request_failed', 
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+
       // Limpar recursos em caso de erro
       chunkBufferRef.current = '';
       
@@ -282,6 +381,9 @@ const useChat = () => {
           currentInteractionId: null,
         };
       });
+
+      // Registrar feedback
+      logSecurityEvent('feedback_submitted', { isPositive });
     } catch (error) {
       console.error('Feedback Error:', error);
       let errorMessage = 'Erro ao enviar feedback. Por favor, tente novamente.';
