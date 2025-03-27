@@ -1,5 +1,5 @@
 import React, { useState, FormEvent, useEffect, useRef } from 'react';
-import { FaPaperPlane, FaExclamationTriangle } from 'react-icons/fa';
+import { FaArrowRight, FaExclamationTriangle } from 'react-icons/fa';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -194,7 +194,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           }`}
           aria-label="Enviar mensagem"
         >
-          <FaPaperPlane size={14} />
+          <FaArrowRight size={14} />
         </button>
       </form>
       

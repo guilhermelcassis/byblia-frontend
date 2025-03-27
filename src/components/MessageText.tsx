@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface MessageTextProps {
   content: string;
@@ -11,6 +11,20 @@ interface MessageTextProps {
  * com transições suaves quando o texto muda durante o streaming.
  */
 const MessageText: React.FC<MessageTextProps> = ({ content, isStreaming = false, isUser = false }) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [processedContent, setProcessedContent] = useState<string>('');
+  
+  // Log quando o conteúdo muda para debug
+  useEffect(() => {
+    if (content) {
+      console.log('MessageText recebeu conteúdo de', content.length, 'caracteres');
+      console.log('Conteúdo completo:', content);
+      
+      // Atualizar o conteúdo processado
+      setProcessedContent(formatContent(content));
+    }
+  }, [content]);
+  
   // Função para formatar o conteúdo e aplicar formatação
   const formatContent = (text: string): string => {
     if (!text) return '';
@@ -26,8 +40,6 @@ const MessageText: React.FC<MessageTextProps> = ({ content, isStreaming = false,
     
     return formattedText;
   };
-
-  const formattedContent = formatContent(content);
   
   return (
     <div 
@@ -38,9 +50,10 @@ const MessageText: React.FC<MessageTextProps> = ({ content, isStreaming = false,
       data-user-message={isUser}
     >
       <div
+        ref={contentRef}
         className={`message-text ${isUser ? 'user-message-inner' : ''}`}
         style={isUser ? { color: 'white' } : {}}
-        dangerouslySetInnerHTML={{ __html: formattedContent }}
+        dangerouslySetInnerHTML={{ __html: processedContent }}
       />
     </div>
   );

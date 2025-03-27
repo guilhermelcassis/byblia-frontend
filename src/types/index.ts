@@ -1,6 +1,9 @@
 // API Request and Response Types
 export interface ChatRequest {
-  prompt: string;
+  request: {
+    prompt: string;
+  };
+  allowed_domains?: string[];
 }
 
 export interface ChatResponse {

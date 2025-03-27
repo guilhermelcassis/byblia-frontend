@@ -29,9 +29,9 @@ const useChat = () => {
   const updatesCountRef = useRef<number>(0);
   
   // Constantes para controle do buffer
-  const BUFFER_SIZE_THRESHOLD = 60; // Caracteres mínimos antes de atualizar
-  const UPDATE_DELAY_MS = 150;      // Tempo mínimo entre atualizações
-  const MAX_UPDATES_PER_SECOND = 5; // Limite de atualizações por segundo
+  const BUFFER_SIZE_THRESHOLD = 30; // Reduzido: Caracteres mínimos antes de atualizar (era 60)
+  const UPDATE_DELAY_MS = 50;       // Reduzido: Tempo mínimo entre atualizações (era 150)
+  const MAX_UPDATES_PER_SECOND = 8; // Aumentado: Limite de atualizações por segundo (era 5)
   
   // Referências para controle de throttling
   const lastMessageTimestampRef = useRef<number>(0);
@@ -62,8 +62,10 @@ const useChat = () => {
     const now = Date.now();
     const timeSinceLastUpdate = now - lastUpdateTimestampRef.current;
     
+    // Modificado: reduzir o limite de tamanho de buffer para forçar atualizações mais frequentes
+    // e garantir que todo o conteúdo seja exibido
     if (timeSinceLastUpdate < UPDATE_DELAY_MS && 
-        chunkBufferRef.current.length < BUFFER_SIZE_THRESHOLD * 2) {
+        chunkBufferRef.current.length < BUFFER_SIZE_THRESHOLD) {
       return; // Ainda não é hora de atualizar
     }
     
@@ -71,7 +73,8 @@ const useChat = () => {
     const currentSecond = Math.floor(now / 1000);
     const lastSecond = Math.floor(lastUpdateTimestampRef.current / 1000);
     
-    if (currentSecond === lastSecond && updatesCountRef.current >= MAX_UPDATES_PER_SECOND) {
+    // Modificado: aumentar o limite de atualizações por segundo para garantir que todo o conteúdo seja exibido
+    if (currentSecond === lastSecond && updatesCountRef.current >= MAX_UPDATES_PER_SECOND + 2) {
       return; // Já atingimos o limite de atualizações por segundo
     }
     
@@ -96,6 +99,10 @@ const useChat = () => {
         // Aplicar o conteúdo acumulado do buffer
         const updatedContent = assistantMessage.content + chunkBufferRef.current;
         
+        // Debug: Registrar conteúdo atualizado
+        console.log('Updating assistant message content:', chunkBufferRef.current.length, 'bytes');
+        console.log('Updated content (length):', updatedContent.length);
+        
         // Criar um novo objeto para forçar a renderização
         newMessages[assistantMessageIndex] = {
           ...assistantMessage,
@@ -112,7 +119,7 @@ const useChat = () => {
       };
       
       // Limpar o buffer para próximos chunks
-      const processedContent = chunkBufferRef.current;
+      const bufferContent = chunkBufferRef.current;
       chunkBufferRef.current = '';
       lastUpdateTimestampRef.current = now;
       
@@ -252,24 +259,65 @@ const useChat = () => {
         message,
         // Handle each incoming chunk
         (chunk) => {
+          // Debug: registrar chegada do chunk e conteúdo
+          console.log('Received chunk of size:', chunk.length);
+          console.log('Chunk content:', chunk);
+          
           // Add the chunk to buffer
           chunkBufferRef.current += chunk;
+          
+          // Tentar atualizar imediatamente se o buffer tiver um tamanho significativo
+          if (chunkBufferRef.current.length >= BUFFER_SIZE_THRESHOLD) {
+            updateStateWithBuffer();
+          }
         },
         // Handle when streaming is complete
         (responseData) => {
-          // Final update of buffer contents
-          updateStateWithBuffer();
+          // Final update of buffer contents - garantir que isso seja executado
+          console.log('Streaming complete, final buffer size:', chunkBufferRef.current.length);
           
-          // Mark streaming as complete
-          setState((prevState) => {
-            const newMessages = [...prevState.messages];
-            return {
-              ...prevState,
-              isLoading: false,
-              isStreaming: false,
-              currentInteractionId: responseData.interaction_id,
-            };
-          });
+          // Forçar atualização final do buffer independentemente do tamanho
+          if (chunkBufferRef.current.length > 0) {
+            updateStateWithBuffer();
+          }
+          
+          // Pequeno timeout para garantir que a última atualização do buffer seja processada
+          setTimeout(() => {
+            // Mark streaming as complete
+            setState((prevState) => {
+              const newMessages = [...prevState.messages];
+              const assistantMessageIndex = newMessages.findIndex(
+                (m) => m.id === currentAssistantMessageId.current
+              );
+              
+              // Certificar-se de que toda a resposta está na mensagem antes de finalizar
+              if (assistantMessageIndex !== -1) {
+                const assistantMessage = newMessages[assistantMessageIndex];
+                
+                // Verificar se ainda tem conteúdo no buffer
+                if (chunkBufferRef.current.length > 0) {
+                  console.log('Aplicando buffer final à mensagem:', chunkBufferRef.current);
+                  newMessages[assistantMessageIndex] = {
+                    ...assistantMessage,
+                    content: assistantMessage.content + chunkBufferRef.current,
+                  };
+                  chunkBufferRef.current = '';
+                }
+                
+                // Log do conteúdo final da mensagem
+                console.log('Conteúdo final da mensagem:', newMessages[assistantMessageIndex].content);
+                console.log('Tamanho do conteúdo final:', newMessages[assistantMessageIndex].content.length);
+              }
+              
+              return {
+                ...prevState,
+                isLoading: false,
+                isStreaming: false,
+                currentInteractionId: responseData.interaction_id,
+                messages: newMessages,
+              };
+            });
+          }, 50); // Pequeno delay para garantir sincronização
           
           if (intervalId) clearInterval(intervalId);
         }
