@@ -13,6 +13,24 @@ const api = axios.create({
   },
 });
 
+// Função de validação para mensagens do usuário
+const validateMessage = (message: string): { isValid: boolean; error?: string } => {
+  if (!message || message.trim() === '') {
+    return { isValid: false, error: 'A mensagem não pode estar vazia' };
+  }
+  
+  // Verificar comprimento mínimo e máximo
+  if (message.trim().length < 2) {
+    return { isValid: false, error: 'A mensagem é muito curta' };
+  }
+  
+  if (message.trim().length > 4000) {
+    return { isValid: false, error: 'A mensagem excede o limite de 4000 caracteres' };
+  }
+  
+  return { isValid: true };
+};
+
 export const sendMessage = async (
   prompt: string, 
   onChunk: (chunk: string) => void,
@@ -20,6 +38,12 @@ export const sendMessage = async (
 ): Promise<void> => {
   try {
     console.log('Enviando mensagem para a API:', prompt.substring(0, 30) + '...');
+    
+    // Validar a mensagem antes de enviá-la
+    const validation = validateMessage(prompt);
+    if (!validation.isValid) {
+      throw new Error(validation.error || 'Mensagem inválida');
+    }
     
     // Use fetch para ter suporte a streaming
     const response = await fetch(`${API_URL}/chat`, {
@@ -31,8 +55,30 @@ export const sendMessage = async (
       body: JSON.stringify({ prompt })
     });
 
+    // Tratar erros HTTP com mensagens específicas
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      let errorMessage = `Erro na requisição: ${response.status}`;
+      
+      // Tentar extrair mensagem de erro do corpo da resposta
+      try {
+        const errorData = await response.json();
+        if (errorData && errorData.detail) {
+          errorMessage = `Erro: ${errorData.detail}`;
+        } else if (errorData && errorData.message) {
+          errorMessage = `Erro: ${errorData.message}`;
+        }
+      } catch (e) {
+        // Se não conseguir extrair JSON, usar mensagens personalizadas com base no status
+        if (response.status === 422) {
+          errorMessage = 'A mensagem contém formato inválido ou caracteres não permitidos. Por favor, revise e tente novamente.';
+        } else if (response.status === 429) {
+          errorMessage = 'Muitas requisições em um curto período de tempo. Por favor, aguarde alguns instantes e tente novamente.';
+        } else if (response.status >= 500) {
+          errorMessage = 'Erro no servidor. Por favor, tente novamente mais tarde.';
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const reader = response.body?.getReader();

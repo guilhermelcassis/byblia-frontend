@@ -1,14 +1,16 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import ChatInput from './ChatInput';
 import { MessageItem } from './MessageItem';
 import FeedbackButtons from './FeedbackButtons';
 import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
 import useChat from '../hooks/useChat';
 
 const ChatContainer: React.FC = () => {
   const { state, sendUserMessage, submitFeedback } = useChat();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef<number>(0);
+  const lastMessageRef = useRef<string>('');
   
   // Scroll suave para o final do chat somente quando uma nova mensagem é adicionada
   useEffect(() => {
@@ -45,8 +47,40 @@ const ChatContainer: React.FC = () => {
 
   // Wrapper para enviar mensagem e atualizar a ref do comprimento da mensagem
   const handleSendMessage = (message: string) => {
+    // Salvar a última mensagem para permitir reenviar em caso de erro
+    lastMessageRef.current = message;
+    
     // A contagem será atualizada no efeito após a mensagem ser adicionada
     sendUserMessage(message);
+  };
+
+  // Função para tentar novamente a última mensagem
+  const handleRetry = useCallback(() => {
+    if (lastMessageRef.current) {
+      sendUserMessage(lastMessageRef.current);
+    }
+  }, [sendUserMessage]);
+
+  // Função para determinar a severidade do erro
+  const getErrorSeverity = () => {
+    if (!state.error) return 'info';
+    
+    // Verificar o conteúdo da mensagem para determinar a severidade
+    const errorMessage = state.error.toLowerCase();
+    
+    if (errorMessage.includes('tentar novamente') || 
+        errorMessage.includes('aguarde') || 
+        errorMessage.includes('formato inválido')) {
+      return 'warning';
+    }
+    
+    if (errorMessage.includes('servidor') || 
+        errorMessage.includes('conexão') || 
+        errorMessage.includes('processada')) {
+      return 'error';
+    }
+    
+    return 'info';
   };
 
   return (
@@ -109,11 +143,13 @@ const ChatContainer: React.FC = () => {
           </div>
         )}
 
-        {/* Error message display */}
+        {/* Error message display - Substituído pelo novo componente ErrorMessage */}
         {state.error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg my-3 border border-red-200 shadow-sm">
-            {state.error}
-          </div>
+          <ErrorMessage 
+            message={state.error}
+            severity={getErrorSeverity()}
+            onRetry={handleRetry}
+          />
         )}
 
         {/* Show feedback buttons only after a non-empty response and when feedback hasn't been given */}

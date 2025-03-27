@@ -233,11 +233,14 @@ const useChat = () => {
       currentResponse: '',
     }));
 
+    // Declarar o intervalId ao nível do escopo da função
+    let intervalId: NodeJS.Timeout | null = null;
+
     try {
       console.log('Starting streaming response...');
       
       // Configurar intervalo para processar o buffer com um intervalo maior
-      const intervalId = setInterval(() => {
+      intervalId = setInterval(() => {
         if (chunkBufferRef.current.length > 0 && 
             Date.now() - lastUpdateTimestampRef.current > UPDATE_DELAY_MS) {
           updateStateWithBuffer();
@@ -249,99 +252,66 @@ const useChat = () => {
         message,
         // Handle each incoming chunk
         (chunk) => {
-          // Atualizar o estado com cada chunk, sem setTimeout e sem logs excessivos
-          setState((prevState) => {
-            // Encontrar a mensagem do assistente na array
-            const newMessages = [...prevState.messages];
-            const assistantMessageIndex = newMessages.findIndex(
-              (m) => m.id === currentAssistantMessageId.current
-            );
-
-            if (assistantMessageIndex !== -1) {
-              // Atualizar o conteúdo incrementalmente
-              const assistantMessage = newMessages[assistantMessageIndex];
-              const updatedContent = assistantMessage.content + chunk;
-              
-              // Criar um novo objeto para forçar a renderização
-              newMessages[assistantMessageIndex] = {
-                ...assistantMessage,
-                content: updatedContent,
-              };
-            }
-
-            // Retornar um novo objeto de estado
-            return {
-              ...prevState,
-              messages: newMessages,
-              currentResponse: prevState.currentResponse + chunk,
-              isStreaming: true, // Manter a flag de streaming ativa
-            };
-          });
+          // Add the chunk to buffer
+          chunkBufferRef.current += chunk;
         },
-        // Handle completion of streaming
-        (completionData) => {
-          // Processar qualquer conteúdo restante no buffer
-          if (chunkBufferRef.current.length > 0) {
-            updateStateWithBuffer();
-          }
+        // Handle when streaming is complete
+        (responseData) => {
+          // Final update of buffer contents
+          updateStateWithBuffer();
           
-          // Limpar o intervalo
-          clearInterval(intervalId);
-          
-          console.log('Stream complete, interaction ID:', completionData.interaction_id);
-          
-          // Delay menor para finalizar o streaming de forma mais natural
-          setTimeout(() => {
-            setState((prevState) => ({
+          // Mark streaming as complete
+          setState((prevState) => {
+            const newMessages = [...prevState.messages];
+            return {
               ...prevState,
               isLoading: false,
               isStreaming: false,
-              currentInteractionId: completionData.interaction_id,
-            }));
-          }, 150); // Reduzir o delay para 150ms para ser mais natural
+              currentInteractionId: responseData.interaction_id,
+            };
+          });
+          
+          if (intervalId) clearInterval(intervalId);
         }
       );
-
-      // Registrar o evento da mensagem
-      logSecurityEvent('message_send', { 
-        length: message.length, 
-        timestamp: new Date().toISOString()
-      });
     } catch (error) {
-      // Registrar erro
-      logSecurityEvent('error', { 
-        errorType: 'api_request_failed', 
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
+      // Limpar o intervalo em caso de erro
+      if (intervalId) clearInterval(intervalId);
 
-      // Limpar recursos em caso de erro
-      chunkBufferRef.current = '';
+      console.error('Erro ao processar mensagem:', error);
       
-      console.error('API Error:', error);
-      let errorMessage = 'Erro ao processar sua mensagem. Por favor, tente novamente.';
+      // Melhor tratamento de erros
+      let errorMessage = 'Ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.';
       
-      // Type assertion for better error handling
-      const axiosError = error as AxiosError;
+      if (error instanceof Error) {
+        // Se for um erro do axios, extrair a mensagem mais amigável
+        if (axios.isAxiosError(error)) {
+          const status = error.response?.status || 0;
+          
+          if (status === 422) {
+            // Este é o erro específico que estamos tratando
+            errorMessage = 'Sua mensagem não pôde ser processada pelo servidor. Por favor, verifique o conteúdo e tente novamente com uma formulação diferente.';
+            
+            // Se houver detalhes específicos no corpo da resposta
+            const responseData = error.response?.data;
+            if (responseData && responseData.detail) {
+              errorMessage = `Erro: ${responseData.detail}`;
+            }
+          } else if (status === 429) {
+            errorMessage = 'Muitas requisições foram feitas em um curto período de tempo. Por favor, aguarde um momento antes de tentar novamente.';
+          } else if (status >= 500) {
+            errorMessage = 'Nosso servidor está enfrentando problemas. Por favor, tente novamente mais tarde.';
+          }
+        } else {
+          // Para outros tipos de erro, usamos a mensagem do erro se disponível
+          errorMessage = error.message || errorMessage;
+        }
+      }
       
-      // Check if it's a network error
-      if (axiosError.message === 'Network Error') {
-        errorMessage = 'Erro de conexão com o servidor. Verifique sua conexão com a internet.';
-      }
-      // Check if it's a CORS error
-      else if (axiosError.message && axiosError.message.includes('CORS')) {
-        errorMessage = 'Erro de política de origem cruzada (CORS). Contate o administrador do sistema.';
-      }
-      // Check if there's a response with error data
-      else if (axiosError.response?.data) {
-        const responseData = axiosError.response.data as { message?: string };
-        errorMessage = `Erro do servidor: ${responseData.message || JSON.stringify(axiosError.response.data)}`;
-      }
-
+      // Limpar a mensagem do assistente que ficou vazia devido ao erro
       setState((prevState) => {
-        // Remove the empty assistant message if there was an error
-        const newMessages = prevState.messages.filter(
-          msg => msg.id !== currentAssistantMessageId.current
-        );
+        // Remover a mensagem do assistente que estava aguardando resposta
+        const newMessages = prevState.messages.filter(m => m.id !== assistantMessageId);
         
         return {
           ...prevState,
@@ -351,6 +321,11 @@ const useChat = () => {
           messages: newMessages,
         };
       });
+      
+      // Limpar erro após 8 segundos para mensagens de erro mais complexas
+      setTimeout(() => {
+        setState(prev => ({ ...prev, error: null }));
+      }, 8000);
     }
   }, [updateStateWithBuffer]);
 
