@@ -11,9 +11,13 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "Byblia - Assistente Bíblico",
   description: "Um assistente virtual para encontrar sabedoria nas Escrituras Sagradas",
-  icons: {
-    icon: "/biblia.png ",
-  },
+  icons: [
+    { rel: "icon", url: "/favicon.ico" },
+    { rel: "icon", type: "image/png", url: "/biblia.png" },
+    { rel: "icon", type: "image/svg+xml", url: "/biblia.svg" },
+    { rel: "apple-touch-icon", url: "/biblia.png" },
+    { rel: "shortcut icon", url: "/biblia.png" }
+  ],
 };
 
 export default function RootLayout({
@@ -23,6 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/biblia.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/biblia.png" />
+      </head>
       <body className={`${montserrat.className} bg-gray-50`}>
         {children}
       </body>
