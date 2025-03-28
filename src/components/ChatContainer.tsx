@@ -7,7 +7,8 @@ import ColdStartIndicator from './ColdStartIndicator';
 import ErrorMessage from './ErrorMessage';
 import useChat from '../hooks/useChat';
 import { checkBackendHealth } from '../services/api';
-import { FaServer, FaQuestionCircle } from 'react-icons/fa';
+import { FaServer, FaQuestionCircle, FaCommentDots, FaSyncAlt } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Componente para mostrar o status do backend
 const BackendStatus: React.FC = () => {
@@ -169,7 +170,8 @@ const ChatContainer: React.FC = () => {
         style={{ 
           overscrollBehavior: 'contain',
           WebkitOverflowScrolling: 'touch',
-          scrollPaddingBottom: '120px'
+          scrollPaddingBottom: state.isStreaming ? '100px' : '120px',
+          paddingBottom: state.isStreaming ? '100px' : '120px'
         }}
       >      
         {state.messages.length === 0 ? (
@@ -230,17 +232,45 @@ const ChatContainer: React.FC = () => {
         })()}
       </div>
       
-      {/* Input area - posicionado na parte inferior apenas quando já existem mensagens */}
-      {state.messages.length > 0 && (
-        <div className="p-3 sm:p-4 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none">
-          <div className="max-w-2xl mx-auto px-1">
-            <ChatInput 
-              onSendMessage={handleSendMessage} 
-              isLoading={state.isLoading || state.isStreaming}
-            />
-          </div>
-        </div>
-      )}
+      {/* Input area - posicionado na parte inferior apenas quando já existem mensagens e não está em streaming */}
+      <AnimatePresence>
+        {state.messages.length > 0 && !state.isStreaming && !state.isColdStart && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="p-3 sm:p-4 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none"
+          >
+            <div className="max-w-2xl mx-auto px-1">
+              <ChatInput 
+                onSendMessage={handleSendMessage} 
+                isLoading={state.isLoading || state.isStreaming}
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {/* Indicador de streaming que substitui o input quando uma resposta está sendo gerada */}
+        {state.messages.length > 0 && (state.isStreaming || state.isColdStart) && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="p-3 sm:p-4 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none"
+          >
+            <div className="max-w-2xl mx-auto px-1">
+              <div className="streaming-indicator">
+                <div className="streaming-indicator-text">
+                  <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
+                  <span>{state.isColdStart ? "Iniciando o servidor bíblico..." : "Gerando resposta baseada nas Escrituras..."}</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -417,3 +417,44 @@ body {
 .share-button:active {
   transform: scale(0.95);
 }
+
+/* Estilo para o indicador de streaming durante a geração de resposta */
+.streaming-indicator {
+  border-radius: 16px;
+  background-color: #f5f5f7;
+  border: 1px solid rgb(var(--accent-border));
+  min-height: 60px;
+  width: 99%;
+  max-width: 900px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.streaming-indicator-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.streaming-indicator-icon {
+  margin-right: 8px;
+  color: rgb(var(--bible-brown-rgb));
+}
+
+@media (max-width: 768px) {
+  .streaming-indicator {
+    min-height: 50px;
+    padding: 8px 16px;
+  }
+  
+  .streaming-indicator-text {
+    font-size: 13px;
+  }
+}
