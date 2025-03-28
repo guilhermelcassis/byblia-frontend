@@ -8,22 +8,35 @@ interface Props {
   message: Message;
   isLastMessage?: boolean;
   isStreaming?: boolean;
+  questionText?: string; // Pergunta do usuário que originou esta resposta
 }
 
 export const MessageItem: React.FC<Props> = ({ 
   message, 
   isLastMessage = false,
-  isStreaming = false
+  isStreaming = false,
+  questionText = '' // Valor padrão caso não seja fornecido
 }) => {
   const isUser = message.role === 'user';
   const containerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
 
+  // Função auxiliar para truncar texto se necessário
+  const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength - 3) + '...';
+  };
+
   // Função para copiar a mensagem para a área de transferência
   const copyToClipboard = () => {
+    // Não truncamos a cópia para a área de transferência, pois não tem limitação como a URL
+    const textToCopy = questionText 
+      ? `Pergunta: ${questionText}\n\nResposta da Byblia:\n${message.content}\n\n— Enviado via Byblia (https://byblia.vercel.app/)`
+      : `${message.content}\n\n— Enviado via Byblia (https://byblia.vercel.app/)`;
+      
     if (navigator.clipboard && window.isSecureContext) {
       // Para navegadores modernos
-      navigator.clipboard.writeText(message.content)
+      navigator.clipboard.writeText(textToCopy)
         .then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
@@ -34,7 +47,7 @@ export const MessageItem: React.FC<Props> = ({
     } else {
       // Fallback para navegadores mais antigos
       const textArea = document.createElement("textarea");
-      textArea.value = message.content;
+      textArea.value = textToCopy;
       // Tornar o textarea invisível
       textArea.style.position = "fixed";
       textArea.style.left = "-999999px";
@@ -57,14 +70,21 @@ export const MessageItem: React.FC<Props> = ({
 
   // Função para compartilhar via WhatsApp
   const shareViaWhatsApp = () => {
-    // Limitar a mensagem a 1000 caracteres para evitar problemas com URLs muito longos
-    const truncatedMessage = message.content.length > 1000 
-      ? message.content.substring(0, 997) + '...' 
-      : message.content;
+    // Limitar o tamanho da pergunta e da resposta para o URL do WhatsApp não ficar muito longo
+    const maxQuestionLength = 300; // Tamanho máximo para a pergunta
+    const maxAnswerLength = 800;   // Tamanho máximo para a resposta
+    
+    const truncatedQuestion = questionText ? truncateText(questionText, maxQuestionLength) : '';
+    const truncatedAnswer = truncateText(message.content, maxAnswerLength);
+    
+    // Formato da mensagem com a pergunta original, se disponível
+    const messageWithQuestion = questionText 
+      ? `Pergunta: ${truncatedQuestion}\n\nResposta da Byblia:\n${truncatedAnswer}`
+      : `Mensagem da Byblia:\n\n${truncatedAnswer}`;
     
     // Criar URL do WhatsApp com a mensagem codificada
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-      'Mensagem da Byblia:\n\n' + truncatedMessage + '\n\n— Enviado via Byblia (https://byblia.vercel.app/)'
+      messageWithQuestion + '\n\n— Enviado via Byblia (https://byblia.vercel.app/)'
     )}`;
     
     // Abrir em uma nova aba
@@ -116,7 +136,7 @@ export const MessageItem: React.FC<Props> = ({
               ) : (
                 <>
                   <FaCopy size={10} className="mr-1" />
-                  <span>Copiar</span>
+                  <span>{questionText ? "Copiar conversa" : "Copiar resposta"}</span>
                 </>
               )}
             </motion.button>
@@ -129,7 +149,7 @@ export const MessageItem: React.FC<Props> = ({
               aria-label="Compartilhar via WhatsApp"
             >
               <FaWhatsapp size={10} className="mr-1" />
-              <span>Compartilhar</span>
+              <span>{questionText ? "Compartilhar conversa" : "Compartilhar"}</span>
             </motion.button>
           </div>
         )}

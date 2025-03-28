@@ -136,6 +136,18 @@ const ChatContainer: React.FC = () => {
       message.role === 'assistant' && 
       isLastMessage && 
       state.isStreaming;
+    
+    // Encontrar a pergunta do usuário associada com esta resposta
+    let questionText = '';
+    if (message.role === 'assistant' && index > 0) {
+      // Percorrer as mensagens anteriores para encontrar a pergunta do usuário mais recente
+      for (let i = index - 1; i >= 0; i--) {
+        if (state.messages[i].role === 'user') {
+          questionText = state.messages[i].content;
+          break;
+        }
+      }
+    }
       
     return (
       <MessageItem 
@@ -143,6 +155,7 @@ const ChatContainer: React.FC = () => {
         message={message} 
         isLastMessage={isLastMessage}
         isStreaming={isLastAssistantMessage}
+        questionText={questionText}
       />
     );
   });
