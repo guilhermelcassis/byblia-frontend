@@ -64,7 +64,7 @@ export const MessageItem: React.FC<Props> = ({
     
     // Criar URL do WhatsApp com a mensagem codificada
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-      'Mensagem da Byblia:\n\n' + truncatedMessage + '\n\n— Enviado via Byblia (https://github.com/guilhermelcassis/byblia-frontend)'
+      'Mensagem da Byblia:\n\n' + truncatedMessage + '\n\n— Enviado via Byblia (https://byblia.vercel.app/)'
     )}`;
     
     // Abrir em uma nova aba
