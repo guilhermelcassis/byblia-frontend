@@ -33,7 +33,7 @@ export default function Home() {
         <Header isMobile={isMobile} showBackButton={false} />
         
         <button 
-          className={`absolute ${isMobile ? 'right-4 top-4' : 'right-6 top-[0.925rem]'} flex items-center justify-center w-8 h-8 text-gray-400 hover:text-bible-brown hover:bg-gray-50 rounded-full transition-all z-20`}
+          className={`absolute ${isMobile ? 'right-4 top-[12px]' : 'right-6 top-[0.925rem]'} flex items-center justify-center w-8 h-8 text-gray-400 hover:text-bible-brown hover:bg-gray-50 rounded-full transition-all z-20`}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
         >

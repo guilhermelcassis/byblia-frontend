@@ -25,8 +25,13 @@
   font-family: 'Boldonse', var(--font-boldonse), sans-serif;
   font-weight: 400;
   font-size: 1.5rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: rgb(var(--bible-main-rgb));
+  display: inline-block;
+  white-space: nowrap;
+  overflow: visible;
+  word-spacing: -0.05em;
+  padding-right: 2px;
 }
 
 /* Classes utilitárias para diferentes tipos de títulos com a fonte do logo */
@@ -448,6 +453,15 @@ body {
     font-size: 11px;
     padding: 4px 10px;
     border-radius: 16px;
+  }
+
+  /* Media query for mobile */
+  .byblia-logo {
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+    word-spacing: -0.02em;
+    padding-right: 3px;
+    padding-left: 1px;
   }
 }
 
