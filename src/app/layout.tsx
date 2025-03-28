@@ -11,6 +11,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "Byblia - Assistente Bíblico",
   description: "Um assistente virtual para encontrar sabedoria nas Escrituras Sagradas",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
   icons: [
     { rel: "icon", url: "/favicon.ico" },
     { rel: "icon", type: "image/png", url: "/biblia.png" },
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/biblia.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/biblia.png" />

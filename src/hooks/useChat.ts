@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatState, Message } from '../types';
-import { sendMessage, sendFeedback } from '../services/api';
+import { sendMessage, sendFeedback, checkBackendHealth } from '../services/api';
 import axios, { AxiosError } from 'axios';
 import { logSecurityEvent, isSecurityDefenseActive } from '../utils/securityMonitor';
 import { botDetection } from '../utils/botDetection';
@@ -9,6 +9,10 @@ import { botDetection } from '../utils/botDetection';
 // Configurações de throttling ajustadas para serem mais tolerantes
 const THROTTLE_TIME_MS = 800; // Reduzido para 800ms (era 5000ms)
 const MAX_MESSAGES_PER_MINUTE = 10; // Aumentado para 10 (era 5)
+
+// Configurações para retry em caso de falha na conexão
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1500;
 
 const useChat = () => {
   const [state, setState] = useState<ChatState>({
@@ -18,6 +22,7 @@ const useChat = () => {
     currentResponse: '',
     currentInteractionId: null,
     isStreaming: false,
+    isColdStart: false  // Novo estado para indicar cold start
   });
 
   // Ref to store the current assistant message ID while streaming
@@ -38,10 +43,13 @@ const useChat = () => {
   const messageCountRef = useRef<number>(0);
   const messageTimestampsRef = useRef<number[]>([]);
   
-  // Debug: log state changes
-  useEffect(() => {
-    console.log('Chat state updated:', state.isStreaming, state.messages.length);
-  }, [state]);
+  // Referência para controle de retentativas
+  const retryCountRef = useRef<number>(0);
+  
+  // Remover log de debugging desnecessário que pode causar re-renderizações
+  // useEffect(() => {
+  //   console.log('Chat state updated:', state.isStreaming, state.messages.length);
+  // }, [state]);
 
   const resetChat = useCallback(() => {
     setState({
@@ -51,6 +59,7 @@ const useChat = () => {
       currentResponse: '',
       currentInteractionId: null,
       isStreaming: false,
+      isColdStart: false  // Resetar o estado de cold start
     });
   }, []);
 
@@ -62,8 +71,8 @@ const useChat = () => {
     const now = Date.now();
     const timeSinceLastUpdate = now - lastUpdateTimestampRef.current;
     
-    // Modificado: reduzir o limite de tamanho de buffer para forçar atualizações mais frequentes
-    // e garantir que todo o conteúdo seja exibido
+    // Modificado: aumentar o limite de tamanho de buffer para reduzir atualizações frequentes
+    // e diminuir o efeito de flickering
     if (timeSinceLastUpdate < UPDATE_DELAY_MS && 
         chunkBufferRef.current.length < BUFFER_SIZE_THRESHOLD) {
       return; // Ainda não é hora de atualizar
@@ -73,8 +82,8 @@ const useChat = () => {
     const currentSecond = Math.floor(now / 1000);
     const lastSecond = Math.floor(lastUpdateTimestampRef.current / 1000);
     
-    // Modificado: aumentar o limite de atualizações por segundo para garantir que todo o conteúdo seja exibido
-    if (currentSecond === lastSecond && updatesCountRef.current >= MAX_UPDATES_PER_SECOND + 2) {
+    // Modificado: reduzir o limite de atualizações por segundo para evitar flickering
+    if (currentSecond === lastSecond && updatesCountRef.current >= MAX_UPDATES_PER_SECOND) {
       return; // Já atingimos o limite de atualizações por segundo
     }
     
@@ -99,9 +108,9 @@ const useChat = () => {
         // Aplicar o conteúdo acumulado do buffer
         const updatedContent = assistantMessage.content + chunkBufferRef.current;
         
-        // Debug: Registrar conteúdo atualizado
-        console.log('Updating assistant message content:', chunkBufferRef.current.length, 'bytes');
-        console.log('Updated content (length):', updatedContent.length);
+        // Remover logs de debugging que podem causar instabilidade
+        // console.log('Updating assistant message content:', chunkBufferRef.current.length, 'bytes');
+        // console.log('Updated content (length):', updatedContent.length);
         
         // Criar um novo objeto para forçar a renderização
         newMessages[assistantMessageIndex] = {
@@ -119,7 +128,6 @@ const useChat = () => {
       };
       
       // Limpar o buffer para próximos chunks
-      const bufferContent = chunkBufferRef.current;
       chunkBufferRef.current = '';
       lastUpdateTimestampRef.current = now;
       
@@ -157,7 +165,28 @@ const useChat = () => {
     return true;
   };
 
-  const sendUserMessage = useCallback(async (message: string) => {
+  // Função auxiliar para verificar se o erro é relacionado à conectividade 
+  const isConnectivityError = (error: unknown): boolean => {
+    if (axios.isAxiosError(error)) {
+      // Verificar se não há resposta do servidor ou se houve erro de rede
+      return !error.response || error.code === 'ECONNABORTED' || error.message.includes('Network Error');
+    }
+    
+    return false;
+  };
+
+  // Função para tentar conexão com o backend
+  const attemptBackendConnection = useCallback(async (): Promise<boolean> => {
+    try {
+      // Usar diretamente o endpoint de saúde implementado no backend
+      const isHealthy = await checkBackendHealth(3000); // Aumentado para 3s
+      return isHealthy;
+    } catch (error) {
+      return false;
+    }
+  }, []);
+
+  const sendUserMessage = useCallback(async (message: string, retryCount = 0) => {
     // Reduzir o limite da pontuação de bot para 20 (era 40)
     if (botDetection.getScore() < 20) {
       // Comportamento suspeito de bot
@@ -182,7 +211,7 @@ const useChat = () => {
     }
 
     // Verificar throttling
-    if (!canSendMessage()) {
+    if (!canSendMessage() && retryCount === 0) {
       setState(prev => ({
         ...prev,
         error: "Por favor, aguarde um momento antes de enviar outra mensagem."
@@ -199,72 +228,84 @@ const useChat = () => {
       return;
     }
     
-    // Atualizar timestamps para throttling
-    const now = Date.now();
-    lastMessageTimestampRef.current = now;
-    messageTimestampsRef.current.push(now);
+    // Só atualizar os timestamps se não for uma retry
+    if (retryCount === 0) {
+      // Atualizar timestamps para throttling
+      const now = Date.now();
+      lastMessageTimestampRef.current = now;
+      messageTimestampsRef.current.push(now);
+    }
     
     if (!message.trim()) return;
-
-    console.log('Sending message:', message);
     
     // Resetar buffer de chunks e timestamp
     chunkBufferRef.current = '';
     lastUpdateTimestampRef.current = Date.now();
     
-    const userMessage: Message = {
-      id: uuidv4(),
-      role: 'user',
-      content: message,
-      timestamp: new Date(),
-    };
-
-    // Create a placeholder for the assistant message
-    const assistantMessageId = uuidv4();
-    currentAssistantMessageId.current = assistantMessageId;
+    // Se for a primeira tentativa, criar mensagens novas. Se for retry, reutilizar IDs.
+    let userMessageId: string;
+    let assistantMessageId: string;
     
-    const assistantMessage: Message = {
-      id: assistantMessageId,
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-    };
+    if (retryCount === 0) {
+      userMessageId = uuidv4();
+      assistantMessageId = uuidv4();
+      
+      const userMessage: Message = {
+        id: userMessageId,
+        role: 'user',
+        content: message,
+        timestamp: new Date(),
+      };
 
-    // Update the state with both the user message and an empty assistant message
-    setState((prevState) => ({
-      ...prevState,
-      isLoading: true,
-      isStreaming: true,
-      error: null,
-      messages: [...prevState.messages, userMessage, assistantMessage],
-      currentResponse: '',
-    }));
+      // Create a placeholder for the assistant message
+      currentAssistantMessageId.current = assistantMessageId;
+      
+      const assistantMessage: Message = {
+        id: assistantMessageId,
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+      };
+
+      // Update the state with both the user message and an empty assistant message
+      setState((prevState) => ({
+        ...prevState,
+        isLoading: true,
+        isStreaming: true,
+        error: null,
+        messages: [...prevState.messages, userMessage, assistantMessage],
+        currentResponse: '',
+        isColdStart: false  // Resetar o estado de cold start
+      }));
+    } else {
+      // Em retry, usamos o ID atual
+      assistantMessageId = currentAssistantMessageId.current;
+    }
 
     // Declarar o intervalId ao nível do escopo da função
     let intervalId: NodeJS.Timeout | null = null;
 
     try {
-      console.log('Starting streaming response...');
-      
-      // Configurar intervalo para processar o buffer com um intervalo maior
+      // Configurar intervalo para processar o buffer com um intervalo maior para reduzir flickering
       intervalId = setInterval(() => {
-        if (chunkBufferRef.current.length > 0 && 
-            Date.now() - lastUpdateTimestampRef.current > UPDATE_DELAY_MS) {
-          updateStateWithBuffer();
-        }
-      }, UPDATE_DELAY_MS);
+        updateStateWithBuffer();
+      }, 120);
       
       // Start streaming the response
       await sendMessage(
         message,
         // Handle each incoming chunk
         (chunk) => {
-          // Debug: registrar chegada do chunk e conteúdo
-          console.log('Received chunk of size:', chunk.length);
-          console.log('Chunk content:', chunk);
-          
           // Add the chunk to buffer
           chunkBufferRef.current += chunk;
+          
+          // Resetar contador de retries quando a conexão funciona
+          retryCountRef.current = 0;
+          
+          // Desativar o modo de cold start quando recebemos dados
+          if (state.isColdStart) {
+            setState(prev => ({ ...prev, isColdStart: false }));
+          }
           
           // Tentar atualizar imediatamente se o buffer tiver um tamanho significativo
           if (chunkBufferRef.current.length >= BUFFER_SIZE_THRESHOLD) {
@@ -274,9 +315,6 @@ const useChat = () => {
         // Handle when streaming is complete
         (responseData) => {
           // Final update of buffer contents - garantir que isso seja executado
-          console.log('Streaming complete, final buffer size:', chunkBufferRef.current.length);
-          
-          // Forçar atualização final do buffer independentemente do tamanho
           if (chunkBufferRef.current.length > 0) {
             updateStateWithBuffer();
           }
@@ -296,25 +334,28 @@ const useChat = () => {
                 
                 // Verificar se ainda tem conteúdo no buffer
                 if (chunkBufferRef.current.length > 0) {
-                  console.log('Aplicando buffer final à mensagem:', chunkBufferRef.current);
                   newMessages[assistantMessageIndex] = {
                     ...assistantMessage,
                     content: assistantMessage.content + chunkBufferRef.current,
                   };
                   chunkBufferRef.current = '';
                 }
-                
-                // Log do conteúdo final da mensagem
-                console.log('Conteúdo final da mensagem:', newMessages[assistantMessageIndex].content);
-                console.log('Tamanho do conteúdo final:', newMessages[assistantMessageIndex].content.length);
               }
+              
+              // Log para depuração do interaction_id
+              console.log('Received interaction_id from API:', responseData.interaction_id, 
+                'Type:', typeof responseData.interaction_id);
               
               return {
                 ...prevState,
                 isLoading: false,
                 isStreaming: false,
-                currentInteractionId: responseData.interaction_id,
+                currentInteractionId: responseData.interaction_id ? 
+                  Number(responseData.interaction_id) : 
+                  // Gerar um ID temporário se a API não retornar um
+                  Math.floor(Date.now() / 1000),
                 messages: newMessages,
+                isColdStart: false
               };
             });
           }, 50); // Pequeno delay para garantir sincronização
@@ -325,65 +366,129 @@ const useChat = () => {
     } catch (error) {
       // Limpar o intervalo em caso de erro
       if (intervalId) clearInterval(intervalId);
-
-      console.error('Erro ao processar mensagem:', error);
       
-      // Melhor tratamento de erros
-      let errorMessage = 'Ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.';
-      
-      if (error instanceof Error) {
-        // Se for um erro do axios, extrair a mensagem mais amigável
-        if (axios.isAxiosError(error)) {
-          const status = error.response?.status || 0;
-          
-          if (status === 422) {
-            // Este é o erro específico que estamos tratando
-            errorMessage = 'Sua mensagem não pôde ser processada pelo servidor. Por favor, verifique o conteúdo e tente novamente com uma formulação diferente.';
-            
-            // Se houver detalhes específicos no corpo da resposta
-            const responseData = error.response?.data;
-            if (responseData && responseData.detail) {
-              errorMessage = `Erro: ${responseData.detail}`;
+      // Checar se é um erro de conectividade (backend indisponível ou cold start)
+      if (isConnectivityError(error)) {
+        // Se for o primeiro erro de conectividade, verificar se é um cold start
+        if (retryCount === 0) {
+          // Verificar se o backend está disponível
+          attemptBackendConnection().then(isHealthy => {
+            if (!isHealthy) {
+              // Backend não está disponível, provavelmente é um cold start
+              setState(prev => ({
+                ...prev,
+                isColdStart: true,  // Ativar o modo cold start
+                error: null         // Não mostrar erro
+              }));
+              
+              // Tentar novamente após um período maior
+              setTimeout(() => {
+                sendUserMessage(message, retryCount + 1);
+              }, 3000);
+            } else {
+              // Backend está disponível, é outro tipo de erro
+              handleNormalError(error);
             }
-          } else if (status === 429) {
-            errorMessage = 'Muitas requisições foram feitas em um curto período de tempo. Por favor, aguarde um momento antes de tentar novamente.';
-          } else if (status >= 500) {
-            errorMessage = 'Nosso servidor está enfrentando problemas. Por favor, tente novamente mais tarde.';
-          }
-        } else {
-          // Para outros tipos de erro, usamos a mensagem do erro se disponível
-          errorMessage = error.message || errorMessage;
+          });
+          return;
+        }
+        
+        // Para retentativas subsequentes durante um cold start
+        if (state.isColdStart) {
+          // Continuar tentando indefinidamente durante cold start
+          setTimeout(() => {
+            sendUserMessage(message, retryCount + 1);
+          }, Math.min(3000 + (retryCount * 500), 8000)); // Backoff limitado a 8 segundos
+          return;
+        }
+        
+        // Para erros de conectividade normais (não cold start)
+        if (retryCount < MAX_RETRIES) {
+          // Incrementar contador interno de retries
+          retryCountRef.current++;
+          
+          // Tentar novamente após um delay sem mostrar erro ao usuário
+          setTimeout(() => {
+            sendUserMessage(message, retryCount + 1);
+          }, RETRY_DELAY_MS * (retryCount + 1)); // Backoff exponencial
+          
+          return;
         }
       }
       
-      // Limpar a mensagem do assistente que ficou vazia devido ao erro
-      setState((prevState) => {
-        // Remover a mensagem do assistente que estava aguardando resposta
-        const newMessages = prevState.messages.filter(m => m.id !== assistantMessageId);
+      // Função para tratar erros normais (não cold start)
+      const handleNormalError = (error: any) => {
+        // Melhor tratamento de erros
+        let errorMessage = 'Ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.';
         
-        return {
-          ...prevState,
-          isLoading: false,
-          isStreaming: false,
-          error: errorMessage,
-          messages: newMessages,
-        };
-      });
+        if (error instanceof Error) {
+          // Se for um erro do axios, extrair a mensagem mais amigável
+          if (axios.isAxiosError(error)) {
+            const status = error.response?.status || 0;
+            
+            if (status === 422) {
+              errorMessage = 'Sua mensagem não pôde ser processada pelo servidor. Por favor, verifique o conteúdo e tente novamente com uma formulação diferente.';
+              
+              // Se houver detalhes específicos no corpo da resposta
+              const responseData = error.response?.data;
+              if (responseData && responseData.detail) {
+                errorMessage = `Erro: ${responseData.detail}`;
+              }
+            } else if (status === 429) {
+              errorMessage = 'Muitas requisições foram feitas em um curto período de tempo. Por favor, aguarde um momento antes de tentar novamente.';
+            } else if (status >= 500) {
+              errorMessage = 'Nosso servidor está enfrentando problemas. Por favor, tente novamente mais tarde.';
+            } else if (!error.response || error.code === 'ECONNABORTED') {
+              errorMessage = 'Não foi possível conectar ao servidor. O backend pode estar temporariamente indisponível ou em processo de inicialização. Por favor, tente novamente em alguns instantes.';
+            } else if (error.message.includes('Network Error')) {
+              errorMessage = 'Erro de conexão. Verifique sua conexão com a internet e tente novamente.';
+            }
+          } else {
+            // Para outros tipos de erro, usamos a mensagem do erro se disponível
+            errorMessage = error.message || errorMessage;
+          }
+        }
+        
+        // Limpar a mensagem do assistente que ficou vazia devido ao erro
+        setState((prevState) => {
+          // Remover a mensagem do assistente que estava aguardando resposta
+          const newMessages = prevState.messages.filter(m => m.id !== assistantMessageId);
+          
+          return {
+            ...prevState,
+            isLoading: false,
+            isStreaming: false,
+            error: errorMessage,
+            messages: newMessages,
+            isColdStart: false
+          };
+        });
+        
+        // Tempo de exibição de erro baseado na complexidade da mensagem
+        const errorDisplayTime = errorMessage.length > 100 ? 10000 : 6000;
+        
+        // Limpar erro após o tempo definido
+        setTimeout(() => {
+          setState(prev => {
+            // Só limpar o erro se for o mesmo erro
+            if (prev.error === errorMessage) {
+              return { ...prev, error: null };
+            }
+            return prev;
+          });
+        }, errorDisplayTime);
+      };
       
-      // Limpar erro após 8 segundos para mensagens de erro mais complexas
-      setTimeout(() => {
-        setState(prev => ({ ...prev, error: null }));
-      }, 8000);
+      // Se chegou aqui, não é um cold start ou já excedeu as retentativas
+      if (!state.isColdStart) {
+        handleNormalError(error);
+      }
     }
-  }, [updateStateWithBuffer]);
+  }, [updateStateWithBuffer, attemptBackendConnection, state.isColdStart]);
 
-  const submitFeedback = useCallback(async (isPositive: boolean) => {
-    if (state.currentInteractionId === null) return;
-
-    try {
-      await sendFeedback(state.currentInteractionId, isPositive);
-
-      // Update the last message to include the feedback
+  const submitFeedback = useCallback(async (isPositive: boolean): Promise<boolean> => {
+    // Sempre atualizar a UI localmente, mesmo se não for possível enviar o feedback ao servidor
+    const updateUIWithFeedback = () => {
       setState((prevState) => {
         const newMessages = [...prevState.messages];
         const lastMessageIndex = newMessages.findIndex(
@@ -395,6 +500,9 @@ const useChat = () => {
             ...newMessages[lastMessageIndex],
             feedbackGiven: true,
             feedback: isPositive,
+            feedbackSyncFailed: state.currentInteractionId === null || 
+              typeof state.currentInteractionId !== 'number' || 
+              state.currentInteractionId <= 0
           };
         }
 
@@ -404,19 +512,52 @@ const useChat = () => {
           currentInteractionId: null,
         };
       });
+    };
 
-      // Registrar feedback
+    // Verificar se existe um interaction_id válido
+    if (state.currentInteractionId === null || 
+        typeof state.currentInteractionId !== 'number' || 
+        state.currentInteractionId <= 0) {
+      console.error('Invalid or missing interaction_id:', state.currentInteractionId);
+      
+      // Atualizar UI mesmo com erro
+      updateUIWithFeedback();
+      
+      // Registrar evento localmente
+      logSecurityEvent('feedback_submitted_local_only', { 
+        isPositive, 
+        error: 'Invalid interaction_id'
+      });
+      
+      return true; // Para experiência de usuário, retornamos true
+    }
+
+    try {
+      console.log('Enviando feedback para interaction_id:', state.currentInteractionId);
+      const result = await sendFeedback(state.currentInteractionId, isPositive);
+      
+      // Atualizar UI
+      updateUIWithFeedback();
+      
+      // Registrar feedback localmente
       logSecurityEvent('feedback_submitted', { isPositive });
+        
+      return true;
     } catch (error) {
       console.error('Feedback Error:', error);
-      let errorMessage = 'Erro ao enviar feedback. Por favor, tente novamente.';
       
-      setState((prevState) => ({
-        ...prevState,
-        error: errorMessage,
-      }));
+      // Mesmo com erro, atualizamos a UI localmente
+      updateUIWithFeedback();
+      
+      // Registrar o erro
+      logSecurityEvent('feedback_error', { 
+        isPositive, 
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+      
+      return true; // Retornamos true para não prejudicar experiência do usuário
     }
-  }, [state.currentInteractionId]);
+  }, [state.currentInteractionId, setState]);
 
   return {
     state,

@@ -1,0 +1,190 @@
+"use client";
+
+import React, { useEffect, useState } from 'react';
+import { FaArrowLeft, FaGithub, FaEnvelope, FaLinkedin, FaTwitter } from 'react-icons/fa';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+
+export default function Contact() {
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    // Verificar inicialmente
+    checkIsMobile();
+    
+    // Adicionar listener para redimensionamento
+    window.addEventListener('resize', checkIsMobile);
+    
+    // Limpar listener ao desmontar
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  // Lista de contatos e redes sociais
+  const contactInfo = [
+    {
+      icon: <FaEnvelope size={isMobile ? 16 : 18} />,
+      label: "Email",
+      value: "guilhermelcassis@gmail.com",
+      link: "mailto:guilhermelcassis@gmail.com"
+    },
+    {
+      icon: <FaGithub size={isMobile ? 16 : 18} />,
+      label: "GitHub",
+      value: "github.com/guilhermelcassis",
+      link: "https://github.com/guilhermelcassis/"
+    },
+    {
+      icon: <FaLinkedin size={isMobile ? 16 : 18} />,
+      label: "LinkedIn",
+      value: "https://www.linkedin.com/in/guilcassis/",
+      link: "https://https://www.linkedin.com/in/guilcassis/"
+    },
+  ];
+
+  return (
+    <main className={`flex min-h-screen flex-col items-center bg-white relative ${isMobile ? 'pb-8' : 'pb-16'}`}>
+      <header className={`w-full bg-white text-gray-800 ${isMobile ? 'py-4' : 'py-3'} px-4 shadow-sm border-b border-gray-50 sticky top-0 z-10`}>
+        <div className="max-w-4xl mx-auto flex flex-row items-center justify-between relative">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className={`flex items-center gap-2 ${isMobile ? 'absolute left-0' : ''}`}
+          >
+            <Link href="/" className="flex items-center gap-2 text-bible-brown transition-colors">
+              <FaArrowLeft size={14} />
+              <h1 className="text-lg font-semibold tracking-tight">Byblia</h1>
+            </Link>
+          </motion.div>
+          
+          <h2 className="text-xs sm:text-sm font-medium text-gray-600 whitespace-nowrap text-center overflow-hidden text-ellipsis flex-grow mx-auto">
+            {isMobile ? "" : "Converse e receba orientação baseada nas Escrituras"}
+          </h2>
+        </div>
+      </header>
+
+      <section className="flex-grow w-full max-w-4xl p-4 md:p-6 flex flex-col items-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className={`w-full ${isMobile ? 'prose-sm' : 'prose'} max-w-2xl mx-auto`}
+          style={isMobile ? {
+            fontSize: '0.9rem',
+            lineHeight: '1.5'
+          } : undefined}
+        >
+          <h1 
+            className="text-center font-bold text-bible-brown mb-6"
+            style={{ 
+              fontSize: isMobile ? '1.75rem' : '2.25rem',
+              marginTop: isMobile ? '0.5rem' : '1rem',
+              lineHeight: '1.3'
+            }}
+          >
+            Contato
+          </h1>
+          
+          <div className="mb-8 text-center">
+            <p className="text-gray-700 max-w-lg mx-auto" style={{ fontSize: isMobile ? '0.9rem' : '1rem', lineHeight: '1.7' }}>
+              Tem alguma dúvida, sugestão ou feedback? Entre em contato com o criador da Byblia através dos canais abaixo.
+            </p>
+          </div>
+          
+          <div className="space-y-6 mb-8">
+            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden p-5">
+              <h2 
+                className="text-bible-brown font-medium mb-4"
+                style={{ fontSize: isMobile ? '1.1rem' : '1.25rem' }}
+              >
+                Informações de Contato
+              </h2>
+              
+              <div className="space-y-4">
+                {contactInfo.map((contact, index) => (
+                  <a 
+                    key={index}
+                    href={contact.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-100 text-gray-700 hover:bg-gray-100 transition-colors group"
+                  >
+                    <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full border border-gray-200 text-bible-brown group-hover:text-white group-hover:bg-bible-brown transition-colors">
+                      {contact.icon}
+                    </div>
+                    <div className="ml-3">
+                      <p className="font-medium text-sm text-gray-900">{contact.label}</p>
+                      <p className="text-sm text-gray-600">{contact.value}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl border border-gray-100 p-5">
+              <h2 
+                className="text-bible-brown font-medium mb-3"
+                style={{ fontSize: isMobile ? '1.1rem' : '1.25rem' }}
+              >
+                Envie uma Mensagem
+              </h2>
+              <p 
+                className="text-gray-700 mb-3"
+                style={{ fontSize: isMobile ? '0.875rem' : '0.95rem', lineHeight: '1.6' }}
+              >
+                Sinta-se à vontade para enviar uma mensagem direta para qualquer um dos canais acima. Seu feedback é muito importante para a melhoria contínua da Byblia.
+              </p>
+              
+              <div className="bg-gray-50 p-4 rounded-lg text-center border border-gray-100 mt-4">
+                <p className="text-gray-700 italic" style={{ fontSize: isMobile ? '0.8rem' : '0.85rem' }}>
+                  "Como o ferro afia o ferro, assim uma pessoa afia o entendimento da outra."
+                  <br />
+                  <span className="font-medium text-bible-brown mt-1 inline-block">Provérbios 27:17</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-center mt-8 mb-16">
+            <Link 
+              href="/" 
+              className="px-6 py-3 bg-bible-brown text-white rounded-lg font-medium hover:bg-bible-darkbrown transition-colors shadow-sm"
+            >
+              Voltar para o Início
+            </Link>
+          </div>
+        </motion.div>
+      </section>
+
+      <footer 
+        className="fixed bottom-0 left-0 w-full bg-white py-1.5 border-t border-gray-50 shadow-xs z-10"
+        style={{ 
+          height: isMobile ? '28px' : 'auto',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
+        <div 
+          className="max-w-4xl mx-auto px-4 flex flex-row justify-between items-center text-[10px] md:text-xs text-gray-400"
+          style={{
+            padding: isMobile ? '0 16px' : undefined
+          }}
+        >
+          <div>
+            © {new Date().getFullYear()} Byblia
+          </div>
+          <div className="flex items-center">
+            <a href="https://github.com/guilhermelcassis/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-bible-brown flex items-center transition-colors">
+              <FaGithub size={12} className="md:mr-1" />
+              <span className="font-medium hidden md:inline">guilhermelcassis</span>
+            </a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
+} 

@@ -2,6 +2,15 @@
   "name": "byblia-frontend",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "Guilherme L. Cassis",
+    "email": "contato@guilhermelcassis.com",
+    "url": "https://github.com/guilhermelcassis"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guilhermelcassis/byblia-frontend"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",

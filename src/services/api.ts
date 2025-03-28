@@ -13,6 +13,25 @@ const api = axios.create({
   },
 });
 
+// Healthcheck API - utiliza o endpoint de saúde diretamente do backend
+export const checkBackendHealth = async (timeout = 2000): Promise<boolean> => {
+  try {
+    // Usar o endpoint /health implementado diretamente no backend
+    const response = await api.get('/health', {
+      timeout: timeout,
+      // Não queremos que erros aqui disparem alertas
+      // então silenciamos o erro no console
+      validateStatus: () => true
+    });
+    
+    // Se recebemos qualquer resposta bem-sucedida, o backend está ativo
+    return response.status >= 200 && response.status < 300;
+  } catch (error) {
+    // Se ocorrer um erro (como timeout), o backend está indisponível
+    return false;
+  }
+};
+
 // Função de validação para mensagens do usuário
 const validateMessage = (message: string): { isValid: boolean; error?: string } => {
   if (!message || message.trim() === '') {
@@ -155,10 +174,13 @@ export const sendMessage = async (
     // Garantir que onComplete seja chamado se ainda não foi
     if (!streamCompletedNormally) {
       console.log('Chamando onComplete manualmente pois o stream não terminou normalmente');
+      // Gerar um ID temporário
+      const temporaryId = Math.floor(Date.now() / 1000);
+      console.log('Using temporary interaction_id (stream):', temporaryId);
       onComplete({
         token_usage: 0,
         temperature: 0,
-        interaction_id: 0
+        interaction_id: temporaryId // Usar timestamp como ID
       });
     }
     
@@ -210,10 +232,13 @@ function processSSEBuffer(
         if (dataStr === '[DONE]') {
           console.log('Received [DONE] marker');
           completionCalled = true;
+          // Gerar um ID temporário para o [DONE] marker
+          const doneMarkerId = Math.floor(Date.now() / 1000);
+          console.log('Using temporary interaction_id (DONE marker):', doneMarkerId);
           onComplete({
             token_usage: 0,
             temperature: 0,
-            interaction_id: 0
+            interaction_id: doneMarkerId
           });
           continue;
         }
@@ -247,7 +272,7 @@ function processSSEBuffer(
             onComplete({
               token_usage: data.token_usage ?? 0,
               temperature: data.temperature ?? 0,
-              interaction_id: data.interaction_id ?? 0
+              interaction_id: data.interaction_id ? Number(data.interaction_id) : 0
             });
           }
         } catch (jsonError) {
@@ -317,10 +342,13 @@ function processSSEBuffer(
   // If this is the last chunk and completion wasn't called, call it now
   if (isLastChunk && !completionCalled) {
     console.log('Calling completion at end of stream');
+    // Fornecer um ID temporário (timestamp) para garantir que o feedback funcione mesmo sem ID do backend
+    const temporaryId = Math.floor(Date.now() / 1000);
+    console.log('Using temporary interaction_id:', temporaryId);
     onComplete({
       token_usage: 0,
       temperature: 0,
-      interaction_id: 0
+      interaction_id: temporaryId // Usar um timestamp como ID temporário
     });
   }
   
@@ -329,19 +357,77 @@ function processSSEBuffer(
 
 export const sendFeedback = async (
   interactionId: number,
-  isPositive: boolean
-): Promise<FeedbackResponse> => {
+  isPositive: boolean,
+  retryCount = 0,
+  maxRetries = 2
+): Promise<FeedbackResponse | null> => {
   try {
+    // Validar interactionId antes de enviar
+    if (typeof interactionId !== 'number' || interactionId <= 0) {
+      console.error('Invalid interaction_id in sendFeedback:', interactionId);
+      return {
+        success: false,
+        message: 'Invalid interaction ID',
+        status: 'error',
+        details: 'Interaction ID must be a positive number'
+      };
+    }
+
+    // Corrigir o formato do payload conforme a documentação da API
     const request: FeedbackRequest = {
-      interaction_id: interactionId,
-      feedback: isPositive,
+      request: {
+        interaction_id: interactionId,
+        feedback: isPositive,
+      }
     };
-    const response = await api.post<FeedbackResponse>('/feedback', request);
+
+    // Log para debug
+    console.log('Sending feedback request:', request);
+
+    // Tentar enviar feedback com um timeout maior para permitir cold start
+    const response = await api.post<FeedbackResponse>('/feedback', request, {
+      timeout: 5000 + (retryCount * 1000), // Aumentar o timeout a cada tentativa
+    });
+    
     return response.data;
   } catch (error) {
     console.error('Error sending feedback:', error);
-    throw error;
+    
+    // Verificar se é um erro de validação 422
+    if (axios.isAxiosError(error) && error.response?.status === 422) {
+      console.log('Validação falhou no servidor:', error.response.data);
+      return {
+        success: false,
+        message: 'Validation error',
+        status: 'error',
+        details: error.response.data?.detail || 'Unknown validation error'
+      };
+    }
+    
+    // Verificar se é um erro de conectividade (backend indisponível ou cold start)
+    if (isConnectivityError(error) && retryCount < maxRetries) {
+      console.log(`Tentativa ${retryCount + 1} de envio de feedback falhou, tentando novamente...`);
+      
+      // Esperar antes de tentar novamente (com backoff exponencial)
+      await new Promise(resolve => setTimeout(resolve, 1500 * (retryCount + 1)));
+      
+      // Tentar novamente
+      return sendFeedback(interactionId, isPositive, retryCount + 1, maxRetries);
+    }
+    
+    // Falha em todas as tentativas
+    return null;
   }
+};
+
+// Função auxiliar para verificar se o erro é relacionado à conectividade
+const isConnectivityError = (error: unknown): boolean => {
+  if (axios.isAxiosError(error)) {
+    // Verificar se não há resposta do servidor ou se houve erro de rede
+    return !error.response || error.code === 'ECONNABORTED' || error.message.includes('Network Error');
+  }
+  
+  return false;
 };
 
 export default api; 

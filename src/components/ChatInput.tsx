@@ -144,59 +144,49 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     }
   };
 
-  const getInputBorderClass = () => {
-    if (validationError) return 'border-red-500 ring-2 ring-red-200';
-    if (isFocused) return 'border-bible-brown ring-2 ring-bible-brown/20';
-    return 'border-gray-300';
-  };
-
   return (
-    <div className="w-full">
-      <form 
-        onSubmit={handleSubmit} 
-        className={`flex items-center gap-3 bg-white rounded-full p-1.5 shadow-sm w-full max-w-2xl mx-auto transition-all ${getInputBorderClass()}`}
-      >
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder="Faça uma pergunta, peça conselhos ou compartilhe um problema..."
-          className="flex-grow p-2.5 pl-4 bg-transparent outline-none placeholder-gray-400 text-gray-800 text-sm"
-          disabled={isLoading}
-          maxLength={MAX_MESSAGE_LENGTH}
-          aria-describedby="message-validation"
-        />
-        
-        <div className="flex items-center mr-2">
-          <span 
-            className={`text-xs ${
-              charCount > MAX_MESSAGE_LENGTH * 0.9 
-                ? 'text-red-500' 
-                : charCount > MAX_MESSAGE_LENGTH * 0.8 
-                  ? 'text-amber-500' 
-                  : 'text-gray-400'
-            }`}
-          >
-            {charCount}/{MAX_MESSAGE_LENGTH}
-          </span>
-        </div>
-        
-        <button
-          type="submit"
-          disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
-          className={`p-2.5 rounded-full transition-all ${
-            !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
-              : 'bg-bible-brown text-white hover:bg-bible-darkbrown hover:shadow-md'
-          }`}
-          aria-label="Enviar mensagem"
+    <div className="w-full mobile-input-container">
+      <div className={`relative bg-[#f5f5f7] rounded-2xl shadow-sm border ${validationError ? 'border-red-500' : 'border-gray-200'} w-full mx-auto transition-all ${isFocused ? 'ring-2 ring-bible-brown/20' : ''}`}>
+        <form 
+          onSubmit={handleSubmit} 
+          className="flex items-start bg-transparent w-full mx-auto transition-all"
         >
-          <FaArrowRight size={14} />
-        </button>
-      </form>
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder="Faça uma pergunta, peça conselhos ou compartilhe um problema"
+            className="flex-grow py-4 px-3 bg-transparent outline-none placeholder-gray-500 text-gray-800 text-sm font-normal align-top rounded-2xl"
+            disabled={isLoading}
+            maxLength={MAX_MESSAGE_LENGTH}
+            aria-describedby="message-validation"
+            style={{ 
+              verticalAlign: 'top', 
+              minHeight: '90px', 
+              wordWrap: 'break-word',
+              paddingBottom: '45px', // Espaço para o botão na parte inferior
+              lineHeight: '1.4'
+            }}
+          />
+          
+          {/* Botão estilo DeepSeek - posicionado dentro do input */}
+          <button
+            type="submit"
+            disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
+            className={`absolute right-3 bottom-3 w-10 h-10 flex items-center justify-center rounded-full transition-all z-10 ${
+              !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-bible-brown text-white hover:bg-bible-darkbrown'
+            }`}
+            aria-label="Enviar mensagem"
+          >
+            <FaArrowRight size={18} />
+          </button>
+        </form>
+      </div>
       
       {validationError && (
         <div 

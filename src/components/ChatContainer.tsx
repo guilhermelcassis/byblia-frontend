@@ -1,10 +1,54 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import ChatInput from './ChatInput';
 import { MessageItem } from './MessageItem';
 import FeedbackButtons from './FeedbackButtons';
 import LoadingIndicator from './LoadingIndicator';
+import ColdStartIndicator from './ColdStartIndicator';
 import ErrorMessage from './ErrorMessage';
 import useChat from '../hooks/useChat';
+import { checkBackendHealth } from '../services/api';
+import { FaServer, FaQuestionCircle } from 'react-icons/fa';
+
+// Componente para mostrar o status do backend
+const BackendStatus: React.FC = () => {
+  const [isBackendReady, setIsBackendReady] = useState<boolean | null>(null);
+  const [checkCount, setCheckCount] = useState(0);
+  
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const isHealthy = await checkBackendHealth(3000); // Aumentando o timeout para 3s
+        setIsBackendReady(isHealthy);
+        
+        // Se o backend não estiver pronto, verificar novamente em alguns segundos
+        if (!isHealthy && checkCount < 3) { // Reduzido para 3 tentativas
+          const timeout = setTimeout(() => {
+            setCheckCount(prev => prev + 1);
+          }, 3000 + (checkCount * 1000)); // Aumentar tempo entre tentativas
+          
+          return () => clearTimeout(timeout);
+        }
+      } catch (error) {
+        // Em caso de erro, consideramos o backend indisponível
+        setIsBackendReady(false);
+        
+        // Tentar novamente se estiver dentro do limite de tentativas
+        if (checkCount < 3) {
+          const timeout = setTimeout(() => {
+            setCheckCount(prev => prev + 1);
+          }, 3000 + (checkCount * 1000));
+          
+          return () => clearTimeout(timeout);
+        }
+      }
+    };
+    
+    checkHealth();
+  }, [checkCount]);
+  
+  // Sempre retornar null para não exibir nenhuma mensagem
+  return null;
+};
 
 const ChatContainer: React.FC = () => {
   const { state, sendUserMessage, submitFeedback } = useChat();
@@ -83,68 +127,86 @@ const ChatContainer: React.FC = () => {
     return 'info';
   };
 
+  // Memoização simplificada das mensagens para reduzir re-renderizações
+  // Isto evita que toda a lista seja re-renderizada durante o streaming
+  const messageItems = state.messages.map((message, index) => {
+    const isLastMessage = index === state.messages.length - 1;
+    const isLastAssistantMessage = 
+      message.role === 'assistant' && 
+      isLastMessage && 
+      state.isStreaming;
+      
+    return (
+      <MessageItem 
+        key={message.id} // Usando apenas ID estável para evitar re-renderizações
+        message={message} 
+        isLastMessage={isLastMessage}
+        isStreaming={isLastAssistantMessage}
+      />
+    );
+  });
+
+  // Verificar se o erro atual está relacionado a problemas de conexão
+  const hasConnectionError = state.error && (
+    state.error.toLowerCase().includes('servidor') ||
+    state.error.toLowerCase().includes('conexão') ||
+    state.error.toLowerCase().includes('indisponível') ||
+    state.error.toLowerCase().includes('tentando reconectar')
+  );
+
   return (
-    <div className="flex flex-col h-full w-full mx-auto rounded-lg bg-white shadow-md border border-gray-200 overflow-hidden">
-      {/* Chat header */}
-      <div className="p-5 bg-white border-b border-gray-200">
-        <h2 className="text-lg font-medium text-bible-brown">
-          Converse e receba orientação baseada nas Escrituras
-        </h2>
+    <div className="flex flex-col h-full w-full mx-auto rounded-lg bg-white border-0 overflow-hidden">
+      {/* Chat header minimalista sem a frase */}
+      <div className="p-2 bg-white border-b border-gray-50">
+        {/* Conteúdo do header removido pois a frase já está na navbar */}
       </div>
       
-      {/* Messages container - Com scroll suave ao enviar mensagem */}
+      {/* Messages container */}
       <div 
         ref={chatContainerRef}
-        className="flex-grow overflow-y-auto p-5 space-y-5 mb-0 bg-gray-50 manual-scroll" 
+        className="flex-grow overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 mb-0 bg-white manual-scroll pb-36 md:pb-0" 
         id="chat-messages"
         style={{ 
           overscrollBehavior: 'contain',
+          WebkitOverflowScrolling: 'touch',
+          scrollPaddingBottom: '120px'
         }}
-      >
+      >      
         {state.messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center p-8 rounded-lg bg-white border border-gray-200 shadow-sm max-w-md mx-auto">
-              <h2 className="text-2xl font-medium mb-3 text-bible-brown">
-                Bem-vindo à Byblia
+          <div className="flex flex-col items-center justify-center h-full px-4 md:px-6 py-12">
+            {/* Mensagem de boas-vindas estilo DeepSeek - centralizada com logo ou ícone */}
+            <div className="flex flex-col items-center justify-center text-center max-w-md w-full mb-12">
+              <h2 className="text-2xl font-bold mb-2 text-bible-brown">
+                Oi, eu sou a Byblia
               </h2>
-              <p className="text-gray-600 mb-5 leading-relaxed">
-                Faça qualquer pergunta, peça conselhos ou compartilhe seus problemas e receba orientação à luz das Escrituras Sagradas.
+              <p className="text-sm text-gray-500 mb-0">
+                Como eu posso te ajudar hoje?
               </p>
-              <p className="text-sm text-gray-500 italic leading-relaxed">
-                "Toda a Escritura é inspirada por Deus e útil para o ensino, para a repreensão, para a correção e para a instrução na justiça."
-                <br />
-                — 2 Timóteo 3:16
-              </p>
+            </div>
+            
+            {/* Input centralizado após a mensagem de boas-vindas */}
+            <div className="w-full max-w-2xl z-50 mb-10 mx-auto">
+              <ChatInput 
+                onSendMessage={handleSendMessage} 
+                isLoading={state.isLoading || state.isStreaming}
+              />
             </div>
           </div>
         ) : (
           <div className="message-list pb-2" style={{ position: 'relative' }}>
-            {state.messages.map((message, index) => {
-              // Identificar se esta é a última mensagem do assistente e está em streaming
-              const isLastAssistantMessage = 
-                message.role === 'assistant' && 
-                index === state.messages.length - 1 && 
-                state.isStreaming;
-              
-              const isLastMessage = index === state.messages.length - 1;
-              
-              return (
-                <MessageItem 
-                  key={`${message.id}-${message.content.length}`}
-                  message={message} 
-                  isLastMessage={isLastMessage}
-                  isStreaming={isLastAssistantMessage}
-                />
-              );
-            })}
+            {messageItems}
+            
+            {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
+            {state.isColdStart && <ColdStartIndicator />}
+            
             {/* Mostrar o indicador de carregamento apenas quando estiver inicialmente carregando, 
-                não durante o streaming */}
-            {state.isLoading && !state.isStreaming && <LoadingIndicator />}
+                não durante o streaming ou cold start */}
+            {state.isLoading && !state.isStreaming && !state.isColdStart && <LoadingIndicator />}
           </div>
         )}
 
-        {/* Error message display - Substituído pelo novo componente ErrorMessage */}
-        {state.error && (
+        {/* Error message display - não mostrar durante cold start */}
+        {state.error && !state.isColdStart && (
           <ErrorMessage 
             message={state.error}
             severity={getErrorSeverity()}
@@ -152,22 +214,33 @@ const ChatContainer: React.FC = () => {
           />
         )}
 
-        {/* Show feedback buttons only after a non-empty response and when feedback hasn't been given */}
-        {state.messages.length > 0 &&
-          state.currentInteractionId !== null &&
-          !state.isLoading && 
-          !state.isStreaming && (
-            <FeedbackButtons onFeedback={submitFeedback} />
-          )}
+        {/* Feedback buttons - agora com estilo mais minimalista */}
+        {(() => {
+          // Log para depuração do interaction_id
+          console.log('Feedback rendering check, currentInteractionId:', state.currentInteractionId);
+          
+          return state.messages.length > 0 &&
+            !state.isLoading && 
+            !state.isStreaming && 
+            !state.isColdStart && (
+              <div className="mt-1 mb-4">
+                <FeedbackButtons onFeedback={submitFeedback} />
+              </div>
+            );
+        })()}
       </div>
-
-      {/* Input area */}
-      <div className="p-5 border-t-2 border-gray-200 bg-white">
-        <ChatInput 
-          onSendMessage={handleSendMessage} 
-          isLoading={state.isLoading || state.isStreaming}
-        />
-      </div>
+      
+      {/* Input area - posicionado na parte inferior apenas quando já existem mensagens */}
+      {state.messages.length > 0 && (
+        <div className="p-3 sm:p-4 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none">
+          <div className="max-w-2xl mx-auto px-1">
+            <ChatInput 
+              onSendMessage={handleSendMessage} 
+              isLoading={state.isLoading || state.isStreaming}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

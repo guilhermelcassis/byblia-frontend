@@ -23,13 +23,18 @@ export interface StreamChunk {
 }
 
 export interface FeedbackRequest {
-  interaction_id: number;
-  feedback: boolean;
+  request: {
+    interaction_id: number;
+    feedback: boolean;
+  };
+  allowed_domains?: string[];
 }
 
 export interface FeedbackResponse {
   success: boolean;
   message: string;
+  status?: 'success' | 'error' | 'partial';
+  details?: string;
 }
 
 // Application State Types
@@ -40,6 +45,7 @@ export interface ChatState {
   currentResponse: string;
   currentInteractionId: number | null;
   isStreaming: boolean; // Flag for streaming state
+  isColdStart: boolean; // Flag para indicar quando o backend está em cold start
 }
 
 export interface Message {
@@ -49,4 +55,5 @@ export interface Message {
   timestamp: Date;
   feedbackGiven?: boolean;
   feedback?: boolean;
+  feedbackSyncFailed?: boolean;
 } 

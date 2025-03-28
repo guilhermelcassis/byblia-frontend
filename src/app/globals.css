@@ -3,9 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
+  --foreground-rgb: 51, 51, 51;
   --background-rgb: 255, 255, 255;
   --bible-brown-rgb: 139, 69, 19;
+  --accent-light: 245, 245, 245;
+  --accent-border: 229, 231, 235;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,11 +20,14 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
+  -webkit-tap-highlight-color: rgba(0,0,0,0); /* Remove tap highlight on mobile */
+  touch-action: manipulation; /* Optimize touch actions */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -30,30 +35,24 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(128, 128, 128, 0.5);
+  background: rgba(180, 180, 180, 0.4);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 102, 102, 1.0);
+  background: rgba(150, 150, 150, 0.6);
 }
 
-/* Animação suave para o streaming */
-@keyframes smooth-fade {
-  from { opacity: 0.9; }
-  to { opacity: 1; }
-}
-
-/* Estilo para o conteúdo em streaming */
+/* Remove the flickering animations */
+/* Estilo para o conteúdo em streaming - without transitions */
 .streaming-content {
   position: relative;
-  transition: all 0.03s ease-out;
-  animation: smooth-fade 0.3s ease-out;
+  /* removed transition and animation that cause flickering */
 }
 
-/* Estilos para o componente MessageText */
+/* Estilos para o componente MessageText - without transitions */
 .message-text-content {
-  transition: color 0.03s ease-out;
+  /* removed color transition */
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -119,7 +118,7 @@ body {
   overflow-wrap: break-word;
   line-height: 1.65;
   margin-bottom: 0.75em;
-  transition: none !important;
+  transition: none !important; /* Ensure no transition on paragraphs */
 }
 
 /* Melhorar espaçamento dos parágrafos finais */
@@ -141,9 +140,12 @@ body {
 /* Otimização para o container de streaming */
 .message-list {
   position: relative;
+  will-change: contents; /* Optimize rendering */
+  width: 100%;
+  max-width: 100%;
 }
 
-/* Estilos para mensagens em streaming */
+/* Estilos para mensagens em streaming - without animations */
 .streaming-message {
   position: relative;
 }
@@ -151,4 +153,267 @@ body {
 /* Otimização de especificamente para o contêiner de mensagens */
 #chat-messages {
   transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Estilo para garantir que o container do input seja visível */
+.mobile-input-container {
+  position: relative;
+  z-index: 10000;
+  width: 100%;
+}
+
+/* Estilização moderna similar ao DeepSeek */
+.chat-container {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.chat-header {
+  background: #fff;
+  border-bottom: 1px solid rgba(var(--accent-border), 1);
+  padding: 12px 16px;
+}
+
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  margin-top: 40px;
+}
+
+.welcome-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: rgb(var(--bible-brown-rgb));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--bible-brown-rgb), 0.08);
+}
+
+.welcome-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.welcome-text {
+  font-size: 0.9rem;
+  color: #666;
+  max-width: 400px;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Improve button tap targets */
+  button, a {
+    min-height: 36px; /* Ajustado para ficar com tamanho do DeepSeek */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Fix iOS form elements */
+  input, textarea, select {
+    font-size: 15px !important; /* Prevent zoom on focus in iOS */
+    display: block;
+  }
+
+  /* Better text selection on mobile */
+  .message-text-content {
+    user-select: text; /* Improve text selection */
+  }
+
+  /* Fix mobile scrolling issues */
+  #chat-messages, .manual-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    scroll-padding-bottom: 80px; /* Aumentado para dar espaço ao input fixo */
+    padding-bottom: 80px; /* Espaço extra no final para não esconder conteúdo */
+  }
+  
+  /* Estilo moderno para o input field */
+  .mobile-input-container > div {
+    border-radius: 16px !important;
+    background-color: #f5f5f7 !important; /* Cor de fundo cinza clara similar ao DeepSeek */
+    border: 1px solid rgb(var(--accent-border)) !important;
+    min-height: 90px !important; /* Aumentado para acomodar o texto em múltiplas linhas */
+    width: 99% !important;
+    max-width: 900px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+    margin: 0 auto !important;
+  }
+  
+  /* Melhorias visuais para o input box quando em foco */
+  .mobile-input-container > div:focus-within {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    border-color: #c0c0c0 !important;
+    background-color: #f0f0f3 !important; /* Cor de fundo mais clara quando em foco */
+  }
+  
+  /* Input field com aparência moderna */
+  input[type="text"] {
+    background-color: transparent !important;
+    -webkit-appearance: none;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    font-size: 15px !important;
+    color: #374151 !important;
+    padding: 12px 16px 42px 8px !important; /* Ajustado para dar espaço ao placeholder em múltiplas linhas */
+    width: 100% !important;
+    min-height: 90px !important;
+    height: auto !important;
+    vertical-align: top !important; /* Mudado para 'top' para melhor alinhamento com placeholder em múltiplas linhas */
+  }
+  
+  /* Estilos específicos para o placeholder no input */
+  input::placeholder {
+    color: #6b7280 !important;
+    opacity: 0.9 !important;
+    font-size: 14px !important;
+    white-space: normal !important;
+    text-overflow: visible !important;
+    overflow: visible !important;
+    display: block !important;
+    word-wrap: break-word !important;
+    line-height: 1.4 !important;
+    max-width: 95% !important; /* Garantir que o texto do placeholder não seja cortado */
+  }
+  
+  /* Input fixo na parte inferior */
+  .fixed.bottom-0 .mobile-input-container > div {
+    margin: 0 auto !important;
+    width: 99% !important;
+    max-width: 900px !important;
+    min-height: 90px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  /* Ajuste para o botão de enviar */
+  button[type="submit"] {
+    position: absolute !important;
+    right: 8px !important;
+    bottom: 8px !important; 
+    top: auto !important;
+    transform: none !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    z-index: 5 !important;
+  }
+  
+  /* Estilo específico para botão desabilitado */
+  button[type="submit"]:disabled {
+    background-color: #e5e7eb !important; /* Cinza claro */
+    color: #9ca3af !important; /* Cinza médio */
+    cursor: not-allowed !important;
+  }
+  
+  /* Estilo específico para botão habilitado */
+  button[type="submit"]:not(:disabled) {
+    background-color: rgb(var(--bible-brown-rgb)) !important;
+    color: white !important;
+  }
+  
+  /* Garantir que o footer não sobreponha o input */
+  footer {
+    z-index: 1 !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 11px !important;
+    color: #888 !important;
+  }
+  
+  footer > div {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  
+  /* Ajustar espaçamento para o footer mais compacto */
+  main {
+    padding-bottom: 32px !important;
+  }
+  
+  /* Ajustar área útil para compensar o footer menor */
+  .h-\[calc\(100vh-180px\)\] {
+    height: calc(100vh - 160px) !important;
+  }
+  
+  /* Destacar ainda mais o container de input em dispositivos móveis */
+  .mobile-input-container {
+    display: block !important;
+    visibility: visible !important;
+  }
+  
+  /* Melhorias para mensagens */
+  .message-item {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+  }
+  
+  .user-message {
+    background-color: rgb(var(--bible-brown-rgb));
+    color: white;
+    border-radius: 12px;
+  }
+  
+  .assistant-message {
+    background-color: rgb(var(--accent-light));
+    border-radius: 12px;
+    color: #333;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Melhorar a experiência de toque nos botões de compartilhamento em dispositivos móveis */
+  .share-buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(229, 231, 235, 0.8);
+  }
+
+  .share-button {
+    min-height: 32px;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 16px;
+  }
+}
+
+/* Estilos específicos para iOS */
+@supports (-webkit-touch-callout: none) {
+  input[type="text"] {
+    display: block;
+  }
+}
+
+/* Estilos específicos para botões de compartilhamento */
+.share-button {
+  transition: all 0.2s ease;
+  touch-action: manipulation;
+}
+
+.share-button:active {
+  transform: scale(0.95);
 }
