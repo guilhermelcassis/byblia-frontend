@@ -21,10 +21,11 @@ module.exports = {
           900: '#633b32',
         },
         bible: {
-          brown: '#8B4513',
-          darkbrown: '#5D2906',
+          brown: '#333333',
+          darkbrown: '#222222',
           gold: '#FFD700',
           lightorange: '#ffc857',
+          main: '#333333',
         }
       },
       fontFamily: {

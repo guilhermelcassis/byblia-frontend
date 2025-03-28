@@ -191,8 +191,8 @@ const ChatContainer: React.FC = () => {
           <div className="flex flex-col items-center justify-center h-full px-4 md:px-6 py-12">
             {/* Mensagem de boas-vindas estilo DeepSeek - centralizada com logo ou ícone */}
             <div className="flex flex-col items-center justify-center text-center max-w-md w-full mb-12">
-              <h2 className="text-2xl font-bold mb-2 text-bible-brown">
-                Oi, eu sou a Byblia
+              <h2 className="text-2xl font-bold mb-2 text-bible-brown byblia-title-md">
+                Oi, eu sou a Byblia,
               </h2>
               <p className="text-sm text-gray-500 mb-0">
                 Como eu posso te ajudar hoje?

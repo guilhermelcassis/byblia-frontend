@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { FaArrowLeft, FaGithub, FaEnvelope, FaLinkedin, FaTwitter } from 'react-icons/fa';
+import { FaGithub, FaEnvelope, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export default function Contact() {
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -40,32 +42,20 @@ export default function Contact() {
     {
       icon: <FaLinkedin size={isMobile ? 16 : 18} />,
       label: "LinkedIn",
-      value: "https://www.linkedin.com/in/guilcassis/",
-      link: "https://https://www.linkedin.com/in/guilcassis/"
+      value: "linkedin.com/in/guilcassis",
+      link: "https://www.linkedin.com/in/guilcassis/"
     },
+    {
+      icon: <FaInstagram size={isMobile ? 16 : 18} />,
+      label: "Instagram",
+      value: "instagram.com/guilhermelcassis",
+      link: "https://www.instagram.com/guilhermelcassis/"
+    }
   ];
 
   return (
     <main className={`flex min-h-screen flex-col items-center bg-white relative ${isMobile ? 'pb-8' : 'pb-16'}`}>
-      <header className={`w-full bg-white text-gray-800 ${isMobile ? 'py-4' : 'py-3'} px-4 shadow-sm border-b border-gray-50 sticky top-0 z-10`}>
-        <div className="max-w-4xl mx-auto flex flex-row items-center justify-between relative">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className={`flex items-center gap-2 ${isMobile ? 'absolute left-0' : ''}`}
-          >
-            <Link href="/" className="flex items-center gap-2 text-bible-brown transition-colors">
-              <FaArrowLeft size={14} />
-              <h1 className="text-lg font-semibold tracking-tight">Byblia</h1>
-            </Link>
-          </motion.div>
-          
-          <h2 className="text-xs sm:text-sm font-medium text-gray-600 whitespace-nowrap text-center overflow-hidden text-ellipsis flex-grow mx-auto">
-            {isMobile ? "" : "Converse e receba orientação baseada nas Escrituras"}
-          </h2>
-        </div>
-      </header>
+      <Header isMobile={isMobile} />
 
       <section className="flex-grow w-full max-w-4xl p-4 md:p-6 flex flex-col items-center">
         <motion.div 
@@ -79,9 +69,8 @@ export default function Contact() {
           } : undefined}
         >
           <h1 
-            className="text-center font-bold text-bible-brown mb-6"
+            className="text-center font-bold text-bible-brown mb-6 byblia-title-lg"
             style={{ 
-              fontSize: isMobile ? '1.75rem' : '2.25rem',
               marginTop: isMobile ? '0.5rem' : '1rem',
               lineHeight: '1.3'
             }}
@@ -98,7 +87,7 @@ export default function Contact() {
           <div className="space-y-6 mb-8">
             <div className="bg-white rounded-xl border border-gray-100 overflow-hidden p-5">
               <h2 
-                className="text-bible-brown font-medium mb-4"
+                className="text-bible-brown font-medium mb-4 byblia-title-sm"
                 style={{ fontSize: isMobile ? '1.1rem' : '1.25rem' }}
               >
                 Informações de Contato
@@ -127,7 +116,7 @@ export default function Contact() {
             
             <div className="bg-white rounded-xl border border-gray-100 p-5">
               <h2 
-                className="text-bible-brown font-medium mb-3"
+                className="text-bible-brown font-medium mb-3 byblia-title-sm"
                 style={{ fontSize: isMobile ? '1.1rem' : '1.25rem' }}
               >
                 Envie uma Mensagem
@@ -160,31 +149,7 @@ export default function Contact() {
         </motion.div>
       </section>
 
-      <footer 
-        className="fixed bottom-0 left-0 w-full bg-white py-1.5 border-t border-gray-50 shadow-xs z-10"
-        style={{ 
-          height: isMobile ? '28px' : 'auto',
-          display: 'flex',
-          alignItems: 'center'
-        }}
-      >
-        <div 
-          className="max-w-4xl mx-auto px-4 flex flex-row justify-between items-center text-[10px] md:text-xs text-gray-400"
-          style={{
-            padding: isMobile ? '0 16px' : undefined
-          }}
-        >
-          <div>
-            © {new Date().getFullYear()} Byblia
-          </div>
-          <div className="flex items-center">
-            <a href="https://github.com/guilhermelcassis/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-bible-brown flex items-center transition-colors">
-              <FaGithub size={12} className="md:mr-1" />
-              <span className="font-medium hidden md:inline">guilhermelcassis</span>
-            </a>
-          </div>
-        </div>
-      </footer>
+      <Footer isMobile={isMobile} showContactLink={false} />
     </main>
   );
 } 
