@@ -25,6 +25,7 @@ function HomeContent() {
     if (screen.isMobile) {
       // Função para garantir que não haja zoom automático
       const preventZoom = (e: TouchEvent) => {
+        // Previne zoom apenas quando há múltiplos toques (pinch zoom)
         if (e.touches.length > 1) {
           e.preventDefault();
         }
@@ -37,21 +38,53 @@ function HomeContent() {
         if (viewportMeta) {
           viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
           
-          // Permite zoom após um curto período
+          // Permite zoom controlado após um curto período
           setTimeout(() => {
             viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
           }, 500);
+        }
+        
+        // Aplicar uma transformação direta para garantir que não haja zoom
+        document.body.style.transform = 'scale(1)';
+        document.body.style.transformOrigin = 'center top';
+        
+        // Reset completo de transformações que podem causar zoom
+        setTimeout(() => {
+          document.body.style.transform = 'none';
+          document.documentElement.style.transform = 'none';
+          // Forçar recálculo de layout para garantir que o zoom seja realmente resetado
+          void document.body.offsetHeight;
+        }, 50);
+      };
+      
+      // Função para controlar zoom quando a visibilidade da página muda
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          resetZoom();
         }
       };
       
       // Resetar zoom ao carregar
       resetZoom();
       
-      // Captura eventos de toque para controlar o zoom
+      // Também resetar quando a tab ficar visível novamente
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      // Prevenir zoom por pinça (pinch zoom)
       document.addEventListener('touchstart', preventZoom, { passive: false });
+      
+      // Adicionar mais um nivel de garantia para prevenir zoom no iOS
+      const handleOrientationChange = () => {
+        setTimeout(resetZoom, 300); // Atraso para permitir que a mudança de orientação seja concluída
+      };
+      
+      // Resetar zoom quando a orientação da tela mudar
+      window.addEventListener('orientationchange', handleOrientationChange);
       
       return () => {
         document.removeEventListener('touchstart', preventZoom);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        window.removeEventListener('orientationchange', handleOrientationChange);
       };
     }
   }, [screen.isMobile]);

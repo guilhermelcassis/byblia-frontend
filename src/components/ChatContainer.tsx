@@ -106,6 +106,8 @@ const ChatContainer: React.FC = () => {
   const lastMessageRef = useRef<string>('');
   const screen = useScreen();
   const [streamHasNewContent, setStreamHasNewContent] = useState(false);
+  const [userManuallyScrolled, setUserManuallyScrolled] = useState(false);
+  const lastScrollPositionRef = useRef<number>(0);
   
   // Use the new scroll hook
   const { containerRef, userHasScrolled, scrollToBottom } = useScroll({
@@ -115,15 +117,41 @@ const ChatContainer: React.FC = () => {
     currentResponseText: state.currentResponse
   });
 
+  // Add scroll event listener to detect manual scrolling up
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const currentScrollTop = container.scrollTop;
+      // If scrolling up and the difference is significant
+      if (currentScrollTop < lastScrollPositionRef.current - 50) {
+        setUserManuallyScrolled(true);
+      }
+      // If scrolled back to near-bottom, allow auto-scroll again
+      else if (container.scrollHeight - currentScrollTop - container.clientHeight < 100) {
+        setUserManuallyScrolled(false);
+      }
+      lastScrollPositionRef.current = currentScrollTop;
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Reset stream content tracker when streaming starts/stops
   useEffect(() => {
     if (!state.isStreaming) {
-      // When streaming stops, do a final scroll to bottom
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
+      // When streaming stops, do a final scroll to bottom if user didn't scroll up
+      if (!userManuallyScrolled) {
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
+      }
+      // Reset manual scroll flag when a new message starts
+      setUserManuallyScrolled(false);
     }
-  }, [state.isStreaming, scrollToBottom]);
+  }, [state.isStreaming, scrollToBottom, userManuallyScrolled]);
 
   // Track streaming content changes to trigger scrolling
   useEffect(() => {
@@ -135,9 +163,14 @@ const ChatContainer: React.FC = () => {
         setStreamHasNewContent(false);
       }, 300);
       
+      // Auto-scroll during streaming only if user hasn't manually scrolled up
+      if (!userManuallyScrolled) {
+        scrollToBottom();
+      }
+      
       return () => clearTimeout(timeout);
     }
-  }, [state.currentResponse, state.isStreaming]);
+  }, [state.currentResponse, state.isStreaming, scrollToBottom, userManuallyScrolled]);
 
   // Function to scroll to the last user message specifically
   const scrollToLastUserMessage = useCallback(() => {
@@ -150,6 +183,9 @@ const ChatContainer: React.FC = () => {
           behavior: 'auto'
         });
       }
+      
+      // Reset user manually scrolled flag when sending a new message
+      setUserManuallyScrolled(false);
       
       // Find all user message elements - targeting the right CSS class
       const userMessages = containerRef.current.querySelectorAll('.user-message-container');
@@ -205,14 +241,24 @@ const ChatContainer: React.FC = () => {
         
         // Restore viewport settings after a delay to prevent future zoom issues
         setTimeout(() => {
-          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
         }, 1000);
       }
       
       // Force the browser to reset zoom level
       document.body.style.transform = 'scale(1)';
       document.body.style.transformOrigin = 'center top';
+      
+      // Reset any transformation that might be causing zoom
+      document.body.style.transform = 'none';
+      document.documentElement.style.transform = 'none';
+      
+      // Force layout recalculation to ensure zoom is really reset
+      void document.body.offsetHeight;
     }
+    
+    // Reset the user manual scroll flag when sending a new message
+    setUserManuallyScrolled(false);
     
     // Force scroll to the user's message with a small delay to ensure render is complete
     setTimeout(() => {
@@ -233,13 +279,14 @@ const ChatContainer: React.FC = () => {
           
           // Allow user scaling after a short delay
           setTimeout(() => {
-            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
           }, 800);
         }
         
         // Ensure the window is scrolled to a good position to see the response
         setTimeout(() => {
-          if (containerRef.current) {
+          // Only auto-scroll if the user hasn't manually scrolled up
+          if (!userManuallyScrolled && containerRef.current) {
             // Scroll to show the last message but not too far down
             const scrollPosition = Math.max(
               0,
@@ -253,7 +300,7 @@ const ChatContainer: React.FC = () => {
         }, 100);
       }
     }
-  }, [state.messages.length, state.isStreaming, screen.isMobile]);
+  }, [state.messages.length, state.isStreaming, screen.isMobile, userManuallyScrolled]);
 
   // Função para tentar novamente a última mensagem
   const handleRetry = useCallback(() => {

@@ -35,7 +35,7 @@ const archivo = Archivo({
 export const metadata: Metadata = {
   title: "Byblia - Conselheiro Bíblico",
   description: "Um conselheiro virtual para encontrar sabedoria nas Escrituras Sagradas",
-  viewport: "width=device-width, initial-scale=1.0",
+  viewport: "width=device-width, initial-scale=1.0, shrink-to-fit=no",
   icons: [
     { rel: "icon", url: "/biblia.png" },
     { rel: "icon", type: "image/png", url: "/biblia.png" },
@@ -62,10 +62,37 @@ export default function RootLayout({
           html {
             touch-action: manipulation;
             overflow-x: hidden;
+            text-size-adjust: 100%; /* Previne texto crescer automaticamente */
+            -webkit-text-size-adjust: 100%;
           }
+          
+          body {
+            overscroll-behavior-y: contain; /* Previne scroll excessivo */
+          }
+          
           @media (max-width: 768px) {
-            input, textarea, select {
+            input, textarea, select, button {
+              font-size: 16px !important; /* Tamanho mínimo para prevenir zoom em iOS */
+            }
+            
+            /* Melhorar a visualização de respostas */
+            .prose, .prose p, .prose div, .message-text-content {
               font-size: 16px !important;
+              line-height: 1.5 !important;
+            }
+            
+            /* Previne comportamentos de zoom específicos do Safari em iOS */
+            body * {
+              -webkit-tap-highlight-color: transparent;
+            }
+            
+            /* Controle melhor do scroll */
+            #chat-messages {
+              -webkit-overflow-scrolling: touch;
+              scroll-behavior: auto;
+              overscroll-behavior-y: contain;
+              overflow-x: hidden;
+              overflow-y: auto;
             }
           }
         `}</style>
