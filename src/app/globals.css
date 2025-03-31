@@ -589,10 +589,10 @@ div.rounded-user-message {
     padding-top: 10px; /* Espaçamento entre a navbar e a pergunta */
   }
   
-  /* Espaçamento adicional para a primeira mensagem quando fixada no topo */
+  /* Espaçamento adicional para a primeira mensagem (pergunta do usuário) */
   .message-list > div:first-child {
-    margin-top: 15px;
-    padding-top: 5px;
+    margin-top: 20px !important;
+    padding-top: 10px !important;
   }
 
   /* Melhorar a experiência de toque nos botões de compartilhamento em dispositivos móveis */
@@ -637,7 +637,8 @@ div.rounded-user-message {
 
 /* Estilo específico para fixar espaçamento entre a navbar e a caixa de pergunta */
 header + section .message-list {
-  padding-top: 30px !important;
+  padding-top: 70px !important; /* Aumentado substancialmente para garantir que fique abaixo da navbar */
+  margin-top: 10px !important;
 }
 
 /* Estilos específicos para botões de compartilhamento */
@@ -1627,7 +1628,8 @@ body.is-streaming .message-list {
   max-height: none !important;
   overflow-y: visible !important;
   padding-bottom: 150px;
-  padding-top: 30px !important; /* Aumentar o espaçamento para que as mensagens comecem após a navbar */
+  padding-top: 70px !important; /* Aumentado para garantir que a pergunta do usuário seja exibida após a navbar */
+  margin-top: 10px !important;
 }
 
 /* Scroll automático - estilo de máxima prioridade */
@@ -1704,5 +1706,50 @@ body.is-streaming #chat-messages {
     right: 0 !important;
     z-index: 9999 !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
+  }
+}
+
+/* Garantir que a primeira mensagem (pergunta do usuário) tenha espaço extra durante o streaming */
+body.is-streaming .message-list > div:first-child {
+  margin-top: 30px !important;
+  padding-top: 15px !important;
+}
+
+/* Garantir espaçamento adequado para a seção após o header (contém as mensagens) */
+header + section {
+  padding-top: 56px !important; /* Mesmo valor da altura da navbar */
+  margin-top: 10px !important;
+}
+
+/* Ajuste para o chat-messages para garantir espaçamento adequado */
+section #chat-messages {
+  padding-top: 20px !important;
+}
+
+/* Garantir que qualquer div dentro da seção após o header tenha espaçamento adequado */
+header + section > div {
+  padding-top: 10px !important;
+}
+
+/* Ajustes específicos para dispositivos móveis */
+@media (max-width: 768px) {
+  /* Garantir espaçamento extra no mobile para evitar sobreposição */
+  header + section .message-list {
+    padding-top: 80px !important;
+  }
+  
+  /* Ajustar primeira mensagem em mobile */
+  .message-list > div:first-child {
+    margin-top: 25px !important;
+  }
+  
+  /* Tela de streaming em mobile */
+  body.is-streaming .message-list {
+    padding-top: 80px !important;
+  }
+  
+  /* Seção após header em mobile */
+  header + section {
+    padding-top: 60px !important;
   }
 }
