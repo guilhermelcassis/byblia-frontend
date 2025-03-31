@@ -335,10 +335,6 @@ const ChatContainer: React.FC = () => {
   // Isto evita que toda a lista seja re-renderizada durante o streaming
   const messageItems = state.messages.map((message, index) => {
     const isLastMessage = index === state.messages.length - 1;
-    const isLastAssistantMessage = 
-      message.role === 'assistant' && 
-      isLastMessage && 
-      state.isStreaming;
     
     // Encontrar a pergunta do usuário associada com esta resposta
     let questionText = '';
@@ -351,15 +347,30 @@ const ChatContainer: React.FC = () => {
         }
       }
     }
+    
+    // Determinar se esta mensagem deve mostrar os botões de feedback
+    // Somente a última mensagem do assistente deve mostrar os botões
+    const isLastAssistantMessage = 
+      message.role === 'assistant' && 
+      index === state.messages.findLastIndex(m => m.role === 'assistant');
+    
+    const shouldShowFeedback = 
+      isLastAssistantMessage && 
+      !state.isLoading && 
+      !state.isStreaming &&
+      !state.isColdStart;
       
     return (
       <MessageItem 
         key={message.id} // Usando apenas ID estável para evitar re-renderizações
         message={message} 
         isLastMessage={isLastMessage}
-        isStreaming={isLastAssistantMessage}
+        isStreaming={isLastAssistantMessage && state.isStreaming}
         questionText={questionText}
         isLoading={state.isLoading}
+        onFeedback={submitFeedback} // Passando a função de feedback para o MessageItem
+        currentInteractionId={state.currentInteractionId} // Passando o ID da interação atual
+        showFeedback={shouldShowFeedback} // Mostrar feedback apenas na última mensagem do assistente
       />
     );
   });
@@ -453,16 +464,7 @@ const ChatContainer: React.FC = () => {
             </motion.div>
           </div>
         ) : (
-          state.messages.map((message, index) => (
-            <MessageItem
-              key={message.id}
-              message={message}
-              isLastMessage={index === state.messages.length - 1}
-              isStreaming={message.role === 'assistant' && index === state.messages.length - 1 && state.isStreaming}
-              questionText={index > 0 && message.role === 'assistant' ? state.messages[index - 1].content : ''}
-              isLoading={state.isLoading}
-            />
-          ))
+          messageItems
         )}
         
         {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
@@ -502,28 +504,6 @@ const ChatContainer: React.FC = () => {
             onRetry={handleRetry}
           />
         )}
-
-        {/* Feedback buttons */}
-        {(() => {
-          console.log('Feedback rendering check, currentInteractionId:', state.currentInteractionId);
-          
-          return state.messages.length > 0 &&
-            !state.isLoading && 
-            !state.isStreaming && 
-            !state.isColdStart && (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: 'auto',
-                margin: '0 auto',
-                padding: '0',
-                position: 'relative'
-              }}>
-                <FeedbackButtons onFeedback={submitFeedback} />
-              </div>
-            );
-        })()}
 
         {/* Botão flutuante para recarregar em caso de erro */}
         {isErrorNonRecoverable && (

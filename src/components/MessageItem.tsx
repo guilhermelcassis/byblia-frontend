@@ -1,9 +1,10 @@
 import React, { useRef, useState, memo, useEffect } from 'react';
 import { Message } from '../types';
 import MessageText from './MessageText';
-import { FaCopy, FaWhatsapp, FaCheck } from 'react-icons/fa';
+import { FaCopy, FaWhatsapp, FaCheck, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useScreen } from '@/hooks/useScreen';
+import FeedbackButtons from './FeedbackButtons';
 
 interface Props {
   message: Message;
@@ -11,6 +12,9 @@ interface Props {
   isStreaming?: boolean;
   questionText?: string; // Pergunta do usuário que originou esta resposta
   isLoading?: boolean;
+  onFeedback?: (isPositive: boolean) => Promise<boolean>; // Função para enviar feedback
+  currentInteractionId?: number | null; // ID da interação atual
+  showFeedback?: boolean; // Flag para mostrar ou não os botões de feedback
 }
 
 // Função auxiliar para formatar a hora
@@ -26,7 +30,10 @@ export const MessageItem: React.FC<Props> = memo(({
   isLastMessage = false,
   isStreaming = false,
   questionText = '', // Valor padrão caso não seja fornecido
-  isLoading = false
+  isLoading = false,
+  onFeedback,
+  currentInteractionId,
+  showFeedback = false
 }) => {
   const isUser = message.role === 'user';
   const containerRef = useRef<HTMLDivElement>(null);
@@ -191,6 +198,13 @@ export const MessageItem: React.FC<Props> = memo(({
               <FaWhatsapp size={12} className="mr-1" />
               <span>{questionText ? "Compartilhar" : "Compartilhar"}</span>
             </motion.button>
+          </div>
+        )}
+        
+        {/* Feedback buttons - mostrar abaixo dos botões de compartilhamento */}
+        {!isUser && !isStreaming && !isLoading && showFeedback && onFeedback && (
+          <div className="flex justify-center mt-1">
+            <FeedbackButtons onFeedback={onFeedback} />
           </div>
         )}
         
