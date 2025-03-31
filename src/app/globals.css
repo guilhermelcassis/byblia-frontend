@@ -2150,22 +2150,26 @@ header + section .message-list {
   border: 1px solid rgba(139, 93, 51, 0.15);
   color: #8B5D33;
   animation: pulse-loading 2s infinite ease-in-out;
+  /* Remover qualquer transformação ou transição que possa causar saltos */
+  transform: none !important;
+  transition: opacity 0.2s ease-in-out !important;
 }
 
-/* Animação de pulso para o indicador de pré-streaming */
-@keyframes pulse-loading {
-  0% {
-    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
-    border: 1px solid rgba(139, 93, 51, 0.15);
-  }
-  50% {
-    box-shadow: 0 2px 12px rgba(139, 93, 51, 0.15);
-    border: 1px solid rgba(139, 93, 51, 0.25);
-  }
-  100% {
-    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
-    border: 1px solid rgba(139, 93, 51, 0.15);
-  }
+/* Contenedor fixo para o indicador de pré-streaming */
+.pre-streaming-container {
+  position: fixed;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 16px;
+  /* Garantir que não haja transições de posição */
+  transform: none !important;
+  transition: opacity 0.2s ease-in-out !important;
 }
 
 .pre-streaming-indicator .streaming-indicator-text {
@@ -2185,6 +2189,11 @@ header + section .message-list {
 }
 
 @media (max-width: 768px) {
+  .pre-streaming-container {
+    bottom: 80px; /* Maior distância do fundo em dispositivos móveis para evitar sobreposição com o input */
+    padding: 0 8px;
+  }
+  
   .pre-streaming-indicator {
     min-height: 44px;
     padding: 8px 12px;
@@ -2198,6 +2207,22 @@ header + section .message-list {
   
   .pre-streaming-indicator .streaming-indicator-text {
     font-size: 13px;
+  }
+}
+
+/* Animação de pulso para o indicador de pré-streaming */
+@keyframes pulse-loading {
+  0% {
+    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
+    border: 1px solid rgba(139, 93, 51, 0.15);
+  }
+  50% {
+    box-shadow: 0 2px 12px rgba(139, 93, 51, 0.15);
+    border: 1px solid rgba(139, 93, 51, 0.25);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
+    border: 1px solid rgba(139, 93, 51, 0.15);
   }
 }
 

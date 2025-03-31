@@ -8,7 +8,7 @@ import ErrorMessage from './ErrorMessage';
 import useChat from '../hooks/useChat';
 import { useScroll } from '../hooks/useScroll';
 import { checkBackendHealth, testBackendConnection } from '../services/api';
-import { FaServer, FaQuestionCircle, FaCommentDots, FaSyncAlt, FaTools } from 'react-icons/fa';
+import { FaServer, FaQuestionCircle, FaCommentDots, FaSyncAlt, FaTools, FaArrowDown, FaShareAlt } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScreen } from '@/hooks/useScreen';
 import WelcomeTitleEffect from './WelcomeTitleEffect';
@@ -372,44 +372,6 @@ const ChatContainer: React.FC = () => {
     state.error.toLowerCase().includes('tentando reconectar')
   );
 
-  // Estilos para o indicador fixo no modo móvel
-  const fixedIndicatorStyle = {
-    position: 'fixed' as const,
-    bottom: '16px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    backgroundColor: 'white',
-    borderRadius: '20px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-    padding: '8px 16px',
-    maxWidth: '90%',
-    zIndex: 1000,
-    fontSize: '14px',
-    opacity: 0.9,
-    border: '1px solid rgba(0, 0, 0, 0.05)'
-  };
-
-  // Estilos para o botão "Ver resposta" no topo
-  const viewResponseButtonStyle = {
-    position: 'fixed' as const,
-    top: '70px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    color: '#8B5D33', // Cor bible-brown
-    borderRadius: '20px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
-    padding: '8px 16px',
-    maxWidth: '90%',
-    zIndex: 1000,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px',
-    border: '1px solid rgba(139, 93, 51, 0.15)',
-    fontSize: '14px',
-    fontWeight: 500
-  };
-
   // Função para rolar para o final da resposta atual
   const scrollToCurrentResponse = () => {
     if (containerRef.current) {
@@ -424,6 +386,20 @@ const ChatContainer: React.FC = () => {
       }
     }
   };
+
+  // Botão flutuante para recarregar em caso de erro
+  const isErrorNonRecoverable = state.error && (
+    state.error.toLowerCase().includes('servidor') ||
+    state.error.toLowerCase().includes('conexão') ||
+    state.error.toLowerCase().includes('indisponível') ||
+    state.error.toLowerCase().includes('tentando reconectar')
+  );
+
+  // Botão para rolar para a resposta
+  const showScrollToBottomButton = containerRef.current && !userHasScrolled;
+
+  // Botão para compartilhar com amigos
+  const showShareButton = false; // Implemente a lógica para mostrar o botão de compartilhamento
 
   return (
     <section className="flex-1 h-full relative" style={{ paddingTop: '0', marginTop: '0' }}>
@@ -452,8 +428,8 @@ const ChatContainer: React.FC = () => {
                 Oi, eu sou a Byblia,
               </WelcomeTitleEffect>
               <motion.p 
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
                 className={`${screen.isLandscape ? 'text-xs' : 'text-sm'} text-gray-500 mb-0`}
               >
@@ -464,8 +440,8 @@ const ChatContainer: React.FC = () => {
             {/* Input centralizado após a mensagem de boas-vindas */}
             <motion.div 
               className={`w-full max-w-2xl z-50 ${screen.isMobile && !screen.isLandscape ? 'mb-2' : 'mb-4 md:mb-8'} mx-auto`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <div className="input-box-3d welcome-input">
@@ -497,9 +473,9 @@ const ChatContainer: React.FC = () => {
       <AnimatePresence>
         {state.messages.length > 0 && !state.isStreaming && !state.isLoading && !state.isColdStart && (
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="p-3 sm:p-4 bg-transparent relative z-[100] w-full"
             style={{ 
@@ -518,67 +494,160 @@ const ChatContainer: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Indicador de streaming apenas para desktop ou em caso de cold start */}
-        {state.messages.length > 0 && ((state.isStreaming && (!screen.isMobile || screen.isLandscape)) || state.isColdStart) && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+        {/* Indicador de streaming para desktop (sem movimento brusco) */}
+        {state.isStreaming && !screen.isMobile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="p-2 sm:p-3 bg-transparent relative z-[90]"
-            style={{ margin: 0, pointerEvents: 'none' }}
+            className="fixed bottom-16 left-0 right-0 z-[90] flex justify-center"
+            style={{ pointerEvents: 'none' }}
           >
             <div className="max-w-2xl mx-auto">
               <div 
-                className="streaming-indicator" 
-                style={!screen.isLandscape && screen.isMobile ? fixedIndicatorStyle : {}}
+                className="pre-streaming-indicator"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  border: '1px solid rgba(139, 93, 51, 0.15)',
+                  color: '#8B5D33',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
                 <div className="streaming-indicator-text">
                   <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
-                  <span>
-                    {state.isColdStart 
-                      ? "Iniciando o servidor..." 
-                      : "Consultando as Escrituras para encontrar sua resposta..."}
-                  </span>
-                  {state.isStreaming && 
-                    <button 
-                      onClick={handleRetry} 
-                      className="ml-2 text-xs text-bible-brown underline cursor-pointer pointer-events-auto"
-                      title="Cancelar e tentar novamente"
-                      style={{ pointerEvents: 'auto' }}
-                    >
-                      (cancelar)
-                    </button>
-                  }
+                  <span>Gerando resposta...</span>
+                  <button 
+                    onClick={handleRetry} 
+                    className="ml-2 text-xs text-bible-brown underline cursor-pointer pointer-events-auto"
+                    title="Cancelar e tentar novamente"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    (cancelar)
+                  </button>
                 </div>
               </div>
             </div>
           </motion.div>
         )}
-
+        
+        {/* Indicador de streaming para mobile (sem movimento brusco) */}
+        {state.isStreaming && screen.isMobile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-20 left-0 right-0 z-[90] flex justify-center"
+            style={{ pointerEvents: 'none' }}
+          >
+            <div className="max-w-2xl mx-auto" style={{ width: '95%' }}>
+              <div 
+                className="pre-streaming-indicator"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  border: '1px solid rgba(139, 93, 51, 0.15)',
+                  color: '#8B5D33',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <div className="streaming-indicator-text">
+                  <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
+                  <span>Gerando resposta...</span>
+                  <button 
+                    onClick={handleRetry} 
+                    className="ml-2 text-xs text-bible-brown underline cursor-pointer pointer-events-auto"
+                    title="Cancelar e tentar novamente"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    (cancelar)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        
         {/* Indicador de carregamento antes do início do streaming */}
         {state.messages.length > 0 && state.isLoading && !state.isStreaming && !state.isColdStart && (
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="p-2 sm:p-3 bg-transparent relative z-[90]"
-            style={{ margin: 0, pointerEvents: 'none' }}
+            className="fixed bottom-16 left-0 right-0 z-[90] flex justify-center"
+            style={{ pointerEvents: 'none' }}
           >
             <div className="max-w-2xl mx-auto">
               <div 
-                className="pre-streaming-indicator" 
-                style={!screen.isLandscape && screen.isMobile ? {
-                  ...fixedIndicatorStyle,
+                className="pre-streaming-indicator"
+                style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.95)',
                   border: '1px solid rgba(139, 93, 51, 0.15)',
-                  color: '#8B5D33'
-                } : {}}
+                  color: '#8B5D33',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
                 <div className="streaming-indicator-text">
                   <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
                   <span>Preparando resposta bíblica...</span>
+                  <button 
+                    onClick={handleRetry} 
+                    className="ml-2 text-xs text-bible-brown underline cursor-pointer pointer-events-auto"
+                    title="Cancelar e tentar novamente"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    (cancelar)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+        
+        {/* Cold start indicator - mantido fixo no mesmo local */}
+        {state.isColdStart && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-16 left-0 right-0 z-[90] flex justify-center"
+            style={{ pointerEvents: 'none' }}
+          >
+            <div className="max-w-2xl mx-auto">
+              <div 
+                className="pre-streaming-indicator"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  border: '1px solid rgba(139, 93, 51, 0.15)',
+                  color: '#8B5D33',
+                  borderRadius: '20px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <div className="streaming-indicator-text">
+                  <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
+                  <span>Iniciando o serviço bíblico...</span>
                   <button 
                     onClick={handleRetry} 
                     className="ml-2 text-xs text-bible-brown underline cursor-pointer pointer-events-auto"
@@ -624,6 +693,63 @@ const ChatContainer: React.FC = () => {
             </div>
           );
       })()}
+
+      {/* Botão flutuante para recarregar em caso de erro */}
+      {isErrorNonRecoverable && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-[999]"
+        >
+          <button
+            onClick={handleRetry}
+            className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 hover:bg-red-100 transition-colors"
+          >
+            <FaSyncAlt size={14} className="text-red-500" />
+            <span>Erro de conexão - Recarregar</span>
+          </button>
+        </motion.div>
+      )}
+
+      {/* Botão para rolar para a resposta */}
+      {showScrollToBottomButton && !userHasScrolled && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed bottom-20 right-4 z-50"
+        >
+          <button
+            onClick={scrollToBottom}
+            className="bg-white border border-gray-200 rounded-full p-2 shadow-md text-gray-500 hover:bg-gray-50"
+            aria-label="Rolar para o final"
+          >
+            <FaArrowDown size={16} />
+          </button>
+        </motion.div>
+      )}
+
+      {/* Botão para compartilhar com amigos */}
+      {showShareButton && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed bottom-24 right-4 z-[90]"
+        >
+          <button
+            onClick={() => {}}
+            className="bg-white text-bible-brown border border-gray-200 rounded-full p-2 shadow-md hover:bg-gray-50"
+            aria-label="Compartilhar"
+          >
+            <FaShareAlt size={16} />
+          </button>
+        </motion.div>
+      )}
     </section>
   );
 };

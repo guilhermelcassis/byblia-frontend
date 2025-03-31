@@ -17,8 +17,8 @@ const ColdStartIndicator: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center w-full my-8 px-4">
       <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
         className="bg-gray-50 rounded-lg p-6 shadow-sm border border-gray-100 max-w-md w-full"
       >
