@@ -216,13 +216,13 @@ const ChatContainer: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col h-full w-full mx-auto rounded-lg bg-white border-0 overflow-hidden">
+    <div className="flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden">
       {/* Removed redundant header div with border */}
       
       {/* Messages container */}
       <div 
         ref={containerRef}
-        className="flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-2 sm:space-y-3 mb-0 bg-white manual-scroll" 
+        className="flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-2 sm:space-y-3 mb-0 manual-scroll" 
         id="chat-messages"
         style={{ 
           overscrollBehavior: 'contain',
@@ -230,7 +230,7 @@ const ChatContainer: React.FC = () => {
           scrollPaddingBottom: state.isStreaming ? '50px' : '70px',
           paddingBottom: screen.isLandscape 
             ? '50px' 
-            : state.isStreaming ? '70px' : '90px',
+            : state.isStreaming ? '70px' : '20px',
           paddingTop: '10px'
         }}
       >      
@@ -255,7 +255,7 @@ const ChatContainer: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="message-list pb-2" style={{ position: 'relative' }}>
+          <div className="message-list pb-2 mb-2" style={{ position: 'relative' }}>
             {messageItems}
             
             {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
@@ -285,7 +285,7 @@ const ChatContainer: React.FC = () => {
             !state.isLoading && 
             !state.isStreaming && 
             !state.isColdStart && (
-              <div className="mt-1 mb-0">
+              <div className="mt-1 mb-2 sm:mb-0">
                 <FeedbackButtons onFeedback={submitFeedback} />
               </div>
             );
@@ -300,8 +300,8 @@ const ChatContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="p-3 sm:p-4 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none"
-            style={{ margin: 0, borderTop: 'none' }}
+            className="p-3 sm:p-4 bg-transparent relative z-[100]"
+            style={{ margin: 0 }}
           >
             <div className="max-w-2xl mx-auto px-1">
               <ChatInput 
@@ -319,8 +319,8 @@ const ChatContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="p-2 sm:p-3 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none"
-            style={{ margin: 0 }}
+            className="p-2 sm:p-3 bg-transparent relative z-[90]"
+            style={{ margin: 0, pointerEvents: 'none' }}
           >
             <div className="max-w-2xl mx-auto">
               <div className="streaming-indicator">
@@ -328,14 +328,15 @@ const ChatContainer: React.FC = () => {
                   <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
                   <span>
                     {state.isColdStart 
-                      ? "Iniciando o servidor bíblico..." 
-                      : "Gerando resposta baseada nas Escrituras..."}
+                      ? "Iniciando o servidor..." 
+                      : "Consultando as Escrituras para encontrar sua resposta..."}
                   </span>
                   {state.isStreaming && 
                     <button 
                       onClick={handleRetry} 
-                      className="ml-2 text-xs text-bible-brown underline cursor-pointer"
+                      className="ml-2 text-xs text-bible-brown underline cursor-pointer pointer-events-auto"
                       title="Cancelar e tentar novamente"
+                      style={{ pointerEvents: 'auto' }}
                     >
                       (cancelar)
                     </button>
@@ -347,8 +348,7 @@ const ChatContainer: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Botão de diagnóstico */}
-      <DiagnosticButton />
+      {/* Botão de diagnóstico - removido conforme solicitado */}
     </div>
   );
 };

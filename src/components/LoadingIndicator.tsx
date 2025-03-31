@@ -11,7 +11,7 @@ interface LoadingIndicatorProps {
 const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({ 
   isStreaming = false, 
   isColdStart = false,
-  message = "Consultando a Bíblia Sagrada para encontrar uma resposta..."
+  message = "Processando sua pergunta..."
 }) => {
   return (
     <motion.div 

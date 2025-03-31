@@ -603,7 +603,6 @@ header + section .message-list {
 .streaming-indicator {
   border-radius: 24px;
   background-color: #f5f5f7;
-  border: 1px solid rgb(var(--accent-border));
   min-height: 48px;
   width: 100%;
   max-width: 900px;
@@ -613,6 +612,7 @@ header + section .message-list {
   align-items: center;
   justify-content: center;
   text-align: center;
+  pointer-events: none; /* Permitir que os cliques passem através deste elemento */
 }
 
 .streaming-indicator-text {
@@ -622,6 +622,7 @@ header + section .message-list {
   color: #6b7280;
   font-size: 14px;
   line-height: 1.4;
+  pointer-events: auto; /* Reativar interação apenas para o texto e botão */
 }
 
 .streaming-indicator-icon {

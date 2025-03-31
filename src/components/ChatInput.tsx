@@ -176,8 +176,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   };
 
   return (
-    <div className="w-full mobile-input-container">
-      <div className={`relative bg-[#f5f5f7] shadow-sm border ${validationError ? 'border-red-500' : 'border-gray-200'} w-full mx-auto transition-all ${isFocused ? 'ring-2 ring-bible-brown/20' : ''}`} style={{ borderRadius: '24px' }}>
+    <div className="w-full mobile-input-container mt-2">
+      <div className={`relative bg-gray-50 shadow-sm border ${validationError ? 'border-red-500' : 'border-gray-100'} w-full mx-auto transition-all ${isFocused ? 'ring-2 ring-bible-brown/20' : ''} z-[120]`} style={{ borderRadius: '24px' }}>
         <form 
           onSubmit={handleSubmit} 
           className="flex items-start bg-transparent w-full mx-auto transition-all"
@@ -189,7 +189,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            placeholder={screen.isLandscape ? "Digite sua pergunta..." : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
+            placeholder={screen.isLandscape ? "Faça uma pergunta, peça conselhos ou compartilhe um problema" : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
             className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 bg-transparent outline-none placeholder-gray-500 text-gray-800 text-sm font-normal resize-none overflow-hidden w-full`}
             style={{ 
               minHeight: screen.isLandscape ? '42px' : '64px',
@@ -209,7 +209,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           <button
             type="submit"
             disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
-            className={`absolute ${screen.isLandscape ? 'right-3 top-1/2 transform -translate-y-1/2' : 'right-4 bottom-4'} flex items-center justify-center rounded-full transition-all z-10 ${
+            className={`absolute ${screen.isLandscape ? 'right-3 top-1/2 transform -translate-y-1/2' : 'right-4 bottom-4'} flex items-center justify-center rounded-full transition-all z-[150] ${
               !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 : 'bg-bible-brown text-white hover:bg-bible-darkbrown'

@@ -14,7 +14,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
-  showBackButton = true,
+  showBackButton = false,
   isMobile,
   menuOpen = false,
   toggleMenu = () => {} 
