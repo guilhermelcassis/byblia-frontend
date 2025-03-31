@@ -96,7 +96,7 @@ export const MessageItem: React.FC<Props> = ({
         className={`p-3 sm:p-4 rounded-lg ${
           isUser
             ? 'bg-bible-brown text-white font-medium rounded-br-md user-message user-message-container max-w-[85%]'
-            : 'bg-[#F5F5F5] text-gray-800 rounded-tl-md assistant-message w-full'
+            : 'bg-white text-gray-800 rounded-tl-md assistant-message w-full'
         } ${isStreaming ? 'streaming-message' : ''}`}
         style={{ 
           boxShadow: 'none',
