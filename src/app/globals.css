@@ -2201,22 +2201,20 @@ header + section .message-list {
   }
 }
 
-/* ESTILOS ESPECIFICOS PARA IPHONE 15 E SAFARI MAIS RECENTES */
+/* ESTILOS ESPECIFICOS PARA IPHONE 15 E SAFARI MAIS RECENTES - CORRIGIDOS */
 @media screen and (min-width: 390px) and (max-width: 430px) and (min-height: 800px) {
   @supports (-webkit-touch-callout: none) {
-    /* Fixar posição da navbar com hardware acceleration */
+    /* Fixar posição da navbar com configurações simples e estáveis */
     .navbar-fixed {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
       right: 0 !important;
       z-index: 9999 !important;
-      transform: translateZ(0) !important;
-      -webkit-transform: translateZ(0) !important;
-      backface-visibility: hidden !important;
-      -webkit-backface-visibility: hidden !important;
-      will-change: transform !important;
+      /* Removidos transformações que causam o efeito de piscar */
       box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important;
+      /* Usar uma cor sólida em vez de transparência/blur para melhor desempenho */
+      background-color: rgba(255, 255, 255, 0.98) !important;
     }
     
     /* Garantir espaço adequado após a navbar */
@@ -2228,7 +2226,8 @@ header + section .message-list {
     
     /* Regras específicas para streaming */
     body.is-streaming .navbar-fixed {
-      box-shadow: 0 1px 4px rgba(0,0,0,0.18) !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15) !important;
+      background-color: white !important;
     }
     
     /* Ajustar posição da primeira mensagem para não ficar sob a navbar */
@@ -2246,11 +2245,13 @@ header + section .message-list {
 
 /* Estilos para dispositivos iOS */
 body.ios-device .navbar-fixed {
-  -webkit-transform: translateZ(0) !important;
-  transform: translateZ(0) !important;
-  -webkit-backface-visibility: hidden !important;
-  backface-visibility: hidden !important;
-  will-change: transform !important;
+  /* Removendo transformações que causam o efeito de piscar */
+  position: fixed !important;
+  top: 0 !important;
+  width: 100% !important;
+  z-index: 9999 !important;
+  /* Usar uma transição suave para evitar piscadas */
+  transition: box-shadow 0.3s ease, background-color 0.3s ease !important;
 }
 
 /* Regras específicas para dispositivos iOS mais novos */
@@ -2264,21 +2265,9 @@ body.ios-newer .navbar-fixed {
 
 /* Ajuste específico para scroll no Safari */
 body.ios-device.is-scrolled .navbar-fixed {
-  -webkit-backdrop-filter: blur(10px) !important;
-  backdrop-filter: blur(10px) !important;
-  background-color: rgba(255, 255, 255, 0.95) !important;
-}
-
-/* Corrigir problemas de espaçamento em dispositivos iOS mais novos */
-body.ios-newer #chat-messages {
-  padding-top: 56px !important;
-  margin-top: 5px !important;
-}
-
-/* Reduzir a margem para a primeira mensagem em dispositivos iOS mais novos */
-body.ios-newer .message-list > div:first-child {
-  margin-top: 10px !important;
-  padding-top: 5px !important;
+  /* Usando uma cor sólida para melhor desempenho em vez de backdrop-filter */
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
 }
 
 /* Garantir que durante o streaming a navegação se mantenha corretamente fixada */
@@ -2288,8 +2277,7 @@ body.ios-device.is-streaming .navbar-fixed {
   left: 0 !important;
   right: 0 !important;
   z-index: 9999 !important;
-  -webkit-transform: translateZ(0) !important;
-  transform: translateZ(0) !important;
+  /* Removido transformações que causam o efeito de piscar */
 }
 
 /* Esconder botões de compartilhamento e input de chat durante o carregamento */
@@ -2307,5 +2295,86 @@ body.is-loading .input-box-3d:not(.welcome-input) {
   body.is-loading .share-buttons-container,
   body.is-streaming .share-buttons-container {
     display: none !important;
+  }
+}
+
+/* Corrigir problemas de espaçamento em dispositivos iOS mais novos */
+body.ios-newer #chat-messages {
+  padding-top: 56px !important;
+  margin-top: 5px !important;
+}
+
+/* Reduzir a margem para a primeira mensagem em dispositivos iOS mais novos */
+body.ios-newer .message-list > div:first-child {
+  margin-top: 10px !important;
+  padding-top: 5px !important;
+}
+
+/* Regras para melhorar o comportamento de scroll no Safari */
+@supports (-webkit-touch-callout: none) {
+  /* Configurações para melhorar desempenho de scroll */
+  html, body {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Transição suave para a navbar */
+  .navbar-fixed {
+    transition: background-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  
+  /* Desativar backdrop-filter que pode causar problemas de renderização */
+  body.is-scrolled .navbar-fixed {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background-color: rgba(255, 255, 255, 0.98) !important;
+  }
+  
+  /* Garantir que o conteúdo da página tenha margem adequada */
+  main {
+    padding-top: 56px !important;
+  }
+}
+
+/* Regras para melhorar a transição da navbar durante o scroll */
+.navbar-fixed {
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  /* Usar uma cor sólida melhora o desempenho de renderização */
+  background-color: rgba(255, 255, 255, 0.98);
+}
+
+/* Estado scrollado com propriedades simplificadas para melhor desempenho */
+html[data-scroll="true"] .navbar-fixed {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.98);
+  /* Remover backdrop-filter para evitar problemas no Safari */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Desativar backdrop-filter em iOS para melhor desempenho */
+@supports (-webkit-touch-callout: none) {
+  .navbar-fixed,
+  html[data-scroll="true"] .navbar-fixed,
+  body.is-scrolled .navbar-fixed,
+  .pre-streaming-indicator,
+  .streaming-indicator {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: rgba(255, 255, 255, 0.98) !important;
+  }
+  
+  /* Substituir backdrop-filter por background-color sólido */
+  .streaming-indicator,
+  .pre-streaming-indicator {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+  }
+  
+  @media (max-width: 768px) {
+    .pre-streaming-indicator,
+    .streaming-indicator {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background-color: rgba(255, 255, 255, 0.98) !important;
+    }
   }
 }

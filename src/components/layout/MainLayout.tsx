@@ -19,30 +19,25 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         'ontouchstart' in window ||
         navigator.maxTouchPoints > 0 ||
         (navigator as any).msMaxTouchPoints > 0;
-      setIsTouchDevice(touchDevice);
       
-      // Add/remove touch-device class to body
+      // Detectar iOS apenas uma vez na inicialização
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      const isNewerDevice = isIOS && window.screen.height >= 800 && window.screen.width >= 375;
+      
+      // Adicionar classes relevantes uma única vez
       if (touchDevice) {
         document.body.classList.add('touch-device');
-        
-        // Adicionar classe específica para iOS
-        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-          document.body.classList.add('ios-device');
-          
-          // Identificar dispositivos mais novos (maior resolução)
-          const isNewerDevice = window.screen.height >= 800 && window.screen.width >= 375;
-          if (isNewerDevice) {
-            document.body.classList.add('ios-newer');
-          }
+      }
+      
+      if (isIOS) {
+        document.body.classList.add('ios-device');
+        if (isNewerDevice) {
+          document.body.classList.add('ios-newer');
         }
-      } else {
-        document.body.classList.remove('touch-device');
-        document.body.classList.remove('ios-device');
-        document.body.classList.remove('ios-newer');
       }
     };
 
-    // Check for touch capability
+    // Check for touch capability - apenas uma vez na inicialização
     checkTouch();
 
     // Handle scroll detection
@@ -55,25 +50,17 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         document.documentElement.setAttribute('data-scroll', 'false');
         document.body.classList.remove('is-scrolled');
       }
-      
-      // Especial para iOS
-      if (document.body.classList.contains('ios-device')) {
-        // Forçar repaint para corrigir problemas no Safari
-        document.body.style.transform = 'translateZ(0)';
-        setTimeout(() => {
-          document.body.style.transform = '';
-        }, 0);
-      }
     };
 
     // Initialize scroll state
     handleScroll();
     
-    // Add scroll listener
+    // Add scroll listener with passive option for better performance
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     // Clean up
     return () => {
+      // Remover todas as classes quando o componente for desmontado
       document.body.classList.remove('touch-device');
       document.body.classList.remove('ios-device');
       document.body.classList.remove('ios-newer');
