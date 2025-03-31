@@ -23,7 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   const screen = useScreen();
   
   return (
-    <header className="navbar-fixed w-full bg-white text-gray-800 flex items-center">
+    <header className="navbar-fixed w-full bg-gray-800 text-white" style={{ height: '56px', display: 'flex', alignItems: 'center' }}>
       <div className="max-w-4xl mx-auto flex flex-row items-center justify-between w-full px-4">
         <motion.div 
           initial={{ opacity: 0 }}
@@ -33,35 +33,45 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Link 
             href="/" 
-            className="flex items-center gap-2 text-bible-brown transition-colors hover:opacity-90 py-2"
+            className="flex items-center gap-2 text-white transition-colors hover:opacity-90 py-2"
             aria-label="Voltar para a página inicial"
           >
             {showBackButton && (
               <FaArrowLeft 
                 size={14} 
-                className="relative text-gray-500" 
+                className="relative text-white" 
                 aria-hidden="true" 
               />
             )}
             <h1 className="font-semibold tracking-tight flex items-center">
-              <span className="byblia-logo text-gray-900">Bybl.ia</span>
+              <span className="byblia-logo text-white">Bybl.ia</span>
             </h1>
           </Link>
         </motion.div>
         
         <div className="flex-1 flex items-center justify-center">
-          <h2 className={`${screen.isMobile ? 'text-sm' : 'text-base'} font-medium text-gray-600 whitespace-nowrap text-center ${screen.isMobile ? 'hidden md:block' : ''}`} style={{ letterSpacing: '0.01em' }}>
+          <h2 
+            className={`${screen.isMobile ? 'text-sm' : 'text-base'} font-medium text-white whitespace-nowrap text-center ${screen.isMobile ? 'hidden md:block' : ''}`} 
+            style={{ letterSpacing: '0.01em' }}
+          >
             Seu conselheiro bíblico
           </h2>
         </div>
         
-        {/* Botão do menu hamburger */}
-        <div className="flex items-center justify-end flex-1">
+        {/* Botão do menu hamburger - Versão simplificada */}
+        <div className="flex-1 flex items-center justify-end">
           <motion.button 
-            className="flex items-center justify-center text-gray-500 hover:text-bible-brown hover:bg-gray-50 rounded-full transition-all mobile-menu-button touch-area"
+            className="mobile-menu-button"
             style={{
               width: screen.isMobile ? '40px' : '44px',
-              height: screen.isMobile ? '40px' : '44px'
+              height: screen.isMobile ? '40px' : '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              borderRadius: '9999px',
+              transition: 'all 0.2s ease',
+              backgroundColor: menuOpen ? 'rgba(255, 255, 255, 0.15)' : 'transparent'
             }}
             onClick={toggleMenu}
             aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
@@ -69,9 +79,9 @@ export const Header: React.FC<HeaderProps> = ({
             whileTap={{ scale: 0.95 }}
           >
             {menuOpen ? (
-              <FaTimes size={screen.isMobile ? 16 : 18} aria-hidden="true" />
+              <FaTimes size={screen.isMobile ? 16 : 18} className="text-white" aria-hidden="true" />
             ) : (
-              <FaBars size={screen.isMobile ? 16 : 18} aria-hidden="true" />
+              <FaBars size={screen.isMobile ? 16 : 18} className="text-white" aria-hidden="true" />
             )}
           </motion.button>
         </div>
