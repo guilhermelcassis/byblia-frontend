@@ -23,7 +23,7 @@ function HomeContent() {
   return (
     <MainLayout>
       <section className="w-full max-w-4xl p-2 md:px-6 mx-auto flex flex-col">
-        <div className="flex-grow flex flex-col rounded-2xl h-[calc(100vh-80px)]">
+        <div className={`flex-grow flex flex-col rounded-2xl ${screen.isMobile && !screen.isLandscape ? 'min-h-[calc(100vh-90px)]' : 'h-[calc(100vh-80px)]'}`}>
           <ChatContainer />
         </div>
       </section>

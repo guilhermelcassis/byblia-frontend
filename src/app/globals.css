@@ -247,6 +247,14 @@ body {
   margin-top: 40px;
 }
 
+/* Ajustado para reduzir espaço em mobile */
+@media (max-width: 768px) {
+  .welcome-container {
+    padding: 16px;
+    margin-top: 20px;
+  }
+}
+
 .welcome-icon {
   width: 48px;
   height: 48px;
@@ -266,10 +274,26 @@ body {
   color: #333;
 }
 
+/* Ajustado para mobile */
+@media (max-width: 768px) {
+  .welcome-title {
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+  }
+}
+
 .welcome-text {
   font-size: 0.9rem;
   color: #666;
   max-width: 400px;
+}
+
+/* Ajustado para mobile */
+@media (max-width: 768px) {
+  .welcome-text {
+    font-size: 0.85rem;
+    max-width: 300px;
+  }
 }
 
 /* Estilos base para as mensagens - aplicados em todos os dispositivos */
@@ -1042,6 +1066,14 @@ body.menu-open {
   border-radius: 12px;
 }
 
+/* Ajustado para mobile - reduzir padding e margens */
+@media (max-width: 768px) {
+  .welcome-title-animation {
+    padding: 0.5rem 1rem;
+    margin: 0.3rem;
+  }
+}
+
 .welcome-title-animation::after {
   content: "";
   position: absolute;
@@ -1282,6 +1314,80 @@ div[class*="max-w-"] .input-box-3d {
     min-height: 100vh;
     position: relative;
   }
+
+  /* Ajustar página inicial para melhor visualização em mobile */
+  #chat-messages div[class*="justify-center"] {
+    padding-top: 10px !important;
+    height: auto !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Reduzir o tamanho do título em boas-vindas em mobile */
+  .byblia-title-md {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Reduzir espaçamento do container principal em mobile */
+  .app-container main {
+    min-height: calc(100vh - 60px);
+  }
+
+  /* Ajustar altura do container principal para evitar scroll desnecessário */
+  .h-\[calc\(100vh-80px\)\] {
+    min-height: calc(100vh - 90px) !important;
+    height: auto !important;
+  }
+  
+  /* Melhoria na visualização vertical para evitar espaços em branco */
+  .flex.flex-col.items-center.justify-center {
+    margin-top: 0 !important;
+    padding-top: 10px !important;
+  }
+  
+  /* Input mais compacto na tela inicial */
+  .state-messages-length-0 .input-box-3d {
+    margin-top: 10px;
+    max-height: 120px;
+  }
+  
+  /* Reduzir margens e padding no contêiner principal */
+  div[class*="flex-grow flex flex-col rounded-2xl"] {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Reduzir altura do chat container para evitar scroll desnecessário */
+  .message-list {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  
+  /* Ajustar espaço vertical quando não há mensagens */
+  #chat-messages:not(:has(.message-list)) {
+    height: auto !important;
+    min-height: auto !important;
+  }
+}
+
+/* Estilos específicos para o input na tela inicial em mobile */
+@media (max-width: 768px) {
+  /* Input mais compacto na tela inicial */
+  #chat-messages div:first-child .input-box-3d textarea {
+    min-height: 40px !important;
+    font-size: 14px !important;
+  }
+  
+  /* Reduzir espaço acima e abaixo do input na tela inicial */
+  #chat-messages div:first-child .input-box-3d {
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+  }
+  
+  /* Reduzir altura do container */
+  .min-h-\[calc\(100vh-90px\)\] {
+    min-height: fit-content !important;
+  }
 }
 
 /* Style for the minimize/maximize toggle button */
@@ -1306,4 +1412,37 @@ div[class*="max-w-"] .input-box-3d {
 
 .mobile-view-toggle:active {
   transform: scale(0.95);
+}
+
+/* Otimização específica para mobile - redução de margens e paddings */
+@media (max-width: 768px) and (orientation: portrait) {
+  /* Ajustar página inicial para melhor visualização em mobile */
+  #chat-messages div[class*="justify-center"] {
+    padding-top: 10px !important;
+    height: auto !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Reduzir o tamanho do título em boas-vindas em mobile */
+  .byblia-title-md {
+    font-size: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Reduzir espaçamento do container principal em mobile */
+  .app-container main {
+    min-height: calc(100vh - 60px);
+  }
+
+  /* Ajustar altura do container principal para evitar scroll desnecessário */
+  .h-\[calc\(100vh-80px\)\] {
+    min-height: calc(100vh - 90px) !important;
+    height: auto !important;
+  }
+  
+  /* Melhoria na visualização vertical para evitar espaços em branco */
+  .flex.flex-col.items-center.justify-center {
+    margin-top: 0 !important;
+    padding-top: 10px !important;
+  }
 }

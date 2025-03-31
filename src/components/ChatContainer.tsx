@@ -340,7 +340,7 @@ const ChatContainer: React.FC = () => {
   }, [minimizedView, scrollToLastUserMessage]);
 
   return (
-    <div className="flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden">
+    <div className={`flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden ${state.messages.length === 0 ? 'state-messages-length-0' : ''}`}>
       {/* Toggle button for mobile view */}
       {screen.isMobile && !screen.isLandscape && state.messages.length > 1 && (
         <motion.button
@@ -384,10 +384,10 @@ const ChatContainer: React.FC = () => {
         }}
       >      
         {state.messages.length === 0 ? (
-          <div className={`flex flex-col items-center justify-center h-full px-4 md:px-6 ${screen.isLandscape ? 'pt-2 pb-4' : 'pt-3 pb-6 md:py-6'}`}>
+          <div className={`flex flex-col items-center ${screen.isMobile && !screen.isLandscape ? 'justify-start pt-10' : 'justify-center h-full'} px-4 md:px-6 ${screen.isLandscape ? 'pt-2 pb-4' : 'pb-4'}`}>
             {/* Mensagem de boas-vindas estilo DeepSeek - agora com efeito de relevo */}
-            <div className={`flex flex-col items-center justify-center text-center max-w-md w-full ${screen.isLandscape ? 'mb-4' : 'mb-5 md:mb-8'}`}>
-              <WelcomeTitleEffect className={`${screen.isLandscape ? 'text-lg' : 'text-xl md:text-2xl'} font-bold mb-3 md:mb-4 byblia-title-md`}>
+            <div className={`flex flex-col items-center justify-center text-center max-w-md w-full ${screen.isLandscape ? 'mb-4' : 'mb-4'}`}>
+              <WelcomeTitleEffect className={`${screen.isLandscape ? 'text-lg' : 'text-xl'} font-bold ${screen.isMobile && !screen.isLandscape ? 'mb-2' : 'mb-3 md:mb-4'} byblia-title-md`}>
                 Oi, eu sou a Byblia,
               </WelcomeTitleEffect>
               <motion.p 
@@ -402,7 +402,7 @@ const ChatContainer: React.FC = () => {
             
             {/* Input centralizado após a mensagem de boas-vindas */}
             <motion.div 
-              className="w-full max-w-2xl z-50 mb-4 md:mb-8 mx-auto"
+              className={`w-full max-w-2xl z-50 ${screen.isMobile && !screen.isLandscape ? 'mb-2' : 'mb-4 md:mb-8'} mx-auto`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}

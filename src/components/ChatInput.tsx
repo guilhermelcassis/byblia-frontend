@@ -57,6 +57,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     }
   }, [inputValue, screen.isLandscape]);
 
+  // Ajustar altura mínima para ser mais compacta na tela inicial em mobile portrait mode
+  const getMinHeight = () => {
+    if (screen.isMobile && !screen.isLandscape) {
+      return '40px'; // Mais compacto em mobile portrait
+    }
+    return screen.isLandscape ? '42px' : '64px';
+  };
+
   // Validação de segurança para entrada do usuário
   const validateInput = (text: string): boolean => {
     // Verificar tamanho mínimo
@@ -192,7 +200,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           placeholder={screen.isLandscape ? "Faça uma pergunta, peça conselhos ou compartilhe um problema" : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
           className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 text-gray-800 text-sm font-normal resize-none overflow-hidden w-full`}
           style={{ 
-            minHeight: screen.isLandscape ? '42px' : '64px',
+            minHeight: getMinHeight(),
             maxHeight: screen.isLandscape ? '120px' : '300px',
             wordWrap: 'break-word',
             lineHeight: screen.isLandscape ? '1.3' : '1.4',

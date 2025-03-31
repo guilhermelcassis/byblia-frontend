@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { useScreen } from '@/hooks/useScreen';
 
 interface WelcomeTitleEffectProps {
   children: React.ReactNode;
@@ -7,6 +8,7 @@ interface WelcomeTitleEffectProps {
 
 const WelcomeTitleEffect: React.FC<WelcomeTitleEffectProps> = ({ children, className = '' }) => {
   const titleRef = useRef<HTMLDivElement>(null);
+  const screen = useScreen();
 
   useEffect(() => {
     const element = titleRef.current;
@@ -64,10 +66,16 @@ const WelcomeTitleEffect: React.FC<WelcomeTitleEffectProps> = ({ children, class
     };
   }, []);
 
+  // Aplicar estilos mais compactos em dispositivos móveis
+  const mobileStyles = screen.isMobile && !screen.isLandscape
+    ? { padding: '0.4rem 0.8rem', margin: '0.2rem', fontSize: '1.25rem' }
+    : {};
+
   return (
     <div 
       ref={titleRef} 
       className={`welcome-title-animation ${className}`}
+      style={mobileStyles}
     >
       {children}
     </div>
