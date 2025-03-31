@@ -129,6 +129,19 @@ const ChatContainer: React.FC = () => {
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Adicionar/remover a classe is-loading ao body
+  useEffect(() => {
+    if (state.isLoading) {
+      document.body.classList.add('is-loading');
+    } else {
+      document.body.classList.remove('is-loading');
+    }
+    
+    return () => {
+      document.body.classList.remove('is-loading');
+    };
+  }, [state.isLoading]);
+
   // Simplificar o efeito de streaming para um único responsável pelo scroll
   useEffect(() => {
     // Durante streaming, sempre garantir que a classe is-streaming esteja no body e html
@@ -346,6 +359,7 @@ const ChatContainer: React.FC = () => {
         isLastMessage={isLastMessage}
         isStreaming={isLastAssistantMessage}
         questionText={questionText}
+        isLoading={state.isLoading}
       />
     );
   });
@@ -454,7 +468,7 @@ const ChatContainer: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <div className="input-box-3d">
+              <div className="input-box-3d welcome-input">
                 <ChatInput 
                   onSendMessage={handleSendMessage} 
                   isLoading={state.isLoading || state.isStreaming}
@@ -470,6 +484,7 @@ const ChatContainer: React.FC = () => {
               isLastMessage={index === state.messages.length - 1}
               isStreaming={message.role === 'assistant' && index === state.messages.length - 1 && state.isStreaming}
               questionText={index > 0 && message.role === 'assistant' ? state.messages[index - 1].content : ''}
+              isLoading={state.isLoading}
             />
           ))
         )}
@@ -480,7 +495,7 @@ const ChatContainer: React.FC = () => {
       
       {/* Input area when messages exist */}
       <AnimatePresence>
-        {state.messages.length > 0 && !state.isStreaming && !state.isColdStart && (
+        {state.messages.length > 0 && !state.isStreaming && !state.isLoading && !state.isColdStart && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

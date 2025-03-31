@@ -10,6 +10,7 @@ interface Props {
   isLastMessage?: boolean;
   isStreaming?: boolean;
   questionText?: string; // Pergunta do usuário que originou esta resposta
+  isLoading?: boolean;
 }
 
 // Função auxiliar para formatar a hora
@@ -24,7 +25,8 @@ export const MessageItem: React.FC<Props> = memo(({
   message, 
   isLastMessage = false,
   isStreaming = false,
-  questionText = '' // Valor padrão caso não seja fornecido
+  questionText = '', // Valor padrão caso não seja fornecido
+  isLoading = false
 }) => {
   const isUser = message.role === 'user';
   const containerRef = useRef<HTMLDivElement>(null);
@@ -144,8 +146,8 @@ export const MessageItem: React.FC<Props> = memo(({
           <MessageText content={message.content} isStreaming={isStreaming} isUser={isUser} />
         </div>
         
-        {/* Exibir os botões de compartilhamento apenas se for uma mensagem do assistente e não estiver em streaming */}
-        {!isUser && !isStreaming && (
+        {/* Exibir os botões de compartilhamento apenas se for uma mensagem do assistente e não estiver em streaming ou carregando */}
+        {!isUser && !isStreaming && !isLoading && (
           <div 
             className="flex items-center justify-center mt-2 pt-1 gap-1 share-buttons-container"
             style={{ 

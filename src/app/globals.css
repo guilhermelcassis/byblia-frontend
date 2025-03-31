@@ -2291,3 +2291,21 @@ body.ios-device.is-streaming .navbar-fixed {
   -webkit-transform: translateZ(0) !important;
   transform: translateZ(0) !important;
 }
+
+/* Esconder botões de compartilhamento e input de chat durante o carregamento */
+body.is-loading .share-buttons-container,
+body.is-streaming .share-buttons-container,
+body.is-loading .input-box-3d:not(.welcome-input) {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Garantir que os botões de compartilhamento fiquem escondidos durante o carregamento em dispositivos móveis */
+@media (max-width: 768px) {
+  body.is-loading .share-buttons-container,
+  body.is-streaming .share-buttons-container {
+    display: none !important;
+  }
+}
