@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useScreen } from '@/hooks/useScreen';
 
 interface UseScrollOptions {
   /**
@@ -33,6 +34,7 @@ export function useScroll({
   const prevMessagesCountRef = useRef<number>(0);
   const prevResponseLengthRef = useRef<number>(0);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const screen = useScreen();
 
   // Track user scrolling behavior
   useEffect(() => {
@@ -43,8 +45,10 @@ export function useScroll({
       if (!isStreaming) return;
 
       const { scrollTop, scrollHeight, clientHeight } = container;
-      // Consider user as having scrolled up if they're not close to the bottom (with a 100px threshold)
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      // Consideramos uma distância maior para dispositivos móveis em modo retrato
+      const scrollThreshold = screen.isMobile && !screen.isLandscape ? 200 : 100;
+      // Consider user as having scrolled up if they're not close to the bottom
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < scrollThreshold;
       
       if (!isNearBottom) {
         setUserHasScrolled(true);
@@ -58,7 +62,7 @@ export function useScroll({
 
     container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
-  }, [isStreaming, userHasScrolled]);
+  }, [isStreaming, userHasScrolled, screen.isMobile, screen.isLandscape]);
 
   // Handle auto-scrolling during streaming
   useEffect(() => {
@@ -68,7 +72,7 @@ export function useScroll({
     if (messagesCount > prevMessagesCountRef.current) {
       prevMessagesCountRef.current = messagesCount;
       
-      // Always scroll for new complete messages
+      // Always scroll for new complete messages, mas com animação mais suave em mobile
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
@@ -78,16 +82,21 @@ export function useScroll({
           console.log('[useScroll] Nova mensagem detectada, scrollando para o final');
           containerRef.current.scrollTo({
             top: containerRef.current.scrollHeight,
-            behavior: 'smooth'
+            behavior: screen.isMobile && !screen.isLandscape ? 'auto' : 'smooth'
           });
         }
-      }, 100);
+      }, screen.isMobile && !screen.isLandscape ? 300 : 100);
     }
-  }, [messagesCount]);
+  }, [messagesCount, screen.isMobile, screen.isLandscape]);
 
   // Handle streaming content scrolling using currentResponseText
   useEffect(() => {
     if (!isStreaming || !containerRef.current || userHasScrolled) return;
+    
+    // Em dispositivos móveis no modo retrato, permitir que o usuário tenha mais controle
+    if (screen.isMobile && !screen.isLandscape) {
+      return; // Não force rolagem automática em dispositivos móveis durante streaming
+    }
     
     // Detectar se houve mudança no tamanho da resposta
     const currentLength = currentResponseText?.length || 0;
@@ -109,11 +118,16 @@ export function useScroll({
         }
       }, 50);
     }
-  }, [isStreaming, currentResponseText, userHasScrolled]);
+  }, [isStreaming, currentResponseText, userHasScrolled, screen.isMobile, screen.isLandscape]);
 
   // Handle streaming content scrolling based on hasNewContent flag
   useEffect(() => {
     if (!containerRef.current || !isStreaming || userHasScrolled) return;
+    
+    // Em dispositivos móveis no modo retrato, permitir que o usuário tenha mais controle
+    if (screen.isMobile && !screen.isLandscape) {
+      return; // Não force rolagem automática em dispositivos móveis durante streaming
+    }
 
     // During streaming, scroll if user hasn't manually scrolled up
     if (hasNewContent && !userHasScrolled) {
@@ -131,7 +145,7 @@ export function useScroll({
         }
       }, 50); // Faster timeout for streaming
     }
-  }, [isStreaming, hasNewContent, userHasScrolled]);
+  }, [isStreaming, hasNewContent, userHasScrolled, screen.isMobile, screen.isLandscape]);
 
   // Clean up timeout on unmount
   useEffect(() => {
@@ -148,7 +162,7 @@ export function useScroll({
       console.log('[useScroll] Scroll manual para o final solicitado');
       containerRef.current.scrollTo({
         top: containerRef.current.scrollHeight,
-        behavior: 'smooth'
+        behavior: screen.isMobile && !screen.isLandscape ? 'auto' : 'smooth'
       });
       setUserHasScrolled(false);
     }

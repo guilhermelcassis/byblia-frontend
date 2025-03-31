@@ -215,8 +215,73 @@ const ChatContainer: React.FC = () => {
     state.error.toLowerCase().includes('tentando reconectar')
   );
 
+  // Estilos para o indicador fixo no modo móvel
+  const fixedIndicatorStyle = {
+    position: 'fixed' as const,
+    bottom: '16px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    backgroundColor: 'white',
+    borderRadius: '20px',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+    padding: '8px 16px',
+    maxWidth: '90%',
+    zIndex: 1000,
+    fontSize: '14px',
+    opacity: 0.9,
+    border: '1px solid rgba(0, 0, 0, 0.05)'
+  };
+
+  // Estilos para o botão "Ver resposta" no topo
+  const viewResponseButtonStyle = {
+    position: 'fixed' as const,
+    top: '70px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    color: '#8B5D33', // Cor bible-brown
+    borderRadius: '20px',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+    padding: '8px 16px',
+    maxWidth: '90%',
+    zIndex: 1000,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    border: '1px solid rgba(139, 93, 51, 0.15)',
+    fontSize: '14px',
+    fontWeight: 500
+  };
+
+  // Função para rolar para o final da resposta atual
+  const scrollToCurrentResponse = () => {
+    if (containerRef.current) {
+      // Encontra o último elemento da resposta
+      const lastMessageElement = containerRef.current.querySelector('.message-item:last-child');
+      
+      if (lastMessageElement) {
+        lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        // Fallback: rola para o final do container
+        scrollToBottom();
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden">
+      {/* Botão "Ver resposta" para mobile */}
+      {state.isStreaming && screen.isMobile && !screen.isLandscape && state.messages.length > 0 && (
+        <div 
+          style={viewResponseButtonStyle}
+          onClick={scrollToCurrentResponse}
+          className="cursor-pointer"
+        >
+          <FaCommentDots size={14} className="text-bible-brown" />
+          <span className="text-sm font-medium">Ver resposta</span>
+        </div>
+      )}
+      
       {/* Removed redundant header div with border */}
       
       {/* Messages container */}
@@ -323,13 +388,18 @@ const ChatContainer: React.FC = () => {
             style={{ margin: 0, pointerEvents: 'none' }}
           >
             <div className="max-w-2xl mx-auto">
-              <div className="streaming-indicator">
+              <div 
+                className="streaming-indicator" 
+                style={!screen.isLandscape && screen.isMobile ? fixedIndicatorStyle : {}}
+              >
                 <div className="streaming-indicator-text">
                   <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
                   <span>
                     {state.isColdStart 
                       ? "Iniciando o servidor..." 
-                      : "Consultando as Escrituras para encontrar sua resposta..."}
+                      : screen.isMobile && !screen.isLandscape
+                        ? "Gerando resposta..." 
+                        : "Consultando as Escrituras para encontrar sua resposta..."}
                   </span>
                   {state.isStreaming && 
                     <button 
