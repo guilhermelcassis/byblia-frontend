@@ -197,7 +197,7 @@ html {
 /* Estilos críticos para o scroll automático durante streaming */
 .streaming-scroll {
   scroll-behavior: auto !important;
-  overflow-anchor: auto !important;
+  overflow-anchor: none !important;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Esconder scrollbar no Firefox */
   scroll-padding: 0 !important;
@@ -224,9 +224,10 @@ html {
   -webkit-overflow-scrolling: touch;
   overflow-y: auto;
   overflow-x: hidden;
-  overflow-anchor: auto !important;
+  overflow-anchor: none !important;
   scroll-padding: 0 !important;
   overscroll-behavior-y: contain;
+  scroll-snap-type: none !important;
   scrollbar-width: none;
   padding-bottom: 70px !important;
 }
@@ -591,8 +592,10 @@ div.rounded-user-message {
   
   /* Espaçamento adicional para a primeira mensagem (pergunta do usuário) */
   .message-list > div:first-child {
-    margin-top: 20px !important;
-    padding-top: 10px !important;
+    margin-top: 30px !important;
+    padding-top: 15px !important;
+    position: relative !important; /* Garantir que o posicionamento seja relativo */
+    z-index: 1 !important; /* Garantir que esteja acima de outros elementos */
   }
 
   /* Melhorar a experiência de toque nos botões de compartilhamento em dispositivos móveis */
@@ -637,8 +640,8 @@ div.rounded-user-message {
 
 /* Estilo específico para fixar espaçamento entre a navbar e a caixa de pergunta */
 header + section .message-list {
-  padding-top: 70px !important; /* Aumentado substancialmente para garantir que fique abaixo da navbar */
-  margin-top: 10px !important;
+  padding-top: 100px !important; /* Aumentado substancialmente para garantir que fique abaixo da navbar */
+  margin-top: 20px !important;
 }
 
 /* Estilos específicos para botões de compartilhamento */
@@ -655,18 +658,11 @@ header + section .message-list {
 
 /* Estilo para o indicador de streaming durante a geração de resposta */
 .streaming-indicator {
-  border-radius: 24px;
-  background-color: #f5f5f7;
-  min-height: 48px;
+  position: absolute;
   width: 100%;
-  max-width: 900px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  pointer-events: none; /* Permitir que os cliques passem através deste elemento */
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(100, 100, 100, 0.1), transparent);
+  z-index: 1;
 }
 
 .streaming-indicator-text {
@@ -1589,7 +1585,11 @@ input:focus, textarea:focus {
 /* Estilos específicos para quando o streaming está ativo */
 .streaming-scroll {
   scroll-behavior: auto !important;
-  overflow-anchor: auto !important;
+  overflow-anchor: none !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Esconder scrollbar no Firefox */
+  scroll-padding: 0 !important;
+  scroll-snap-type: none !important;
 }
 
 .is-streaming .message-text-content {
@@ -1628,8 +1628,8 @@ body.is-streaming .message-list {
   max-height: none !important;
   overflow-y: visible !important;
   padding-bottom: 150px;
-  padding-top: 70px !important; /* Aumentado para garantir que a pergunta do usuário seja exibida após a navbar */
-  margin-top: 10px !important;
+  padding-top: 120px !important; /* Aumentado consideravelmente para garantir que a pergunta seja totalmente visível */
+  margin-top: 20px !important;
 }
 
 /* Scroll automático - estilo de máxima prioridade */
@@ -1711,45 +1711,196 @@ body.is-streaming #chat-messages {
 
 /* Garantir que a primeira mensagem (pergunta do usuário) tenha espaço extra durante o streaming */
 body.is-streaming .message-list > div:first-child {
-  margin-top: 30px !important;
-  padding-top: 15px !important;
+  margin-top: 40px !important;
+  padding-top: 20px !important;
 }
 
 /* Garantir espaçamento adequado para a seção após o header (contém as mensagens) */
 header + section {
-  padding-top: 56px !important; /* Mesmo valor da altura da navbar */
-  margin-top: 10px !important;
+  padding-top: 80px !important; /* Aumentado para garantir visibilidade */
+  margin-top: 20px !important;
 }
 
 /* Ajuste para o chat-messages para garantir espaçamento adequado */
 section #chat-messages {
-  padding-top: 20px !important;
+  padding-top: 30px !important;
 }
 
 /* Garantir que qualquer div dentro da seção após o header tenha espaçamento adequado */
 header + section > div {
-  padding-top: 10px !important;
+  padding-top: 20px !important;
 }
 
 /* Ajustes específicos para dispositivos móveis */
 @media (max-width: 768px) {
   /* Garantir espaçamento extra no mobile para evitar sobreposição */
   header + section .message-list {
-    padding-top: 80px !important;
+    padding-top: 120px !important;
   }
   
   /* Ajustar primeira mensagem em mobile */
   .message-list > div:first-child {
-    margin-top: 25px !important;
+    margin-top: 35px !important;
+    padding-top: 20px !important;
   }
   
   /* Tela de streaming em mobile */
   body.is-streaming .message-list {
-    padding-top: 80px !important;
+    padding-top: 140px !important;
   }
   
   /* Seção após header em mobile */
   header + section {
-    padding-top: 60px !important;
+    padding-top: 80px !important;
   }
+}
+
+/* Auto-scroll ativado APENAS durante streaming */
+body.is-streaming .streaming-scroll {
+  overflow-anchor: auto !important;
+}
+
+/* Desabilitar auto-scroll para mensagens antes do streaming começar */
+.message-list {
+  overflow-anchor: none !important;
+}
+
+/* Desabilitar scroll-snap até que o streaming comece */
+#chat-messages {
+  scroll-snap-type: none !important;
+  overflow-anchor: none !important;
+}
+
+/* Reativar scroll automático durante streaming */
+body.is-streaming #chat-messages {
+  scroll-snap-type: y proximity !important;
+  overflow-anchor: auto !important;
+}
+
+/* Estilo para a mensagem do usuário recém-enviada, mantendo-a no campo de visão */
+.message-list > div:first-child {
+  scroll-margin-top: 120px !important; /* Margem de rolagem para manter a pergunta visível */
+}
+
+/* Posicionamento específico para a primeira mensagem antes do streaming */
+.message-list:not(.is-streaming) > div:first-child {
+  position: relative !important;
+  z-index: 2 !important; /* Garantir que esteja acima de outros elementos */
+  visibility: visible !important;
+}
+
+/* Botão de scroll manual para voltar à pergunta */
+.scroll-to-question-btn {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(240, 240, 240, 0.9);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(200, 200, 200, 0.8);
+  transition: all 0.2s ease;
+}
+
+.scroll-to-question-btn:hover {
+  background-color: rgba(230, 230, 230, 1);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .scroll-to-question-btn {
+    bottom: 80px;
+    right: 15px;
+  }
+}
+
+/* Estilos de transição para streaming */
+body:not(.is-streaming) #chat-messages {
+  scroll-behavior: smooth !important; /* Scroll suave antes do streaming começar */
+}
+
+body.is-streaming #chat-messages {
+  scroll-behavior: auto !important; /* Scroll instantâneo durante streaming */
+}
+
+/* Comportamento de scroll específico para respostas */
+.message-response {
+  scroll-margin-top: 20px;
+}
+
+/* Regras específicas para garantir que a pergunta permaneça visível */
+body:not(.is-streaming) .message-list > div:first-child {
+  scroll-snap-align: start !important;
+  scroll-margin-top: 100px !important;
+}
+
+/* Regras para quando o streaming está ocorrendo */
+body.is-streaming .message-list > div:last-child {
+  scroll-snap-align: end !important;
+  scroll-margin-bottom: 120px !important;
+}
+
+/* Controle específico de scroll para evitar rolagem automática inicial */
+.scroll-lock {
+  overflow: hidden !important;
+  max-height: 100vh !important;
+}
+
+/* Ajuste específico para o container de mensagens */
+#chat-messages {
+  /* Garantir que a vista inicial fique na pergunta */
+  scroll-padding-top: 100px !important;
+  scroll-padding-bottom: 150px !important;
+}
+
+/* Para garantir scroll manual até iniciar o streaming */
+body:not(.is-streaming) #chat-messages {
+  overscroll-behavior: contain !important;
+}
+
+/* Transição suave para início de streaming */
+body.streaming-transition {
+  transition: all 0.3s ease-out;
+}
+
+/* Garantir que mensagens novas apareçam com transição suave */
+.message-item {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.message-item.new-message {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* Manter a mensagem do usuário visível */
+.user-message-container {
+  position: relative !important;
+  z-index: 1;
+  scroll-margin-top: 100px !important;
+}
+
+/* Comportamento específico antes do streaming começar */
+html:not(.is-streaming) .message-list {
+  initial-scroll-position: top !important; /* Custom property para controlar comportamento inicial */
+}
+
+/* Reset de scroll ao enviar nova pergunta */
+.chat-reset-scroll {
+  scroll-behavior: auto;
+  overflow-anchor: none;
+}
+
+/* Força que a primeira visualização seja na pergunta do usuário */
+.focus-on-question {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
