@@ -80,13 +80,11 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Impede rolagem no body, deixando apenas para .page-content */
   height: 100%;
 }
 
 html {
   height: 100%;
-  overflow: hidden; /* Impede rolagem no html também */
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -231,7 +229,6 @@ html {
   overscroll-behavior-y: contain;
   scrollbar-width: none;
   padding-bottom: 70px !important;
-  max-height: 100% !important;
 }
 
 #chat-messages::-webkit-scrollbar {
@@ -425,7 +422,6 @@ div.rounded-user-message {
     scroll-behavior: auto !important; /* Use 'auto' em vez de 'smooth' para evitar atrasos */
     overflow-anchor: auto !important; /* Permite que o navegador ajuste automaticamente o scroll */
     overscroll-behavior-y: contain !important; /* Contém o comportamento de scroll */
-    max-height: 100% !important; /* Garante que o conteúdo fique dentro do limite da .page-content */
   }
   
   /* Improve button tap targets */
@@ -457,7 +453,6 @@ div.rounded-user-message {
     overscroll-behavior-y: contain;
     scroll-padding-bottom: 80px; /* Aumentado para dar espaço ao input fixo */
     padding-bottom: 80px; /* Espaço extra no final para não esconder conteúdo */
-    max-height: calc(100% - 20px) !important; /* Ajuste para garantir que fique dentro da .page-content */
   }
   
   /* Estilo moderno para o input field */
@@ -793,22 +788,20 @@ html body div.bg-bible-brown {
 
 /* Estilo moderno para a navbar com sombra */
 .navbar-fixed {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 56px !important;
-  padding: 0 16px !important;
-  z-index: 100 !important;
-  background-color: rgba(255, 255, 255, 0.97) !important;
-  backdrop-filter: saturate(180%) blur(5px) !important;
-  -webkit-backdrop-filter: saturate(180%) blur(5px) !important;
-  box-shadow: 
-    0 1px 2px rgba(0, 0, 0, 0.03),
-    0 4px 12px rgba(0, 0, 0, 0.04) !important;
-  border-bottom: 1px solid rgba(240, 240, 240, 0.8) !important;
-  transition: all 0.25s ease-in-out !important;
-  will-change: box-shadow !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  padding: 0 16px;
+  z-index: 9999;
+  background-color: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: box-shadow 0.3s ease,
+              background-color 0.3s ease,
+              border-color 0.3s ease;
 }
 
 /* Adicionar padding-top no main para compensar o navbar fixo */
@@ -913,8 +906,6 @@ body.menu-open .navbar-fixed {
 .page-content {
   flex: 1;
   padding-top: 56px; /* Mesma altura do navbar */
-  overflow-y: auto; /* Adicionar rolagem apenas para o conteúdo */
-  height: calc(100vh - 56px); /* Altura total menos altura da navbar */
   position: relative;
   width: 100%;
 }
@@ -922,8 +913,6 @@ body.menu-open .navbar-fixed {
 /* Ajuste para mobile para garantir que a rolagem funcione adequadamente */
 @media (max-width: 768px) {
   .page-content {
-    height: calc(100vh - 56px);
-    overflow-y: auto;
     -webkit-overflow-scrolling: touch; /* Melhor suporte para scroll em iOS */
   }
 }
@@ -931,7 +920,7 @@ body.menu-open .navbar-fixed {
 /* Para dispositivos com tela pequena em modo paisagem */
 @media (max-width: 768px) and (orientation: landscape) {
   .page-content {
-    height: calc(100vh - 56px);
+    /* Removendo height fixa */
   }
 }
 
@@ -995,14 +984,15 @@ body.menu-open .navbar-fixed {
   background-color: rgba(0, 0, 0, 0.03);
 }
 
-/* Navbar fixa */
+/* Navbar fixa revisada para garantir visibilidade */
 .navbar-fixed {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
   height: 56px;
   padding: 0 16px;
-  z-index: 100;
+  z-index: 9999;
   background-color: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -1020,7 +1010,7 @@ body.menu-open .navbar-fixed {
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    z-index: 100 !important;
+    z-index: 9999 !important;
   }
   
   /* Add proper spacing to content to prevent navbar overlap */
@@ -1030,9 +1020,6 @@ body.menu-open .navbar-fixed {
   
   /* Garantir que a rolagem afete apenas o conteúdo da página */
   .page-content {
-    overflow-y: auto;
-    height: calc(100vh - 56px);
-    -webkit-overflow-scrolling: touch;
     position: relative;
     width: 100%;
   }
@@ -1612,15 +1599,33 @@ input:focus, textarea:focus {
   scroll-snap-align: end;
 }
 
-/* Ajuste para scroll automático mais confiável */
-@media (max-width: 768px) {
-  .streaming-scroll {
-    scroll-snap-type: y proximity;
-  }
-  
-  .streaming-message:last-child {
-    scroll-margin-bottom: 120px;
-  }
+/* Garantir que a navbar esteja sempre visível, mesmo durante o streaming */
+body.is-streaming .navbar-fixed {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  visibility: visible !important;
+  display: flex !important;
+  opacity: 1 !important;
+}
+
+/* Corrigir problemas com a posição do chat-container */
+body.is-streaming .chat-container {
+  padding-top: 56px;
+}
+
+/* Garantir que o container de streaming não esconda a navbar */
+body.is-streaming .app-container {
+  padding-top: 56px;
+}
+
+/* Garantir que o contêiner de mensagens tenha rolagem apropriada */
+body.is-streaming .message-list {
+  max-height: none !important;
+  overflow-y: visible !important;
+  padding-bottom: 150px;
 }
 
 /* Scroll automático - estilo de máxima prioridade */
@@ -1656,36 +1661,9 @@ body .share-buttons-container {
 /* Garantir que durante streaming, sempre fazemos scroll para o final */
 body.is-streaming #chat-messages {
   scroll-snap-type: y proximity !important;
-}
-
-body.is-streaming .streaming-message:last-child {
-  scroll-snap-align: end !important;
-  margin-bottom: 50px !important;
-}
-
-/* Remover scroll personalizado durante streaming para evitar problemas */
-@media (max-width: 768px) {
-  body.is-streaming #chat-messages {
-    padding-bottom: 150px !important;
-  }
-  
-  body .streaming-message {
-    position: relative !important;
-    z-index: 1 !important;
-  }
-}
-
-/* Melhorar scrolling em elementos móveis com alta especificidade */
-body.is-streaming #chat-messages {
-  scroll-padding-bottom: 100px !important;
+  padding-bottom: 150px !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-}
-
-/* Usar scroll-snap para manter visível o último elemento durante streaming */
-body.is-streaming .message-list > div:last-child {
-  scroll-snap-align: end !important;
-  scroll-margin-bottom: 80px !important;
 }
 
 /* Centralização completa dos botões de compartilhamento */
@@ -1706,121 +1684,23 @@ body.is-streaming .message-list > div:last-child {
   line-height: 1 !important;
 }
 
-/* Improve button tap targets */
-button, a {
-  min-height: 36px; /* Ajustado para ficar com tamanho do DeepSeek */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ESTILOS CRÍTICOS PARA AUTO-SCROLL FUNCIONANDO - MAIOR ESPECIFICIDADE */
-html body.is-streaming #chat-messages {
-  scroll-behavior: auto !important;
-  overflow-anchor: auto !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  scroll-snap-type: y mandatory !important;
-  height: auto !important;
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-  transform: none !important;
-  overflow: auto !important;
-  max-height: none !important;
-  min-height: auto !important;
-}
-
-html body.is-streaming .message-list > div:last-child {
-  scroll-snap-align: end !important;
-  scroll-margin-bottom: 0 !important;
-  position: relative !important;
-}
-
-html body.is-streaming .streaming-message {
-  scroll-snap-align: end !important;
-  overflow-anchor: auto !important;
-  margin-bottom: 100px !important;
-  position: relative !important;
-}
-
-/* NOVO - SUPER AGRESSIVO - Remover fixed positioning */
-html body.is-streaming {
-  /* Remover qualquer posicionamento fixo que possa interferir */
-  position: relative !important;
-  overflow: auto !important;
-  height: auto !important;
-  min-height: 100% !important;
-  top: auto !important;
-  left: auto !important;
-  bottom: auto !important;
-  right: auto !important;
-}
-
-/* NOVO - SUPER AGRESSIVO - Remover scroll-snap, pode estar atrapalhando */
-html body.is-streaming #chat-messages {
-  scroll-snap-type: none !important;
-}
-
-html body.is-streaming .message-list > div:last-child {
-  scroll-snap-align: none !important;
-}
-
-/* NOVO - FORÇAR VISIBILIDADE DA ÚLTIMA MENSAGEM */
-html body.is-streaming .streaming-message {
-  margin-bottom: 300px !important; /* Espaço grande no final para garantir visibilidade */
-  padding-bottom: 30px !important;
-}
-
-/* Remover FIXED e outros posicionamentos que podem travar o scroll durante streaming */
-html body.is-streaming .fixed,
-html body.is-streaming [class*="fixed"],
-html body.is-streaming [style*="fixed"],
-html body.is-streaming .sticky,
-html body.is-streaming [class*="sticky"] {
-  position: absolute !important;
-  bottom: auto !important;
-  top: auto !important;
-}
-
-/* Garantir que mensagem em streaming tenha prioridade de scroll */
-.is-streaming .message-text-content {
-  overflow-anchor: auto !important;
-}
-
-/* Estilos para streaming e scroll automático */
-.is-streaming .auto-scroll-paused {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 400;
-  z-index: 1000;
-  opacity: 0.8;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  pointer-events: none;
-  animation: fadeIn 0.3s ease-in-out;
-  max-width: 90%;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-  to { opacity: 0.8; transform: translateX(-50%) translateY(0); }
-}
-
-/* Remover estilos de botão que não serão mais usados */
-.auto-scroll-paused {
-  display: none;
+/* Ajuste para scroll automático mais confiável */
+@media (max-width: 768px) {
+  .streaming-scroll {
+    scroll-snap-type: y proximity;
+  }
+  
+  .streaming-message:last-child {
+    scroll-margin-bottom: 120px;
+  }
+  
+  /* Garantir que a navbar esteja visível em dispositivos móveis durante o streaming */
+  body.is-streaming .navbar-fixed {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
+  }
 }

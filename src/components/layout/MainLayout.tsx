@@ -84,19 +84,21 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   return (
     <div className={`app-container ${menuOpen ? 'menu-open' : ''}`}>
-      {/* Navbar fixa - fica fora do contexto de rolagem */}
+      {/* Navbar fixa - sempre visível em todas as páginas */}
       <Header 
         isMobile={isMobile}
         menuOpen={menuOpen}
         toggleMenu={() => setMenuOpen(!menuOpen)}
       />
       
-      {/* Menu Dropdown - também fica fora do contexto de rolagem */}
-      <div 
-        className={`menu-backdrop ${menuOpen ? 'visible' : ''}`}
-        onClick={() => setMenuOpen(false)}
-        aria-hidden="true"
-      />
+      {/* Menu Dropdown - aparece apenas quando o menu está aberto */}
+      {menuOpen && (
+        <div 
+          className="menu-backdrop visible"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
       
       <div className={`menu-dropdown ${menuOpen ? 'visible' : ''}`}>
         <nav className="flex flex-col space-y-4 p-6">
@@ -132,7 +134,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </nav>
       </div>
       
-      {/* Conteúdo rolável */}
+      {/* Conteúdo principal - com rolagem normal */}
       <main className="page-content">
         {children}
       </main>
