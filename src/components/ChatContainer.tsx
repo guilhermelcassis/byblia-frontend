@@ -412,11 +412,16 @@ const ChatContainer: React.FC = () => {
   };
 
   return (
-    <section className="flex-1 h-full relative">
+    <section className="flex-1 h-full relative" style={{ paddingTop: '0', marginTop: '0' }}>
       <div
         ref={containerRef}
         id="chat-messages"
         className="flex flex-col flex-1 overflow-y-auto max-h-full pb-24 md:pb-36"
+        style={{ 
+          paddingTop: '0', 
+          marginTop: '56px', // Apenas a altura exata do header
+          overflowAnchor: 'none'
+        }}
       >
         {/* Pequena indicação de que o scroll automático foi pausado - sem botão */}
         {state.isStreaming && userHasScrolled && (

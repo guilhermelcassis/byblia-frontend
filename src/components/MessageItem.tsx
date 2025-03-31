@@ -107,11 +107,11 @@ export const MessageItem: React.FC<Props> = memo(({
   return (
     <div 
       ref={containerRef}
-      className={`flex w-full mb-3 ${
-        isUser ? 'justify-end user-message-item' : ''
+      className={`flex w-full ${
+        isUser ? 'justify-end user-message-item' : 'mb-3'
       }`}
       data-testid="message-item"
-      style={isUser ? { marginTop: '5px' } : {}}
+      style={isUser ? { marginTop: '0', padding: '0' } : {}}
     >
       <div
         className={`p-3 rounded-lg ${
@@ -123,7 +123,9 @@ export const MessageItem: React.FC<Props> = memo(({
           boxShadow: 'none',
           backgroundColor: isUser ? '' : 'white',
           borderRadius: isUser ? '20px' : '20px',
-          fontSize: '16px' // Garantir tamanho adequado para prevenir zoom automático
+          fontSize: '16px', // Garantir tamanho adequado para prevenir zoom automático
+          padding: isUser ? '8px 12px' : '12px', // Menos padding para mensagens do usuário
+          marginTop: isUser ? '0' : '' // Sem margem superior para mensagens do usuário
         }}
       >
         {/* Show timestamp for user messages in mobile view */}

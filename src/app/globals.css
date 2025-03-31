@@ -2072,3 +2072,62 @@ header + section .message-list {
 .message-list {
   padding-top: 10px !important;
 }
+
+/* RESET DE ESPAÇOS EM BRANCO - ABORDAGEM PRÁTICA */
+
+/* Reset completo para espaços em branco em containers */
+#chat-messages, 
+.message-list, 
+header + section,
+header + section .message-list {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Configurar o chat-messages para começar logo após o header */
+#chat-messages {
+  margin-top: 56px !important; /* Exatamente a altura do header */
+  padding-top: 0 !important;
+  overflow-anchor: none !important;
+}
+
+/* Remover margens extras da pergunta do usuário */
+.message-list > div:first-child,
+.user-message-item,
+.user-message-container {
+  margin-top: 0 !important;
+  padding-top: 5px !important;
+}
+
+/* Posicionamento específico para iOS */
+@supports (-webkit-touch-callout: none) {
+  /* Garantir que o conteúdo comece logo após o header */
+  #chat-messages {
+    margin-top: 56px !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Remover margens da primeira mensagem */
+  .message-list > div:first-child,
+  html body .message-list > div:first-child,
+  .user-message-item {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+}
+
+/* Estilos específicos para iPhone */
+@media screen and (max-width: 428px) {
+  /* Remover margens e paddings */
+  .message-list > div:first-child,
+  .user-message-item {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Messages container começa logo após o header */
+  #chat-messages {
+    margin-top: 56px !important;
+    padding-top: 0 !important;
+  }
+}
