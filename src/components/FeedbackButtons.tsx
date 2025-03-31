@@ -36,11 +36,22 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
     }
   };
   
+  // Estilo centralizado comum para todas as versões do componente
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    textAlign: 'center',
+    margin: '0 auto',
+    padding: '4px 0'
+  };
+  
   // Se o feedback já foi enviado, mostrar mensagem discreta de agradecimento
   if (feedbackGiven !== null) {
     return (
-      <div className="flex justify-center opacity-60">
-        <p className="text-gray-400 text-xs italic">
+      <div style={containerStyle} className="feedback-buttons opacity-60">
+        <p style={{ margin: '0 auto', fontSize: '0.75rem', fontStyle: 'italic', color: '#9ca3af' }}>
           Obrigado
         </p>
       </div>
@@ -48,20 +59,30 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
   }
   
   return (
-    <div className="feedback-buttons flex justify-center items-center gap-2 pt-1 pb-2 my-1">
+    <div style={containerStyle} className="feedback-buttons">
       {error && (
-        <div className="text-xs text-red-500 mr-1">
+        <div style={{ fontSize: '0.75rem', color: '#ef4444', marginRight: '0.25rem' }}>
           {error}
         </div>
       )}
       
-      <span className="text-xs text-gray-400">Útil?</span>
+      <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Útil?</span>
       
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => handleFeedback(true)}
-        className="text-gray-400 hover:text-green-600 transition-colors mx-1 p-1"
+        style={{ 
+          color: '#9ca3af', 
+          margin: '0 0.25rem',
+          padding: '0.25rem',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
         aria-label="Resposta útil"
         disabled={isLoading}
       >
@@ -72,7 +93,16 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => handleFeedback(false)}
-        className="text-gray-400 hover:text-red-500 transition-colors p-1"
+        style={{ 
+          color: '#9ca3af', 
+          padding: '0.25rem',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
         aria-label="Resposta não útil"
         disabled={isLoading}
       >

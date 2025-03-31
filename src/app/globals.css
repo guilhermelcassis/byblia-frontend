@@ -1370,3 +1370,38 @@ div[class*="max-w-"] .input-box-3d {
     min-height: fit-content !important;
   }
 }
+
+/* Otimizar botões de feedback para mobile */
+.feedback-buttons {
+  margin-top: 3px !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Garantir centralização absoluta do botão de feedback */
+@media (max-width: 768px) {
+  /* Regra especial para centralização dos botões de feedback no mobile */
+  .feedback-buttons,
+  div:has(> .feedback-buttons) {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    text-align: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    position: relative !important;
+    left: 0 !important;
+    transform: none !important;
+  }
+  
+  /* Garantir que o componente principal e seus filhos são centralizados */
+  .feedback-buttons > *,
+  div:has(> .feedback-buttons) > * {
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    text-align: center !important;
+  }
+}

@@ -196,6 +196,20 @@ const ChatContainer: React.FC = () => {
     // Send the message
     sendUserMessage(message);
     
+    // Reset zoom level to ensure proper visibility on mobile devices
+    if (screen.isMobile) {
+      // Prevent zooming by meta viewport tag update and reset zoom
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      if (viewportMeta) {
+        viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+        
+        // Restore viewport settings after a delay to prevent future zoom issues
+        setTimeout(() => {
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+        }, 1000);
+      }
+    }
+    
     // Force scroll to the user's message with a small delay to ensure render is complete
     setTimeout(() => {
       scrollToLastUserMessage();
@@ -418,7 +432,15 @@ const ChatContainer: React.FC = () => {
             !state.isLoading && 
             !state.isStreaming && 
             !state.isColdStart && (
-              <div className="mt-0 mb-0">
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+                margin: '0 auto',
+                padding: '0',
+                position: 'relative'
+              }}>
                 <FeedbackButtons onFeedback={submitFeedback} />
               </div>
             );

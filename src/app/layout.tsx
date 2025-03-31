@@ -35,7 +35,7 @@ const archivo = Archivo({
 export const metadata: Metadata = {
   title: "Byblia - Conselheiro Bíblico",
   description: "Um conselheiro virtual para encontrar sabedoria nas Escrituras Sagradas",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+  viewport: "width=device-width, initial-scale=1.0",
   icons: [
     { rel: "icon", url: "/biblia.png" },
     { rel: "icon", type: "image/png", url: "/biblia.png" },
@@ -52,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" href="/biblia.png" sizes="any" />
         <link rel="apple-touch-icon" href="/biblia.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -207,8 +207,15 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             paddingRight: screen.isLandscape ? '40px' : '60px', // Espaço para o botão
             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
             backgroundColor: '#f8f4eb', // Light beige/cream color
-            border: '1px solid #e0d8c8' // Subtle beige border
+            border: '1px solid #e0d8c8', // Subtle beige border
+            fontSize: '16px' // Prevents zoom on iOS by using font size >= 16px
           }}
+          inputMode="text"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="true"
+          data-lpignore="true"
           disabled={isLoading}
           maxLength={MAX_MESSAGE_LENGTH}
           aria-describedby="message-validation"
