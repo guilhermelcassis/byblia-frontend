@@ -40,7 +40,7 @@ function HomeContent() {
           
           // Permite zoom controlado após um curto período
           setTimeout(() => {
-            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no');
           }, 500);
         }
         
@@ -64,8 +64,40 @@ function HomeContent() {
         }
       };
       
+      // Função para prevenir zoom quando o input é focado
+      const preventInputZoom = () => {
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        }
+      };
+      
+      // Adicionar listeners para detectar quando inputs são focados
+      const addInputListeners = () => {
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+          input.addEventListener('focus', preventInputZoom);
+          input.addEventListener('blur', resetZoom);
+        });
+      };
+      
+      // Observar mudanças no DOM para adicionar listeners em novos inputs
+      const observer = new MutationObserver(mutations => {
+        for (const mutation of mutations) {
+          if (mutation.addedNodes.length) {
+            addInputListeners();
+          }
+        }
+      });
+      
       // Resetar zoom ao carregar
       resetZoom();
+      
+      // Adicionar listeners iniciais
+      addInputListeners();
+      
+      // Configurar observer para detectar novos inputs
+      observer.observe(document.body, { childList: true, subtree: true });
       
       // Também resetar quando a tab ficar visível novamente
       document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -82,9 +114,18 @@ function HomeContent() {
       window.addEventListener('orientationchange', handleOrientationChange);
       
       return () => {
+        // Limpar todos os listeners
         document.removeEventListener('touchstart', preventZoom);
         document.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('orientationchange', handleOrientationChange);
+        observer.disconnect();
+        
+        // Remover listeners de inputs existentes
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+          input.removeEventListener('focus', preventInputZoom);
+          input.removeEventListener('blur', resetZoom);
+        });
       };
     }
   }, [screen.isMobile]);

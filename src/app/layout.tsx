@@ -35,7 +35,7 @@ const archivo = Archivo({
 export const metadata: Metadata = {
   title: "Byblia - Conselheiro Bíblico",
   description: "Um conselheiro virtual para encontrar sabedoria nas Escrituras Sagradas",
-  viewport: "width=device-width, initial-scale=1.0, shrink-to-fit=no",
+  viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no",
   icons: [
     { rel: "icon", url: "/biblia.png" },
     { rel: "icon", type: "image/png", url: "/biblia.png" },
@@ -52,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no" />
         <link rel="icon" href="/biblia.png" sizes="any" />
         <link rel="apple-touch-icon" href="/biblia.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -64,17 +64,23 @@ export default function RootLayout({
             overflow-x: hidden;
             text-size-adjust: 100%; /* Previne texto crescer automaticamente */
             -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
           }
           
           body {
             overscroll-behavior-y: contain; /* Previne scroll excessivo */
+            touch-action: manipulation;
+            -webkit-overflow-scrolling: touch;
+          }
+          
+          input, textarea, select, button {
+            font-size: 16px !important; /* Tamanho mínimo para prevenir zoom em todos os dispositivos */
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 0;
           }
           
           @media (max-width: 768px) {
-            input, textarea, select, button {
-              font-size: 16px !important; /* Tamanho mínimo para prevenir zoom em iOS */
-            }
-            
             /* Melhorar a visualização de respostas */
             .prose, .prose p, .prose div, .message-text-content {
               font-size: 16px !important;

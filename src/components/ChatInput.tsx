@@ -153,10 +153,38 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
 
   const handleFocus = () => {
     setIsFocused(true);
+    
+    // Prevenir zoom no input ao receber foco
+    if (screen.isMobile) {
+      // Ajustar viewport para prevenir zoom
+      const viewportMeta = document.querySelector('meta[name="viewport"]');
+      if (viewportMeta) {
+        viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+      }
+      
+      // Forçar zoom reset via CSS
+      document.body.style.transform = 'scale(1)';
+      document.body.style.transformOrigin = 'center top';
+      
+      // Garantir que o textarea tenha o tamanho adequado para prevenir zoom
+      if (textareaRef.current) {
+        textareaRef.current.style.fontSize = '16px';
+      }
+    }
   };
 
   const handleBlur = () => {
     setIsFocused(false);
+    
+    // Restaurar viewport após perder o foco
+    if (screen.isMobile) {
+      setTimeout(() => {
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
+        }
+      }, 300);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -208,7 +236,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             boxShadow: '0 3px 10px rgba(0,0,0,0.1)',
             backgroundColor: '#f2f3f5', // Tom de cinza claro com leve tom azulado
             border: '1px solid #e1e4e8', // Borda em cinza sutil para bom contraste
-            fontSize: '16px' // Prevents zoom on iOS by using font size >= 16px
+            fontSize: '16px', // Garantir fonte de 16px para evitar zoom
+            WebkitTextSizeAdjust: '100%', // Prevenir ajuste de texto
+            transformOrigin: 'top center', // Ponto de origem para transformações
+            transform: 'translateZ(0)', // Usar GPU para renderização
+            touchAction: 'manipulation', // Otimizar comportamento de toque
+            WebkitAppearance: 'none' // Remover estilo padrão do iOS
           }}
           inputMode="text"
           autoComplete="off"

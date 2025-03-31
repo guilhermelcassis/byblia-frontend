@@ -124,36 +124,22 @@ const ChatContainer: React.FC = () => {
 
     const handleScroll = () => {
       const currentScrollTop = container.scrollTop;
-      // If scrolling up and the difference is significant
-      if (currentScrollTop < lastScrollPositionRef.current - 50) {
+      // If scrolling up and the difference is significant (reduced threshold)
+      if (currentScrollTop < lastScrollPositionRef.current - 30) {
         setUserManuallyScrolled(true);
       }
-      // If scrolled back to near-bottom, allow auto-scroll again
-      else if (container.scrollHeight - currentScrollTop - container.clientHeight < 100) {
+      // If scrolled back to near-bottom, allow auto-scroll again (increased threshold)
+      else if (container.scrollHeight - currentScrollTop - container.clientHeight < 150) {
         setUserManuallyScrolled(false);
       }
       lastScrollPositionRef.current = currentScrollTop;
     };
 
-    container.addEventListener('scroll', handleScroll);
+    container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Reset stream content tracker when streaming starts/stops
-  useEffect(() => {
-    if (!state.isStreaming) {
-      // When streaming stops, do a final scroll to bottom if user didn't scroll up
-      if (!userManuallyScrolled) {
-        setTimeout(() => {
-          scrollToBottom();
-        }, 100);
-      }
-      // Reset manual scroll flag when a new message starts
-      setUserManuallyScrolled(false);
-    }
-  }, [state.isStreaming, scrollToBottom, userManuallyScrolled]);
-
-  // Track streaming content changes to trigger scrolling
+  // Forcing scroll to bottom for new content during streaming
   useEffect(() => {
     if (state.isStreaming) {
       setStreamHasNewContent(true);
@@ -161,16 +147,24 @@ const ChatContainer: React.FC = () => {
       // Reset after a short delay to allow for batched updates
       const timeout = setTimeout(() => {
         setStreamHasNewContent(false);
-      }, 300);
+      }, 100); // Reduced delay
       
-      // Auto-scroll during streaming only if user hasn't manually scrolled up
+      // Always force auto-scroll during streaming
       if (!userManuallyScrolled) {
         scrollToBottom();
       }
       
       return () => clearTimeout(timeout);
+    } else if (state.messages.length > 0 && !state.isLoading) {
+      // When streaming stops, do a final scroll to bottom
+      if (!userManuallyScrolled) {
+        // Using setTimeout to ensure all content is rendered
+        setTimeout(() => {
+          scrollToBottom();
+        }, 50);
+      }
     }
-  }, [state.currentResponse, state.isStreaming, scrollToBottom, userManuallyScrolled]);
+  }, [state.currentResponse, state.isStreaming, state.messages.length, state.isLoading, scrollToBottom, userManuallyScrolled]);
 
   // Function to scroll to the last user message specifically
   const scrollToLastUserMessage = useCallback(() => {
@@ -522,7 +516,7 @@ const ChatContainer: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                width: '100%',
+                width: 'auto',
                 margin: '0 auto',
                 padding: '0',
                 position: 'relative'

@@ -41,10 +41,10 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
+    width: 'auto',
     textAlign: 'center',
     margin: '0 auto',
-    padding: '4px 0'
+    padding: '2px 0'
   };
   
   // Se o feedback já foi enviado, mostrar mensagem discreta de agradecimento
@@ -66,7 +66,7 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
         </div>
       )}
       
-      <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>Útil?</span>
+      <span style={{ fontSize: '0.7rem', color: '#9ca3af', marginRight: '0.25rem' }}>Útil?</span>
       
       <motion.button
         whileHover={{ scale: 1.1 }}
@@ -74,14 +74,16 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
         onClick={() => handleFeedback(true)}
         style={{ 
           color: '#9ca3af', 
-          margin: '0 0.25rem',
-          padding: '0.25rem',
+          margin: '0 0.15rem',
+          padding: '0.15rem',
           background: 'none',
           border: 'none',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          minWidth: 'auto',
+          minHeight: 'auto'
         }}
         aria-label="Resposta útil"
         disabled={isLoading}
@@ -95,13 +97,16 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
         onClick={() => handleFeedback(false)}
         style={{ 
           color: '#9ca3af', 
-          padding: '0.25rem',
+          padding: '0.15rem',
+          margin: '0',
           background: 'none',
           border: 'none',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          minWidth: 'auto',
+          minHeight: 'auto'
         }}
         aria-label="Resposta não útil"
         disabled={isLoading}

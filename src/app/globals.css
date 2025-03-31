@@ -1405,3 +1405,48 @@ div[class*="max-w-"] .input-box-3d {
     text-align: center !important;
   }
 }
+
+/* Estilos específicos para inputs para evitar zoom */
+input, textarea, select {
+  font-size: 16px !important;
+  -webkit-appearance: none;
+  appearance: none;
+  max-height: 100%;
+  border-radius: 0;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Melhorar comportamento de auto-scroll */
+#chat-messages {
+  scroll-behavior: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-padding-bottom: 100px;
+}
+
+/* Impedir zoom em inputs em foco */
+input:focus, textarea:focus {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 768px) {
+  /* Melhorar container de mensagens para auto-scroll */
+  #chat-messages {
+    scroll-behavior: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-bottom: 120px;
+  }
+  
+  /* Evitar zoom em dispositivos móveis */
+  input, textarea, select, button {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+    transform: translateZ(0);
+  }
+}

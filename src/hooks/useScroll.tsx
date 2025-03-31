@@ -139,10 +139,8 @@ export function useScroll({
   useEffect(() => {
     if (!isStreaming || !containerRef.current || userHasScrolled) return;
     
-    // Em dispositivos móveis no modo retrato, permitir que o usuário tenha mais controle
-    if (screen.isMobile && !screen.isLandscape) {
-      return; // Não force rolagem automática em dispositivos móveis durante streaming
-    }
+    // Permitir rolagem automática em todos os dispositivos durante o streaming
+    // Removida a condição que impedia o scroll em dispositivos móveis
     
     // Detectar se houve mudança no tamanho da resposta
     const currentLength = currentResponseText?.length || 0;
@@ -159,7 +157,7 @@ export function useScroll({
         if (containerRef.current) {
           containerRef.current.scrollTo({
             top: containerRef.current.scrollHeight,
-            behavior: 'smooth'
+            behavior: screen.isMobile ? 'auto' : 'smooth' // Usar 'auto' em mobile para scroll instantâneo
           });
         }
       }, 50);
@@ -170,10 +168,8 @@ export function useScroll({
   useEffect(() => {
     if (!containerRef.current || !isStreaming || userHasScrolled) return;
     
-    // Em dispositivos móveis no modo retrato, permitir que o usuário tenha mais controle
-    if (screen.isMobile && !screen.isLandscape) {
-      return; // Não force rolagem automática em dispositivos móveis durante streaming
-    }
+    // Permitir rolagem automática em todos os dispositivos
+    // Removida a condição que impedia o scroll em dispositivos móveis
 
     // During streaming, scroll if user hasn't manually scrolled up
     if (hasNewContent && !userHasScrolled) {
@@ -186,10 +182,10 @@ export function useScroll({
           console.log('[useScroll] Novo conteúdo durante streaming, scrollando para o final');
           containerRef.current.scrollTo({
             top: containerRef.current.scrollHeight,
-            behavior: 'smooth'
+            behavior: screen.isMobile ? 'auto' : 'smooth' // Usar 'auto' para scroll mais rápido no mobile
           });
         }
-      }, 50); // Faster timeout for streaming
+      }, 30); // Ainda mais rápido para melhor responsividade 
     }
   }, [isStreaming, hasNewContent, userHasScrolled, screen.isMobile, screen.isLandscape]);
 
