@@ -270,30 +270,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           rows={1}
         />
         
-        {/* Indicador sutil de "onde digitar" quando o campo está vazio */}
-        {!inputValue && !isFocused && (
-          <div 
-            className="absolute pointer-events-none flex md:hidden"
-            style={{
-              left: '20px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'rgba(0, 0, 0, 0.35)',
-              fontSize: screen.isMobile ? '14px' : '15px',
-              fontStyle: 'italic',
-              opacity: 0.7,
-              fontWeight: '400',
-              display: 'flex',
-              alignItems: 'center',
-              zIndex: 3
-            }}
-          >
-            <span className="hidden sm:inline">Digite aqui para</span>
-            <span className="inline sm:hidden">Digite para</span>
-            <span className="ml-1 text-bible-brown/60 font-medium">conversar...</span>
-          </div>
-        )}
-        
         {/* Botão com design profissional aprimorado */}
         <button
           type="submit"

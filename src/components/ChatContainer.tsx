@@ -494,7 +494,7 @@ const ChatContainer: React.FC = () => {
           <div className="pre-streaming-container" style={{ margin: 0, maxHeight: '36px' }}>
             <div className="pre-streaming-indicator" style={{ padding: '4px 10px', margin: 0 }}>
               <div className="streaming-indicator-text" style={{ margin: 0, padding: '2px 4px' }}>
-                <span style={{ fontSize: '13px', color: '#8B5D33' }}> Produrando uma resposta nas Escrituras{loadingDots} </span>
+                <span style={{ fontSize: '13px', color: '#8B5D33' }}> Procurando nas Escrituras{loadingDots} </span>
               </div>
             </div>
           </div>
