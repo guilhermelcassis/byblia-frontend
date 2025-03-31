@@ -2406,19 +2406,19 @@ html[data-scroll="true"] .navbar-fixed {
 
 /* Estilos para o indicador de pré-streaming removidos */
 .pre-streaming-indicator {
-  display: none;
+  display: flex; /* Garantir que esteja sempre visível */
 }
 
 .pre-streaming-container {
-  display: none;
+  display: flex; /* Garantir que esteja sempre visível */
 }
 
 .streaming-indicator {
-  display: none;
+  display: flex; /* Garantir que esteja sempre visível */
 }
 
 .streaming-indicator-text {
-  display: none;
+  display: flex; /* Garantir que esteja sempre visível */
 }
 
 .streaming-indicator-icon {
@@ -2430,13 +2430,22 @@ html[data-scroll="true"] .navbar-fixed {
   .pre-streaming-container,
   .pre-streaming-indicator,
   .streaming-indicator {
-    display: none;
+    display: flex; /* Alterado para flex para garantir que seja exibido */
   }
 }
 
-/* Remover keyframe de animação não utilizada */
+/* Animação de pulso para o indicador de loading */
 @keyframes pulse-loading {
-  0%, 100% {
-    opacity: 0;
+  0% {
+    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
+    border: 1px solid rgba(139, 93, 51, 0.15);
+  }
+  50% {
+    box-shadow: 0 2px 12px rgba(139, 93, 51, 0.15);
+    border: 1px solid rgba(139, 93, 51, 0.25);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
+    border: 1px solid rgba(139, 93, 51, 0.15);
   }
 }

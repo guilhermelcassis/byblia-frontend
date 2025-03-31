@@ -109,6 +109,25 @@ const ChatContainer: React.FC = () => {
   const [userManuallyScrolled, setUserManuallyScrolled] = useState(false);
   const lastScrollPositionRef = useRef<number>(0);
   
+  // Estado para controlar animação dos pontos no texto de loading
+  const [loadingDots, setLoadingDots] = useState('');
+  
+  // Efeito para animar os pontos do texto de loading
+  useEffect(() => {
+    if (state.isLoading || state.isStreaming) {
+      const interval = setInterval(() => {
+        setLoadingDots(prev => {
+          if (prev === '...') return '';
+          if (prev === '..') return '...';
+          if (prev === '.') return '..';
+          return '.';
+        });
+      }, 500);
+      
+      return () => clearInterval(interval);
+    }
+  }, [state.isLoading, state.isStreaming]);
+  
   // Use the new scroll hook
   const { containerRef, userHasScrolled, scrollToBottom } = useScroll({
     isStreaming: state.isStreaming,
@@ -469,6 +488,17 @@ const ChatContainer: React.FC = () => {
         
         {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
         {state.isColdStart && <ColdStartIndicator />}
+        
+        {/* Mostrar o indicador de loading quando estiver carregando */}
+        {!state.isColdStart && (state.isLoading || state.isStreaming) && (
+          <div className="pre-streaming-container">
+            <div className="pre-streaming-indicator">
+              <div className="streaming-indicator-text">
+                <span>Gerando uma resposta nas escrituras{loadingDots}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Input area when messages exist */}
@@ -520,25 +550,6 @@ const ChatContainer: React.FC = () => {
             >
               <FaSyncAlt size={14} className="text-red-500" />
               <span>Erro de conexão - Recarregar</span>
-            </button>
-          </motion.div>
-        )}
-
-        {/* Botão para rolar para a resposta */}
-        {showScrollToBottomButton && !userHasScrolled && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-20 right-4 z-50"
-          >
-            <button
-              onClick={scrollToBottom}
-              className="bg-white border border-gray-200 rounded-full p-2 shadow-md text-gray-500 hover:bg-gray-50"
-              aria-label="Rolar para o final"
-            >
-              <FaArrowDown size={16} />
             </button>
           </motion.div>
         )}
