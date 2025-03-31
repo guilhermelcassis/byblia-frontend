@@ -31,8 +31,8 @@ export const MessageItem: React.FC<Props> = ({
   const copyToClipboard = () => {
     // Não truncamos a cópia para a área de transferência, pois não tem limitação como a URL
     const textToCopy = questionText 
-      ? `Pergunta: ${questionText}\n\nResposta da Byblia:\n${message.content}\n\n— Enviado via Byblia (https://byblia.vercel.app/)`
-      : `${message.content}\n\n— Enviado via Byblia (https://byblia.vercel.app/)`;
+      ? `Pergunta: ${questionText}\n\nResposta da Byblia:\n${message.content}\n\n— Enviado via Byblia (https://byblia.com/)`
+      : `${message.content}\n\n— Enviado via Byblia (https://byblia.com/)`;
       
     if (navigator.clipboard && window.isSecureContext) {
       // Para navegadores modernos
@@ -84,7 +84,7 @@ export const MessageItem: React.FC<Props> = ({
     
     // Criar URL do WhatsApp com a mensagem codificada
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-      messageWithQuestion + '\n\n— Enviado via Byblia (https://byblia.vercel.app/)'
+      messageWithQuestion + '\n\n— Enviado via Byblia (https://byblia.com/)'
     )}`;
     
     // Abrir em uma nova aba

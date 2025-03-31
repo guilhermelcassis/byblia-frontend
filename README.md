@@ -1,6 +1,6 @@
-# Byblia - Assistente Bíblico
+# Byblia - Conselheiro Bíblico
 
-Um assistente virtual para obter respostas baseadas na Bíblia Sagrada. Byblia permite que usuários façam perguntas relacionadas à fé e recebam respostas baseadas nos ensinamentos bíblicos.
+Um conselheiro virtual para obter respostas baseadas na Bíblia Sagrada. Byblia permite que usuários façam perguntas relacionadas à fé e recebam respostas baseadas nos ensinamentos bíblicos.
 
 ## 🌟 Funcionalidades
 
