@@ -277,7 +277,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           className={`absolute flex items-center justify-center rounded-full transition-all z-[150] ${
             !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-bible-brown text-white hover:bg-bible-darkbrown active:scale-95'
+              : `bg-bible-brown text-white hover:bg-bible-darkbrown ${screen.isMobile ? 'active:scale-95' : ''}`
           }`}
           style={{
             width: screen.isMobile ? (screen.isLandscape ? '40px' : '46px') : '52px',

@@ -492,9 +492,27 @@ const ChatContainer: React.FC = () => {
         {/* Mostrar o indicador de loading apenas antes do streaming iniciar */}
         {!state.isColdStart && state.isLoading && !state.isStreaming && (
           <div className="pre-streaming-container" style={{ margin: 0, maxHeight: '36px' }}>
-            <div className="pre-streaming-indicator" style={{ padding: '4px 10px', margin: 0 }}>
-              <div className="streaming-indicator-text" style={{ margin: 0, padding: '2px 4px' }}>
-                <span style={{ fontSize: '13px', color: '#8B5D33' }}> Procurando nas Escrituras{loadingDots} </span>
+            <div 
+              className="pre-streaming-indicator rounded-md shadow-sm"
+              style={{ 
+                padding: '6px 12px', 
+                margin: '0 auto', 
+                backgroundColor: '#4A4A4A',
+                maxWidth: 'fit-content',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <div className="streaming-indicator-text" style={{ margin: 0 }}>
+                <span style={{ 
+                  fontSize: '14px', 
+                  color: '#FFFFFF', 
+                  fontWeight: '500',
+                  letterSpacing: '0.2px'
+                }}>
+                  Procurando nas Escrituras{loadingDots}
+                </span>
               </div>
             </div>
           </div>
