@@ -24,8 +24,21 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       // Add/remove touch-device class to body
       if (touchDevice) {
         document.body.classList.add('touch-device');
+        
+        // Adicionar classe específica para iOS
+        if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+          document.body.classList.add('ios-device');
+          
+          // Identificar dispositivos mais novos (maior resolução)
+          const isNewerDevice = window.screen.height >= 800 && window.screen.width >= 375;
+          if (isNewerDevice) {
+            document.body.classList.add('ios-newer');
+          }
+        }
       } else {
         document.body.classList.remove('touch-device');
+        document.body.classList.remove('ios-device');
+        document.body.classList.remove('ios-newer');
       }
     };
 
@@ -37,8 +50,19 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       const scrolled = window.scrollY > 10;
       if (scrolled) {
         document.documentElement.setAttribute('data-scroll', 'true');
+        document.body.classList.add('is-scrolled');
       } else {
         document.documentElement.setAttribute('data-scroll', 'false');
+        document.body.classList.remove('is-scrolled');
+      }
+      
+      // Especial para iOS
+      if (document.body.classList.contains('ios-device')) {
+        // Forçar repaint para corrigir problemas no Safari
+        document.body.style.transform = 'translateZ(0)';
+        setTimeout(() => {
+          document.body.style.transform = '';
+        }, 0);
       }
     };
 
@@ -46,11 +70,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     handleScroll();
     
     // Add scroll listener
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     // Clean up
     return () => {
       document.body.classList.remove('touch-device');
+      document.body.classList.remove('ios-device');
+      document.body.classList.remove('ios-newer');
+      document.body.classList.remove('is-scrolled');
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);

@@ -2200,3 +2200,94 @@ header + section .message-list {
     font-size: 13px;
   }
 }
+
+/* ESTILOS ESPECIFICOS PARA IPHONE 15 E SAFARI MAIS RECENTES */
+@media screen and (min-width: 390px) and (max-width: 430px) and (min-height: 800px) {
+  @supports (-webkit-touch-callout: none) {
+    /* Fixar posição da navbar com hardware acceleration */
+    .navbar-fixed {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 9999 !important;
+      transform: translateZ(0) !important;
+      -webkit-transform: translateZ(0) !important;
+      backface-visibility: hidden !important;
+      -webkit-backface-visibility: hidden !important;
+      will-change: transform !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important;
+    }
+    
+    /* Garantir espaço adequado após a navbar */
+    #chat-messages, 
+    .message-list {
+      margin-top: 56px !important;
+      padding-top: 10px !important;
+    }
+    
+    /* Regras específicas para streaming */
+    body.is-streaming .navbar-fixed {
+      box-shadow: 0 1px 4px rgba(0,0,0,0.18) !important;
+    }
+    
+    /* Ajustar posição da primeira mensagem para não ficar sob a navbar */
+    .message-list > div:first-child {
+      margin-top: 10px !important;
+      padding-top: 10px !important;
+    }
+    
+    /* Garantir espaçamento para a seção após o header */
+    header + section {
+      padding-top: 56px !important;
+    }
+  }
+}
+
+/* Estilos para dispositivos iOS */
+body.ios-device .navbar-fixed {
+  -webkit-transform: translateZ(0) !important;
+  transform: translateZ(0) !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  will-change: transform !important;
+}
+
+/* Regras específicas para dispositivos iOS mais novos */
+body.ios-newer .navbar-fixed {
+  position: fixed !important;
+  top: 0 !important;
+  width: 100% !important;
+  z-index: 9999 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+}
+
+/* Ajuste específico para scroll no Safari */
+body.ios-device.is-scrolled .navbar-fixed {
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Corrigir problemas de espaçamento em dispositivos iOS mais novos */
+body.ios-newer #chat-messages {
+  padding-top: 56px !important;
+  margin-top: 5px !important;
+}
+
+/* Reduzir a margem para a primeira mensagem em dispositivos iOS mais novos */
+body.ios-newer .message-list > div:first-child {
+  margin-top: 10px !important;
+  padding-top: 5px !important;
+}
+
+/* Garantir que durante o streaming a navegação se mantenha corretamente fixada */
+body.ios-device.is-streaming .navbar-fixed {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  -webkit-transform: translateZ(0) !important;
+  transform: translateZ(0) !important;
+}
