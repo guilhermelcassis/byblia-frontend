@@ -198,13 +198,16 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           placeholder={screen.isLandscape ? "Faça uma pergunta, peça conselhos ou compartilhe um problema" : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
-          className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 text-gray-800 text-sm font-normal resize-none overflow-hidden w-full`}
+          className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 text-gray-800 text-sm font-normal resize-none overflow-hidden w-full rounded-lg ${isFocused ? 'ring-2 ring-bible-brown/40' : ''} focus:outline-none transition-all duration-200`}
           style={{ 
             minHeight: getMinHeight(),
             maxHeight: screen.isLandscape ? '120px' : '300px',
             wordWrap: 'break-word',
             lineHeight: screen.isLandscape ? '1.3' : '1.4',
-            paddingRight: screen.isLandscape ? '40px' : '60px' // Espaço para o botão
+            paddingRight: screen.isLandscape ? '40px' : '60px', // Espaço para o botão
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            backgroundColor: '#f8f4eb', // Light beige/cream color
+            border: '1px solid #e0d8c8' // Subtle beige border
           }}
           disabled={isLoading}
           maxLength={MAX_MESSAGE_LENGTH}
