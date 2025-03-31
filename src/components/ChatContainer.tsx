@@ -303,7 +303,7 @@ const ChatContainer: React.FC = () => {
           <div className={`flex flex-col items-center justify-center h-full px-4 md:px-6 ${screen.isLandscape ? 'pt-2 pb-4' : 'pt-3 pb-6 md:py-6'}`}>
             {/* Mensagem de boas-vindas estilo DeepSeek - centralizada com logo ou ícone */}
             <div className={`flex flex-col items-center justify-center text-center max-w-md w-full ${screen.isLandscape ? 'mb-3' : 'mb-5 md:mb-8'}`}>
-              <h2 className={`${screen.isLandscape ? 'text-lg' : 'text-xl md:text-2xl'} font-bold mb-1 md:mb-2 text-bible-brown byblia-title-md`}>
+              <h2 className={`${screen.isLandscape ? 'text-lg' : 'text-xl md:text-2xl'} font-bold mb-3 md:mb-4 text-bible-brown byblia-title-md`}>
                 Oi, eu sou a Byblia,
               </h2>
               <p className={`${screen.isLandscape ? 'text-xs' : 'text-sm'} text-gray-500 mb-0`}>
