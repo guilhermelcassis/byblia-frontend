@@ -591,7 +591,8 @@ div.rounded-user-message {
   
   /* Espaçamento adicional para a primeira mensagem quando fixada no topo */
   .message-list > div:first-child {
-    margin-top: 5px;
+    margin-top: 15px;
+    padding-top: 5px;
   }
 
   /* Melhorar a experiência de toque nos botões de compartilhamento em dispositivos móveis */
@@ -636,7 +637,7 @@ div.rounded-user-message {
 
 /* Estilo específico para fixar espaçamento entre a navbar e a caixa de pergunta */
 header + section .message-list {
-  padding-top: 15px !important;
+  padding-top: 30px !important;
 }
 
 /* Estilos específicos para botões de compartilhamento */
@@ -1618,7 +1619,7 @@ body.is-streaming .chat-container {
 
 /* Garantir que o container de streaming não esconda a navbar */
 body.is-streaming .app-container {
-  padding-top: 56px;
+  padding-top: 0; /* Removido para evitar duplo padding, já que main já tem padding-top */
 }
 
 /* Garantir que o contêiner de mensagens tenha rolagem apropriada */
@@ -1626,6 +1627,7 @@ body.is-streaming .message-list {
   max-height: none !important;
   overflow-y: visible !important;
   padding-bottom: 150px;
+  padding-top: 30px !important; /* Aumentar o espaçamento para que as mensagens comecem após a navbar */
 }
 
 /* Scroll automático - estilo de máxima prioridade */
