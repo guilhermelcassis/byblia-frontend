@@ -35,6 +35,22 @@ export function useScroll({
   const prevResponseLengthRef = useRef<number>(0);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const screen = useScreen();
+  // Track if we should prioritize showing the question over auto-scrolling
+  const [prioritizeQuestion, setPrioritizeQuestion] = useState(false);
+
+  // Reset prioritize question when message count changes
+  useEffect(() => {
+    if (messagesCount % 2 === 0 && messagesCount > 0) {
+      // New question was just sent (even number of messages means user message + placeholder response)
+      setPrioritizeQuestion(true);
+    } else if (messagesCount > prevMessagesCountRef.current) {
+      // After a short delay, reset the priority flag
+      const timeout = setTimeout(() => {
+        setPrioritizeQuestion(false);
+      }, 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [messagesCount]);
 
   // Track user scrolling behavior
   useEffect(() => {
@@ -72,6 +88,13 @@ export function useScroll({
     if (messagesCount > prevMessagesCountRef.current) {
       prevMessagesCountRef.current = messagesCount;
       
+      // On mobile portrait mode, don't auto-scroll after submitting a question
+      // to prioritize showing the question at the top
+      if (screen.isMobile && !screen.isLandscape && prioritizeQuestion) {
+        console.log('[useScroll] Mobile mode - prioritizing question display, no auto-scroll');
+        return;
+      }
+      
       // Always scroll for new complete messages, mas com animação mais suave em mobile
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
@@ -87,7 +110,7 @@ export function useScroll({
         }
       }, screen.isMobile && !screen.isLandscape ? 300 : 100);
     }
-  }, [messagesCount, screen.isMobile, screen.isLandscape]);
+  }, [messagesCount, screen.isMobile, screen.isLandscape, prioritizeQuestion]);
 
   // Handle streaming content scrolling using currentResponseText
   useEffect(() => {

@@ -1,9 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import ChatContainer from '@/components/ChatContainer';
 import { ScreenProvider, useScreen } from '@/hooks/useScreen';
 import MainLayout from '@/components/layout/MainLayout';
+import { useMouseEffect } from '@/hooks/useMouseEffect';
 
 export default function Home() {
   return (
@@ -15,6 +16,9 @@ export default function Home() {
 
 function HomeContent() {
   const screen = useScreen();
+  
+  // Integrar o efeito de mouse para melhorar a experiência em desktop
+  useMouseEffect();
 
   return (
     <MainLayout>

@@ -102,6 +102,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
       // Validar entrada antes de enviar
       if (!validateInput(inputValue)) {
         return;
+
       }
       
       // Verificar frequência de requisições (proteção adicional de throttling)
@@ -176,54 +177,55 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   };
 
   return (
-    <div className="w-full mobile-input-container mt-2">
-      <div className={`relative bg-gray-50 shadow-sm border ${validationError ? 'border-red-500' : 'border-gray-100'} w-full mx-auto transition-all ${isFocused ? 'ring-2 ring-bible-brown/20' : ''} z-[120]`} style={{ borderRadius: '24px' }}>
-        <form 
-          onSubmit={handleSubmit} 
-          className="flex items-start bg-transparent w-full mx-auto transition-all"
+    <div className="mobile-input-container">
+      <form 
+        onSubmit={handleSubmit} 
+        className="flex items-start w-full relative"
+      >
+        <textarea
+          ref={textareaRef}
+          value={inputValue}
+          onChange={handleInputChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          placeholder={screen.isLandscape ? "Faça uma pergunta, peça conselhos ou compartilhe um problema" : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
+          className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 text-gray-800 text-sm font-normal resize-none overflow-hidden w-full`}
+          style={{ 
+            minHeight: screen.isLandscape ? '42px' : '64px',
+            maxHeight: screen.isLandscape ? '120px' : '300px',
+            wordWrap: 'break-word',
+            lineHeight: screen.isLandscape ? '1.3' : '1.4',
+            paddingRight: screen.isLandscape ? '40px' : '60px' // Espaço para o botão
+          }}
+          disabled={isLoading}
+          maxLength={MAX_MESSAGE_LENGTH}
+          aria-describedby="message-validation"
+          rows={1}
+        />
+        
+        {/* Botão estilo DeepSeek - com animação melhorada */}
+        <button
+          type="submit"
+          disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
+          className={`absolute flex items-center justify-center rounded-full transition-all z-[150] ${
+            !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-bible-brown text-white hover:bg-bible-darkbrown hover:shadow-md active:scale-95'
+          }`}
+          style={{
+            width: screen.isLandscape ? '36px' : '42px',
+            height: screen.isLandscape ? '36px' : '42px',
+            transition: 'all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)',
+            right: screen.isLandscape ? '12px' : '16px',
+            bottom: screen.isLandscape ? '50%' : '14px',
+            transform: screen.isLandscape ? 'translateY(50%)' : 'none'
+          }}
+          aria-label="Enviar mensagem"
         >
-          <textarea
-            ref={textareaRef}
-            value={inputValue}
-            onChange={handleInputChange}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            onKeyDown={handleKeyDown}
-            placeholder={screen.isLandscape ? "Faça uma pergunta, peça conselhos ou compartilhe um problema" : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
-            className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 bg-transparent outline-none placeholder-gray-500 text-gray-800 text-sm font-normal resize-none overflow-hidden w-full`}
-            style={{ 
-              minHeight: screen.isLandscape ? '42px' : '64px',
-              maxHeight: screen.isLandscape ? '120px' : '300px',
-              wordWrap: 'break-word',
-              lineHeight: screen.isLandscape ? '1.3' : '1.4',
-              paddingRight: screen.isLandscape ? '40px' : '60px', // Espaço para o botão
-              borderRadius: '24px'
-            }}
-            disabled={isLoading}
-            maxLength={MAX_MESSAGE_LENGTH}
-            aria-describedby="message-validation"
-            rows={1}
-          />
-          
-          {/* Botão estilo DeepSeek - posicionado dentro do input */}
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
-            className={`absolute ${screen.isLandscape ? 'right-3 top-1/2 transform -translate-y-1/2' : 'right-4 bottom-4'} flex items-center justify-center rounded-full transition-all z-[150] ${
-              !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-bible-brown text-white hover:bg-bible-darkbrown'
-            }`}
-            style={{
-              width: screen.isLandscape ? '36px' : '42px',
-              height: screen.isLandscape ? '36px' : '42px'
-            }}
-            aria-label="Enviar mensagem"
-          >
-            <FaArrowRight size={screen.isLandscape ? 16 : 18} />
-          </button>
-        </form>
-      </div>
+          <FaArrowRight size={screen.isLandscape ? 16 : 18} />
+        </button>
+      </form>
       
       {validationError && (
         <div 
@@ -239,4 +241,4 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   );
 };
 
-export default ChatInput; 
+export default ChatInput

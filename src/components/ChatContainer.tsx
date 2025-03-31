@@ -11,6 +11,7 @@ import { checkBackendHealth, testBackendConnection } from '../services/api';
 import { FaServer, FaQuestionCircle, FaCommentDots, FaSyncAlt, FaTools } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScreen } from '@/hooks/useScreen';
+import WelcomeTitleEffect from './WelcomeTitleEffect';
 
 // Componente para mostrar o status do backend
 const BackendStatus: React.FC = () => {
@@ -148,20 +149,44 @@ const ChatContainer: React.FC = () => {
         // Get the last user message element
         const lastUserMessage = userMessages[userMessages.length - 1];
         
-        // Calculate position to show message at top with some padding
-        const container = containerRef.current;
-        const messageTop = lastUserMessage.getBoundingClientRect().top;
-        const containerTop = container.getBoundingClientRect().top;
-        const scrollOffset = messageTop - containerTop - 20; // 20px padding from top
-        
-        // Smooth scroll to position
-        container.scrollBy({
-          top: scrollOffset,
-          behavior: 'auto' // Changed to auto for immediate scroll
-        });
+        // In mobile view, scroll to the very top to show question and navbar
+        if (screen.isMobile && !screen.isLandscape) {
+          // Scroll to top of page to show navbar first
+          window.scrollTo({
+            top: 0,
+            behavior: 'auto'
+          });
+          
+          // Then position the container to show the user message at top
+          setTimeout(() => {
+            const container = containerRef.current;
+            if (container) {
+              const messageTop = lastUserMessage.getBoundingClientRect().top;
+              const containerTop = container.getBoundingClientRect().top;
+              const scrollOffset = messageTop - containerTop;
+              
+              container.scrollTo({
+                top: scrollOffset,
+                behavior: 'auto'
+              });
+            }
+          }, 50);
+        } else {
+          // Default behavior for non-mobile or landscape mode
+          const container = containerRef.current;
+          const messageTop = lastUserMessage.getBoundingClientRect().top;
+          const containerTop = container.getBoundingClientRect().top;
+          const scrollOffset = messageTop - containerTop - 20; // 20px padding from top
+          
+          // Smooth scroll to position
+          container.scrollBy({
+            top: scrollOffset,
+            behavior: 'auto' // Changed to auto for immediate scroll
+          });
+        }
       }
     }
-  }, [state.messages.length]);
+  }, [state.messages.length, screen.isMobile, screen.isLandscape]);
 
   // Wrapper for sending message and updating the ref of the message length
   const handleSendMessage = (message: string) => {
@@ -299,43 +324,96 @@ const ChatContainer: React.FC = () => {
     }
   };
 
+  // State for minimize/maximize view
+  const [minimizedView, setMinimizedView] = useState(false);
+
+  // Function to toggle between minimized and maximized view
+  const toggleView = useCallback(() => {
+    setMinimizedView(prev => !prev);
+    
+    // When maximizing, scroll to the user's message
+    if (minimizedView) {
+      setTimeout(() => {
+        scrollToLastUserMessage();
+      }, 50);
+    }
+  }, [minimizedView, scrollToLastUserMessage]);
+
   return (
     <div className="flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden">
-      {/* Botão "Ver resposta" para mobile - REMOVED as per request */}
+      {/* Toggle button for mobile view */}
+      {screen.isMobile && !screen.isLandscape && state.messages.length > 1 && (
+        <motion.button
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          onClick={toggleView}
+          className="fixed top-16 right-3 z-50 bg-bible-brown text-white rounded-full p-2 shadow-md"
+          style={{ fontSize: '12px' }}
+        >
+          {minimizedView ? 'Ver pergunta' : 'Minimizar'}
+        </motion.button>
+      )}
       
-      {/* Messages container */}
+      {/* Mobile view with question focus feature */}
+      {screen.isMobile && !screen.isLandscape && !minimizedView && state.messages.length > 1 && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="question-focus-container bg-gray-50 py-3 px-4 border-b"
+        >
+          <div className="text-xs text-gray-500 mb-1">Sua pergunta:</div>
+          <div className="text-sm font-medium text-gray-800">
+            {state.messages.find(m => m.role === 'user')?.content || ''}
+          </div>
+        </motion.div>
+      )}
+      
+      {/* Messages container - adjust padding when in focus mode */}
       <div 
         ref={containerRef}
-        className="flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-2 sm:space-y-3 mb-0 manual-scroll" 
+        className={`flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-2 sm:space-y-3 mb-0 manual-scroll`}
         id="chat-messages"
         style={{ 
           overscrollBehavior: 'contain',
           WebkitOverflowScrolling: 'touch',
           scrollPaddingBottom: '70px',
           paddingBottom: screen.isLandscape ? '50px' : '20px',
-          paddingTop: '10px',
+          paddingTop: (!minimizedView && screen.isMobile && !screen.isLandscape && state.messages.length > 1) ? '10px' : '10px',
           position: 'relative'
         }}
       >      
         {state.messages.length === 0 ? (
           <div className={`flex flex-col items-center justify-center h-full px-4 md:px-6 ${screen.isLandscape ? 'pt-2 pb-4' : 'pt-3 pb-6 md:py-6'}`}>
-            {/* Mensagem de boas-vindas estilo DeepSeek - centralizada com logo ou ícone */}
+            {/* Mensagem de boas-vindas estilo DeepSeek - agora com efeito de relevo */}
             <div className={`flex flex-col items-center justify-center text-center max-w-md w-full ${screen.isLandscape ? 'mb-4' : 'mb-5 md:mb-8'}`}>
-              <h2 className={`${screen.isLandscape ? 'text-lg' : 'text-xl md:text-2xl'} font-bold mb-3 md:mb-4 text-bible-brown byblia-title-md`}>
+              <WelcomeTitleEffect className={`${screen.isLandscape ? 'text-lg' : 'text-xl md:text-2xl'} font-bold mb-3 md:mb-4 byblia-title-md`}>
                 Oi, eu sou a Byblia,
-              </h2>
-              <p className={`${screen.isLandscape ? 'text-xs' : 'text-sm'} text-gray-500 mb-0`}>
+              </WelcomeTitleEffect>
+              <motion.p 
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+                className={`${screen.isLandscape ? 'text-xs' : 'text-sm'} text-gray-500 mb-0`}
+              >
                 Como posso te ajudar hoje?
-              </p>
+              </motion.p>
             </div>
             
             {/* Input centralizado após a mensagem de boas-vindas */}
-            <div className="w-full max-w-2xl z-50 mb-4 md:mb-8 mx-auto">
-              <ChatInput 
-                onSendMessage={handleSendMessage} 
-                isLoading={state.isLoading || state.isStreaming}
-              />
-            </div>
+            <motion.div 
+              className="w-full max-w-2xl z-50 mb-4 md:mb-8 mx-auto"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <div className="input-box-3d">
+                <ChatInput 
+                  onSendMessage={handleSendMessage} 
+                  isLoading={state.isLoading || state.isStreaming}
+                />
+              </div>
+            </motion.div>
           </div>
         ) : (
           <div className="message-list pb-2 mb-2" style={{ position: 'relative' }}>
@@ -388,7 +466,7 @@ const ChatContainer: React.FC = () => {
         })()}
       </div>
       
-      {/* Input area */}
+      {/* Input area when messages exist */}
       <AnimatePresence>
         {state.messages.length > 0 && !state.isStreaming && !state.isColdStart && (
           <motion.div 
@@ -396,14 +474,19 @@ const ChatContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="p-3 sm:p-4 bg-transparent relative z-[100]"
-            style={{ margin: 0 }}
+            className="p-3 sm:p-4 bg-transparent relative z-[100] w-full"
+            style={{ 
+              padding: screen.isMobile ? '8px 8px 16px 8px' : '12px 16px',
+              margin: 0
+            }}
           >
-            <div className="max-w-2xl mx-auto px-1">
-              <ChatInput 
-                onSendMessage={handleSendMessage} 
-                isLoading={state.isLoading || state.isStreaming}
-              />
+            <div className="max-w-2xl mx-auto">
+              <div className="input-box-3d">
+                <ChatInput 
+                  onSendMessage={handleSendMessage} 
+                  isLoading={state.isLoading || state.isStreaming}
+                />
+              </div>
             </div>
           </motion.div>
         )}

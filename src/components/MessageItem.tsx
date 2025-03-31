@@ -3,6 +3,7 @@ import { Message } from '../types';
 import MessageText from './MessageText';
 import { FaCopy, FaWhatsapp, FaCheck } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { useScreen } from '@/hooks/useScreen';
 
 interface Props {
   message: Message;
@@ -10,6 +11,13 @@ interface Props {
   isStreaming?: boolean;
   questionText?: string; // Pergunta do usuário que originou esta resposta
 }
+
+// Função auxiliar para formatar a hora
+const formatTime = (date: Date): string => {
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
 
 // Usando memo para evitar re-renderizações desnecessárias durante streaming
 export const MessageItem: React.FC<Props> = memo(({ 
@@ -21,6 +29,7 @@ export const MessageItem: React.FC<Props> = memo(({
   const isUser = message.role === 'user';
   const containerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
+  const screen = useScreen();
 
   // Função auxiliar para truncar texto se necessário
   const truncateText = (text: string, maxLength: number): string => {
@@ -89,7 +98,7 @@ export const MessageItem: React.FC<Props> = memo(({
     <div 
       ref={containerRef}
       className={`flex w-full mb-3 ${
-        isUser ? 'justify-end' : ''
+        isUser ? 'justify-end user-message-item' : ''
       }`}
       data-testid="message-item"
       style={isUser ? { marginTop: '5px' } : {}}
@@ -106,6 +115,13 @@ export const MessageItem: React.FC<Props> = memo(({
           borderRadius: isUser ? '20px' : '20px'
         }}
       >
+        {/* Show timestamp for user messages in mobile view */}
+        {isUser && screen.isMobile && message.timestamp && (
+          <div className="text-[10px] text-white opacity-80 mb-1">
+            {formatTime(new Date(message.timestamp))}
+          </div>
+        )}
+        
         <div 
           className={`whitespace-pre-wrap prose prose-sm max-w-none ${
             isUser ? 'prose-invert font-medium user-message-text' : ''
