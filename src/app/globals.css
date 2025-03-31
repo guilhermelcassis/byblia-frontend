@@ -82,20 +82,26 @@ body {
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 3px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgb(var(--background-rgb));
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(180, 180, 180, 0.4);
-  border-radius: 4px;
+  background: rgba(180, 180, 180, 0.3);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(150, 150, 150, 0.6);
+  background: rgba(150, 150, 150, 0.5);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 180, 180, 0.3) transparent;
 }
 
 /* Remove the flickering animations */
@@ -266,8 +272,112 @@ body {
   max-width: 400px;
 }
 
+/* Estilos base para as mensagens - aplicados em todos os dispositivos */
+.user-message {
+  background-color: rgb(var(--bible-main-rgb));
+  color: white;
+  border-radius: 20px !important;
+}
+
+.rounded-user-message {
+  border-radius: 20px !important;
+}
+
+.assistant-message {
+  background-color: rgb(var(--accent-light));
+  border-radius: 20px !important;
+  color: #333;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Redefine o seletor para garantir maior especificidade */
+div.user-message, 
+div.user-message-container,
+div.rounded-user-message {
+  border-radius: 20px !important;
+}
+
+/* Garante que as mensagens em landscape e desktop também tenham bordas arredondadas */
+@media (min-width: 769px) {
+  .user-message, .user-message-container, .message-item .user-message {
+    border-radius: 20px !important;
+  }
+}
+
+/* Regras específicas para o modo landscape */
+@media (orientation: landscape) {
+  .user-message, .user-message-container, div.user-message, div.user-message-container {
+    border-radius: 20px !important;
+  }
+  
+  div[class*="user-message"] {
+    border-radius: 20px !important;
+  }
+  
+  /* Para desktop */
+  @media (min-width: 1024px) {
+    .user-message, .user-message-container, .rounded-user-message, div.bg-bible-brown {
+      border-radius: 20px !important;
+    }
+  }
+}
+
 /* Mobile-specific improvements */
 @media (max-width: 768px) {
+  /* Reduzir espaçamento geral no mobile */
+  .message-list {
+    padding-bottom: 4px;
+    margin-bottom: 0;
+  }
+  
+  /* Otimizar botões de feedback para mobile */
+  .feedback-buttons {
+    margin-top: 6px;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  /* Reduzir espaçamento entre mensagens */
+  .message-item + .message-item {
+    margin-top: 8px;
+  }
+  
+  /* Aumentar a área tocável dos botões */
+  button {
+    min-height: 36px;
+  }
+  
+  /* Reduzir o padding da última mensagem no streaming */
+  .streaming-message {
+    padding-bottom: 8px;
+  }
+  
+  /* Garantir que o indicador de streaming fique bem visível */
+  .p-2.fixed.bottom-0 {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+  
+  /* Remover qualquer espaço entre feedback e input */
+  .mt-1.mb-0 {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  
+  /* Remover bordas e margens da caixa de input fixa */
+  .fixed.bottom-0 {
+    border-top: none !important;
+    margin-top: 0 !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  /* Ajustar padding para compensar o espaço removido */
+  #chat-messages {
+    padding-bottom: 70px !important;
+  }
+  
   /* Improve button tap targets */
   button, a {
     min-height: 36px; /* Ajustado para ficar com tamanho do DeepSeek */
@@ -297,7 +407,7 @@ body {
   
   /* Estilo moderno para o input field */
   .mobile-input-container > div {
-    border-radius: 16px !important;
+    border-radius: 24px !important;
     background-color: #f5f5f7 !important; /* Cor de fundo cinza clara similar ao DeepSeek */
     border: 1px solid rgb(var(--accent-border)) !important;
     min-height: 90px !important; /* Aumentado para acomodar o texto em múltiplas linhas */
@@ -328,6 +438,7 @@ body {
     min-height: 90px !important;
     height: auto !important;
     vertical-align: top !important; /* Mudado para 'top' para melhor alinhamento com placeholder em múltiplas linhas */
+    border-radius: 24px !important; /* Adicionando raio de borda para consistência */
   }
   
   /* Estilos específicos para o placeholder no input */
@@ -356,12 +467,12 @@ body {
   /* Ajuste para o botão de enviar */
   button[type="submit"] {
     position: absolute !important;
-    right: 8px !important;
-    bottom: 8px !important; 
+    right: 12px !important; /* Aumentado de 8px para compensar o border-radius maior */
+    bottom: 12px !important; /* Aumentado de 8px para compensar o border-radius maior */
     top: auto !important;
     transform: none !important;
-    width: 36px !important;
-    height: 36px !important;
+    width: 40px !important; /* Aumentado ligeiramente */
+    height: 40px !important; /* Aumentado ligeiramente */
     padding: 0 !important;
     display: flex !important;
     align-items: center !important;
@@ -417,24 +528,20 @@ body {
   
   /* Melhorias para mensagens */
   .message-item {
-    border-radius: 8px;
+    border-radius: 16px;
     padding: 12px 16px;
     margin-bottom: 12px;
   }
   
-  .user-message {
-    background-color: rgb(var(--bible-main-rgb));
-    color: white;
-    border-radius: 12px;
+  /* Adicionar espaçamento quando a caixa de mensagens estiver fixada no topo */
+  .message-list {
+    position: relative;
+    padding-top: 10px; /* Espaçamento entre a navbar e a pergunta */
   }
   
-  .assistant-message {
-    background-color: rgb(var(--accent-light));
-    border-radius: 12px;
-    color: #333;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
+  /* Espaçamento adicional para a primeira mensagem quando fixada no topo */
+  .message-list > div:first-child {
+    margin-top: 5px;
   }
 
   /* Melhorar a experiência de toque nos botões de compartilhamento em dispositivos móveis */
@@ -470,6 +577,16 @@ body {
   input[type="text"] {
     display: block;
   }
+  
+  /* Garantir bordas arredondadas também no iOS */
+  .user-message, .user-message-container {
+    border-radius: 20px !important;
+  }
+}
+
+/* Estilo específico para fixar espaçamento entre a navbar e a caixa de pergunta */
+header + section .message-list {
+  padding-top: 15px !important;
 }
 
 /* Estilos específicos para botões de compartilhamento */
@@ -484,13 +601,13 @@ body {
 
 /* Estilo para o indicador de streaming durante a geração de resposta */
 .streaming-indicator {
-  border-radius: 16px;
+  border-radius: 24px;
   background-color: #f5f5f7;
   border: 1px solid rgb(var(--accent-border));
-  min-height: 60px;
-  width: 99%;
+  min-height: 48px;
+  width: 100%;
   max-width: 900px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -514,11 +631,375 @@ body {
 
 @media (max-width: 768px) {
   .streaming-indicator {
-    min-height: 50px;
-    padding: 8px 16px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    margin: 0;
   }
   
   .streaming-indicator-text {
     font-size: 13px;
+  }
+}
+
+/* Estilos para o menu hamburger - versão simplificada */
+.mobile-menu-button {
+  z-index: 99 !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  padding: 0 !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+/* Overlay do menu (backdrop) */
+.menu-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  z-index: 40 !important;
+  backdrop-filter: blur(1px) !important;
+  -webkit-backdrop-filter: blur(1px) !important;
+}
+
+/* Estilos para o menu dropdown que funcionam em todas as visualizações */
+.menu-dropdown {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background-color: white !important;
+  z-index: 50 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-top: 1px solid #f1f1f1 !important;
+}
+
+.menu-item {
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 10px 16px !important;
+  border-radius: 12px !important;
+  margin-bottom: 2px !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.menu-item:active {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  transform: scale(0.99) !important;
+}
+
+/* Melhorias para dispositivos de toque */
+.touch-device .mobile-menu-button {
+  padding: 0 !important;
+}
+
+/* Acessibilidade para toque - aumentar a área de toque */
+.touch-area {
+  position: relative !important;
+}
+
+.touch-area::before {
+  content: '' !important;
+  position: absolute !important;
+  top: -10px !important;
+  left: -10px !important;
+  right: -10px !important;
+  bottom: -10px !important;
+  z-index: -1 !important;
+}
+
+/* Prevenir scroll quando o menu está aberto */
+body.menu-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Garantia final de que as bordas estão arredondadas, sobrescreve qualquer outro estilo */
+html body .user-message,
+html body .user-message-container,
+html body div[class*="user-message"],
+html body .rounded-user-message,
+html body div.bg-bible-brown {
+  border-radius: 20px !important;
+}
+
+/* Estilo moderno para a navbar com sombra */
+.navbar-fixed {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 56px !important;
+  padding: 0 16px !important;
+  z-index: 100 !important;
+  background-color: rgba(255, 255, 255, 0.97) !important;
+  backdrop-filter: saturate(180%) blur(5px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(5px) !important;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 4px 12px rgba(0, 0, 0, 0.04) !important;
+  border-bottom: 1px solid rgba(240, 240, 240, 0.8) !important;
+  transition: all 0.25s ease-in-out !important;
+  will-change: box-shadow !important;
+}
+
+/* Adicionar padding-top no main para compensar o navbar fixo */
+main {
+  padding-top: 56px !important;
+}
+
+/* Efeito de elevação quando há scroll na página */
+html:not([data-scroll='0']) .navbar-fixed {
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.05),
+    0 6px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Quando o menu está aberto, a sombra fica mais suave para não competir com o menu */
+body.menu-open .navbar-fixed {
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 2px 8px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Em dispositivos de toque, a sombra é um pouco mais pronunciada para melhor separação visual */
+.touch-device .navbar-fixed {
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 5px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Ajustes para o menu dropdown quando o navbar é fixo */
+.menu-dropdown {
+  position: fixed !important;
+  top: 56px !important; /* Corresponde à altura do navbar */
+  left: 0 !important;
+  right: 0 !important;
+  background-color: white !important;
+  z-index: 50 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-top: 1px solid #f1f1f1 !important;
+}
+
+@media (max-width: 768px) {
+  header {
+    box-shadow: 
+      0 1px 3px rgba(0, 0, 0, 0.05),
+      0 4px 16px rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  /* Ajuste sutil para dispositivos mobile em modo claro */
+  @media (prefers-color-scheme: light) {
+    header {
+      background-color: rgba(255, 255, 255, 0.98) !important;
+    }
+  }
+}
+
+/* Byblia logo ajustes específicos para o navbar */
+.navbar-fixed .byblia-logo {
+  font-size: 1.4rem !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Estilo para garantir que o título "Seu conselheiro bíblico" tenha o mesmo estilo em todos os dispositivos */
+.navbar-fixed h2 {
+  font-family: 'Boldonse', var(--font-boldonse), sans-serif !important;
+  letter-spacing: -0.01em !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 0.9rem !important;
+}
+
+@media (max-width: 768px) {
+  .navbar-fixed h2 {
+    font-size: 0.8rem !important;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .navbar-fixed {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .navbar-fixed {
+    background-color: rgba(15, 15, 15, 0.95) !important;
+    border-bottom: 1px solid rgba(50, 50, 50, 0.8) !important;
+  }
+  
+  .navbar-fixed h2 {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
+
+/* Ajustes para o layout com navbar fixa */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  background-color: white;
+}
+
+.page-content {
+  flex: 1;
+  padding-top: 56px; /* Mesma altura do navbar */
+}
+
+/* Menu */
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 40;
+}
+
+.menu-backdrop.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.menu-dropdown {
+  position: fixed;
+  top: 56px; /* Altura do navbar */
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, 
+              visibility 0.3s ease, 
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 50;
+}
+
+.menu-dropdown.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Classe para links do menu */
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.menu-item:hover,
+.menu-item:focus {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Navbar fixa */
+.navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 56px;
+  padding: 0 16px;
+  z-index: 100;
+  background-color: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: box-shadow 0.3s ease,
+              background-color 0.3s ease,
+              border-color 0.3s ease;
+}
+
+/* Estilo do logo */
+.byblia-logo {
+  font-size: 18px;
+  letter-spacing: -0.3px;
+}
+
+/* Estilos para o título */
+h2 {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  h2 {
+    font-size: 12px;
+  }
+}
+
+/* Efeito de sombra no scroll */
+html[data-scroll="true"] .navbar-fixed {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 
+              0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  background-color: rgba(255, 255, 255, 0.98);
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Ajustes para menu aberto */
+body.menu-open {
+  overflow: hidden;
+}
+
+/* Ajustes para dispositivos touch */
+.touch-area {
+  position: relative;
+}
+
+.touch-area::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -8px;
+  z-index: -1;
+}
+
+/* Ajustes para temas claro/escuro */
+@media (prefers-color-scheme: dark) {
+  .navbar-fixed {
+    background-color: rgba(20, 20, 22, 0.8);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  html[data-scroll="true"] .navbar-fixed {
+    background-color: rgba(20, 20, 22, 0.9);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .menu-dropdown {
+    background-color: rgb(20, 20, 22);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .menu-item:hover,
+  .menu-item:focus {
+    background-color: rgba(255, 255, 255, 0.05);
   }
 }

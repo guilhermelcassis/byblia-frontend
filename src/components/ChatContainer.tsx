@@ -6,10 +6,11 @@ import LoadingIndicator from './LoadingIndicator';
 import ColdStartIndicator from './ColdStartIndicator';
 import ErrorMessage from './ErrorMessage';
 import useChat from '../hooks/useChat';
-import { checkBackendHealth } from '../services/api';
-import { FaServer, FaQuestionCircle, FaCommentDots, FaSyncAlt } from 'react-icons/fa';
+import { useScroll } from '../hooks/useScroll';
+import { checkBackendHealth, testBackendConnection } from '../services/api';
+import { FaServer, FaQuestionCircle, FaCommentDots, FaSyncAlt, FaTools } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useScreen } from '@/app/page';
+import { useScreen } from '@/hooks/useScreen';
 
 // Componente para mostrar o status do backend
 const BackendStatus: React.FC = () => {
@@ -52,52 +53,96 @@ const BackendStatus: React.FC = () => {
   return null;
 };
 
+// Componente para o botão de diagnóstico
+const DiagnosticButton: React.FC = () => {
+  const [isRunning, setIsRunning] = useState(false);
+  
+  const runDiagnostic = async () => {
+    if (isRunning) return;
+    
+    setIsRunning(true);
+    console.log('=== INICIANDO DIAGNÓSTICO DA CONEXÃO ===');
+    
+    try {
+      // Executar teste de conexão
+      const result = await testBackendConnection();
+      console.log('=== RESULTADO DO DIAGNÓSTICO ===');
+      console.log(result);
+      
+      // Mostrar resultado ao usuário
+      if (result.status === 'success') {
+        alert(`Diagnóstico concluído: A conexão com o backend parece estar funcionando. 
+Status HTTP: ${result.details.chatStatus}
+Tipo de resposta: ${result.details.contentType}
+Verifique o console do navegador para mais detalhes.`);
+      } else {
+        alert(`Diagnóstico concluído: Foram encontrados problemas na conexão.
+Erro: ${result.message}
+Verifique o console do navegador para mais detalhes.`);
+      }
+    } catch (error) {
+      console.error('Erro durante o diagnóstico:', error);
+      alert('Ocorreu um erro ao executar o diagnóstico. Verifique o console para mais detalhes.');
+    } finally {
+      setIsRunning(false);
+    }
+  };
+  
+  return (
+    <button 
+      onClick={runDiagnostic}
+      disabled={isRunning}
+      className="fixed bottom-2 right-2 bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-full shadow-md z-50"
+      title="Executar diagnóstico de conexão"
+    >
+      <FaTools className={`${isRunning ? 'animate-spin text-bible-brown' : ''}`} size={16} />
+    </button>
+  );
+};
+
 const ChatContainer: React.FC = () => {
   const { state, sendUserMessage, submitFeedback } = useChat();
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageRef = useRef<string>('');
   const screen = useScreen();
+  const [streamHasNewContent, setStreamHasNewContent] = useState(false);
   
-  // Scroll suave para o final do chat somente quando uma nova mensagem é adicionada
+  // Use the new scroll hook
+  const { containerRef, userHasScrolled, scrollToBottom } = useScroll({
+    isStreaming: state.isStreaming,
+    messagesCount: state.messages.length,
+    hasNewContent: streamHasNewContent,
+    currentResponseText: state.currentResponse
+  });
+
+  // Reset stream content tracker when streaming starts/stops
   useEffect(() => {
-    // Se o número de mensagens aumentou, é uma nova mensagem
-    if (state.messages.length > prevMessagesLengthRef.current) {
-      // Atualize a referência para a próxima verificação
-      prevMessagesLengthRef.current = state.messages.length;
+    if (!state.isStreaming) {
+      // When streaming stops, do a final scroll to bottom
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    }
+  }, [state.isStreaming, scrollToBottom]);
+
+  // Track streaming content changes to trigger scrolling
+  useEffect(() => {
+    if (state.isStreaming) {
+      setStreamHasNewContent(true);
       
-      // Use setTimeout para garantir que o DOM foi atualizado antes de scrollar
-      setTimeout(() => {
-        if (chatContainerRef.current) {
-          chatContainerRef.current.scrollTo({
-            top: chatContainerRef.current.scrollHeight,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
+      // Reset after a short delay to allow for batched updates
+      const timeout = setTimeout(() => {
+        setStreamHasNewContent(false);
+      }, 300);
+      
+      return () => clearTimeout(timeout);
     }
-  }, [state.messages.length]);
+  }, [state.currentResponse, state.isStreaming]);
 
-  // Scroll suave para o fim quando o streaming termina
-  useEffect(() => {
-    if (!state.isStreaming && state.messages.length > 0) {
-      setTimeout(() => {
-        if (chatContainerRef.current) {
-          chatContainerRef.current.scrollTo({
-            top: chatContainerRef.current.scrollHeight,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
-    }
-  }, [state.isStreaming]);
-
-  // Wrapper para enviar mensagem e atualizar a ref do comprimento da mensagem
+  // Wrapper for sending message and updating the ref of the message length
   const handleSendMessage = (message: string) => {
-    // Salvar a última mensagem para permitir reenviar em caso de erro
+    // Save the last message to allow resending in case of error
     lastMessageRef.current = message;
     
-    // A contagem será atualizada no efeito após a mensagem ser adicionada
     sendUserMessage(message);
   };
 
@@ -176,16 +221,17 @@ const ChatContainer: React.FC = () => {
       
       {/* Messages container */}
       <div 
-        ref={chatContainerRef}
-        className="flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-3 sm:space-y-4 md:space-y-5 mb-0 bg-white manual-scroll" 
+        ref={containerRef}
+        className="flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-2 sm:space-y-3 mb-0 bg-white manual-scroll" 
         id="chat-messages"
         style={{ 
           overscrollBehavior: 'contain',
           WebkitOverflowScrolling: 'touch',
-          scrollPaddingBottom: state.isStreaming ? '60px' : '80px',
+          scrollPaddingBottom: state.isStreaming ? '50px' : '70px',
           paddingBottom: screen.isLandscape 
-            ? '60px' 
-            : state.isStreaming ? '100px' : '120px'
+            ? '50px' 
+            : state.isStreaming ? '70px' : '90px',
+          paddingTop: '10px'
         }}
       >      
         {state.messages.length === 0 ? (
@@ -239,7 +285,7 @@ const ChatContainer: React.FC = () => {
             !state.isLoading && 
             !state.isStreaming && 
             !state.isColdStart && (
-              <div className="mt-1 mb-4">
+              <div className="mt-1 mb-0">
                 <FeedbackButtons onFeedback={submitFeedback} />
               </div>
             );
@@ -255,6 +301,7 @@ const ChatContainer: React.FC = () => {
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
             className="p-3 sm:p-4 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none"
+            style={{ margin: 0, borderTop: 'none' }}
           >
             <div className="max-w-2xl mx-auto px-1">
               <ChatInput 
@@ -272,19 +319,36 @@ const ChatContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="p-3 sm:p-4 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none"
+            className="p-2 sm:p-3 md:border-t border-t-0 border-gray-50 bg-white md:relative fixed bottom-0 left-0 right-0 z-50 shadow-md md:shadow-none"
+            style={{ margin: 0 }}
           >
-            <div className="max-w-2xl mx-auto px-1">
+            <div className="max-w-2xl mx-auto">
               <div className="streaming-indicator">
                 <div className="streaming-indicator-text">
                   <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
-                  <span>{state.isColdStart ? "Iniciando o servidor bíblico..." : "Gerando resposta baseada nas Escrituras..."}</span>
+                  <span>
+                    {state.isColdStart 
+                      ? "Iniciando o servidor bíblico..." 
+                      : "Gerando resposta baseada nas Escrituras..."}
+                  </span>
+                  {state.isStreaming && 
+                    <button 
+                      onClick={handleRetry} 
+                      className="ml-2 text-xs text-bible-brown underline cursor-pointer"
+                      title="Cancelar e tentar novamente"
+                    >
+                      (cancelar)
+                    </button>
+                  }
                 </div>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Botão de diagnóstico */}
+      <DiagnosticButton />
     </div>
   );
 };

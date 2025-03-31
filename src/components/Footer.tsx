@@ -3,7 +3,7 @@
 import React from 'react';
 import { FaGithub, FaEnvelope } from 'react-icons/fa';
 import Link from 'next/link';
-import { useScreen } from '@/app/page';
+import { useScreen } from '@/hooks/useScreen';
 
 interface FooterProps {
   isMobile: boolean;

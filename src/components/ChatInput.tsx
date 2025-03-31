@@ -1,6 +1,6 @@
 import React, { useState, FormEvent, useEffect, useRef } from 'react';
 import { FaArrowRight, FaExclamationTriangle } from 'react-icons/fa';
-import { useScreen } from '@/app/page';
+import { useScreen } from '@/hooks/useScreen';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -177,7 +177,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
 
   return (
     <div className="w-full mobile-input-container">
-      <div className={`relative bg-[#f5f5f7] rounded-2xl shadow-sm border ${validationError ? 'border-red-500' : 'border-gray-200'} w-full mx-auto transition-all ${isFocused ? 'ring-2 ring-bible-brown/20' : ''}`}>
+      <div className={`relative bg-[#f5f5f7] shadow-sm border ${validationError ? 'border-red-500' : 'border-gray-200'} w-full mx-auto transition-all ${isFocused ? 'ring-2 ring-bible-brown/20' : ''}`} style={{ borderRadius: '24px' }}>
         <form 
           onSubmit={handleSubmit} 
           className="flex items-start bg-transparent w-full mx-auto transition-all"
@@ -190,36 +190,37 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
             placeholder={screen.isLandscape ? "Digite sua pergunta..." : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
-            className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 bg-transparent outline-none placeholder-gray-500 text-gray-800 text-sm font-normal rounded-2xl resize-none overflow-hidden w-full`}
-            disabled={isLoading}
-            maxLength={MAX_MESSAGE_LENGTH}
-            aria-describedby="message-validation"
-            rows={1}
+            className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 bg-transparent outline-none placeholder-gray-500 text-gray-800 text-sm font-normal resize-none overflow-hidden w-full`}
             style={{ 
               minHeight: screen.isLandscape ? '42px' : '64px',
               maxHeight: screen.isLandscape ? '120px' : '300px',
               wordWrap: 'break-word',
               lineHeight: screen.isLandscape ? '1.3' : '1.4',
-              paddingRight: screen.isLandscape ? '40px' : '60px' // Espaço para o botão
+              paddingRight: screen.isLandscape ? '40px' : '60px', // Espaço para o botão
+              borderRadius: '24px'
             }}
+            disabled={isLoading}
+            maxLength={MAX_MESSAGE_LENGTH}
+            aria-describedby="message-validation"
+            rows={1}
           />
           
           {/* Botão estilo DeepSeek - posicionado dentro do input */}
           <button
             type="submit"
             disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
-            className={`absolute ${screen.isLandscape ? 'right-2 top-1/2 transform -translate-y-1/2' : 'right-3 bottom-3'} w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full transition-all z-10 ${
+            className={`absolute ${screen.isLandscape ? 'right-3 top-1/2 transform -translate-y-1/2' : 'right-4 bottom-4'} flex items-center justify-center rounded-full transition-all z-10 ${
               !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 : 'bg-bible-brown text-white hover:bg-bible-darkbrown'
             }`}
             style={{
-              width: screen.isLandscape ? '32px' : '',
-              height: screen.isLandscape ? '32px' : ''
+              width: screen.isLandscape ? '36px' : '42px',
+              height: screen.isLandscape ? '36px' : '42px'
             }}
             aria-label="Enviar mensagem"
           >
-            <FaArrowRight size={screen.isLandscape ? 14 : 18} />
+            <FaArrowRight size={screen.isLandscape ? 16 : 18} />
           </button>
         </form>
       </div>

@@ -4,8 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { FaGithub, FaEnvelope, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import MainLayout from '@/components/layout/MainLayout';
 
 export default function Contact() {
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -54,10 +53,8 @@ export default function Contact() {
   ];
 
   return (
-    <main className={`flex min-h-screen flex-col items-center bg-white relative ${isMobile ? 'pb-8' : 'pb-16'}`}>
-      <Header isMobile={isMobile} />
-
-      <section className="flex-grow w-full max-w-4xl p-4 md:p-6 flex flex-col items-center">
+    <MainLayout>
+      <section className="w-full max-w-4xl p-4 md:p-6 mx-auto flex flex-col items-center">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -148,8 +145,6 @@ export default function Contact() {
           </div>
         </motion.div>
       </section>
-
-      <Footer isMobile={isMobile} showContactLink={false} />
-    </main>
+    </MainLayout>
   );
 } 

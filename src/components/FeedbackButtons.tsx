@@ -48,7 +48,7 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
   }
   
   return (
-    <div className="flex items-center justify-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+    <div className="feedback-buttons flex justify-center items-center gap-2 pt-1 pb-0">
       {error && (
         <div className="text-xs text-red-500 mr-1">
           {error}

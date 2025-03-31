@@ -14,6 +14,9 @@ const MAX_MESSAGES_PER_MINUTE = 10; // Aumentado para 10 (era 5)
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1500;
 
+// Limite de tempo para aguardar a primeira resposta do streaming
+const FIRST_CHUNK_TIMEOUT_MS = 10000; // Aumentado para 10 segundos (antes era 5s)
+
 const useChat = () => {
   const [state, setState] = useState<ChatState>({
     isLoading: false,
@@ -32,6 +35,9 @@ const useChat = () => {
   const chunkBufferRef = useRef<string>('');
   const lastUpdateTimestampRef = useRef<number>(0);
   const updatesCountRef = useRef<number>(0);
+  
+  // Referência para controlar se recebemos algum chunk
+  const receivedChunkRef = useRef<boolean>(false);
   
   // Constantes para controle do buffer
   const BUFFER_SIZE_THRESHOLD = 30; // Reduzido: Caracteres mínimos antes de atualizar (era 60)
@@ -67,6 +73,9 @@ const useChat = () => {
   const updateStateWithBuffer = useCallback(() => {
     if (chunkBufferRef.current.length === 0) return;
     
+    // Guardar uma cópia local do buffer antes de qualquer verificação
+    const currentBufferContent = chunkBufferRef.current;
+    
     // Evitar atualizações muito frequentes
     const now = Date.now();
     const timeSinceLastUpdate = now - lastUpdateTimestampRef.current;
@@ -74,7 +83,7 @@ const useChat = () => {
     // Modificado: aumentar o limite de tamanho de buffer para reduzir atualizações frequentes
     // e diminuir o efeito de flickering
     if (timeSinceLastUpdate < UPDATE_DELAY_MS && 
-        chunkBufferRef.current.length < BUFFER_SIZE_THRESHOLD) {
+        currentBufferContent.length < BUFFER_SIZE_THRESHOLD) {
       return; // Ainda não é hora de atualizar
     }
     
@@ -94,6 +103,15 @@ const useChat = () => {
       updatesCountRef.current = 1;
     }
     
+    // Log para debug do buffer antes da atualização
+    console.log('[useChat] Buffer antes da atualização, tamanho:', currentBufferContent.length);
+    console.log('[useChat] Conteúdo do buffer (primeiros 50 caracteres):', 
+      currentBufferContent.substring(0, 50));
+    
+    // Limpar o buffer ANTES da atualização de estado para evitar race conditions
+    chunkBufferRef.current = '';
+    lastUpdateTimestampRef.current = now;
+    
     setState((prevState) => {
       // Encontrar a mensagem do assistente na array
       const newMessages = [...prevState.messages];
@@ -106,30 +124,27 @@ const useChat = () => {
         const assistantMessage = newMessages[assistantMessageIndex];
         
         // Aplicar o conteúdo acumulado do buffer
-        const updatedContent = assistantMessage.content + chunkBufferRef.current;
+        const updatedContent = assistantMessage.content + currentBufferContent;
         
-        // Remover logs de debugging que podem causar instabilidade
-        // console.log('Updating assistant message content:', chunkBufferRef.current.length, 'bytes');
-        // console.log('Updated content (length):', updatedContent.length);
+        console.log('[useChat] Atualizando mensagem, tamanho atual:', assistantMessage.content.length);
+        console.log('[useChat] Novo tamanho após atualização:', updatedContent.length);
         
         // Criar um novo objeto para forçar a renderização
         newMessages[assistantMessageIndex] = {
           ...assistantMessage,
           content: updatedContent,
         };
+      } else {
+        console.warn('[useChat] Mensagem do assistente não encontrada, ID:', currentAssistantMessageId.current);
       }
 
       // Criar novo estado com o buffer acumulado
       const newState = {
         ...prevState,
         messages: newMessages,
-        currentResponse: prevState.currentResponse + chunkBufferRef.current,
+        currentResponse: prevState.currentResponse + currentBufferContent,
         isStreaming: true,
       };
-      
-      // Limpar o buffer para próximos chunks
-      chunkBufferRef.current = '';
-      lastUpdateTimestampRef.current = now;
       
       return newState;
     });
@@ -242,6 +257,12 @@ const useChat = () => {
     chunkBufferRef.current = '';
     lastUpdateTimestampRef.current = Date.now();
     
+    // Resetar a flag que controla se recebemos algum chunk
+    receivedChunkRef.current = false;
+    
+    // Timeout para verificar se recebemos o primeiro chunk
+    let firstChunkTimeoutId: NodeJS.Timeout | null = null;
+    
     // Se for a primeira tentativa, criar mensagens novas. Se for retry, reutilizar IDs.
     let userMessageId: string;
     let assistantMessageId: string;
@@ -289,13 +310,73 @@ const useChat = () => {
       // Configurar intervalo para processar o buffer com um intervalo maior para reduzir flickering
       intervalId = setInterval(() => {
         updateStateWithBuffer();
-      }, 120);
+      }, 150); // Aumentado de 120 para 150ms para dar mais tempo ao buffer acumular
+      
+      console.log('[useChat] Iniciando envio da mensagem:', message.substring(0, 30) + '...');
+      
+      // Configurar timeout para o primeiro chunk
+      firstChunkTimeoutId = setTimeout(() => {
+        if (!receivedChunkRef.current) {
+          console.log('[useChat] Timeout atingido enquanto aguardava pelo primeiro chunk');
+          
+          // Verificar novamente - proteção extra para evitar condições de corrida
+          if (receivedChunkRef.current) {
+            console.log('[useChat] Recebido chunk após verificação, cancelando timeout');
+            return;
+          }
+          
+          // Limpar o intervalo de buffer
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+          }
+          
+          // Mostrar mensagem de timeout em vez de ficar esperando indefinidamente
+          setState(prevState => {
+            // Encontrar e atualizar a mensagem do assistente
+            const newMessages = [...prevState.messages];
+            const assistantMessageIndex = newMessages.findIndex(
+              (m) => m.id === currentAssistantMessageId.current
+            );
+            
+            if (assistantMessageIndex !== -1) {
+              newMessages[assistantMessageIndex] = {
+                ...newMessages[assistantMessageIndex],
+                content: "A resposta está demorando mais que o normal. O servidor pode estar ocupado ou pode haver um problema de comunicação. Por favor, tente novamente."
+              };
+            }
+            
+            return {
+              ...prevState,
+              isLoading: false,
+              isStreaming: false,
+              error: "Tempo de resposta excedido. Por favor, tente novamente.",
+              messages: newMessages
+            };
+          });
+        }
+      }, FIRST_CHUNK_TIMEOUT_MS);
       
       // Start streaming the response
       await sendMessage(
         message,
         // Handle each incoming chunk
         (chunk) => {
+          // Mover para cima para garantir que a flag seja atualizada imediatamente
+          receivedChunkRef.current = true;
+          
+          // Limpar o timeout do primeiro chunk
+          if (firstChunkTimeoutId) {
+            clearTimeout(firstChunkTimeoutId);
+            firstChunkTimeoutId = null;
+          }
+          
+          console.log('[useChat] Recebido chunk de tamanho:', chunk.length);
+          // Para debug, mostrar o início do chunk
+          if (chunk.length > 0) {
+            console.log('[useChat] Início do chunk recebido:', chunk.substring(0, 20));
+          }
+          
           // Add the chunk to buffer
           chunkBufferRef.current += chunk;
           
@@ -304,76 +385,161 @@ const useChat = () => {
           
           // Desativar o modo de cold start quando recebemos dados
           if (state.isColdStart) {
+            console.log('[useChat] Desativando modo cold start após receber dados');
             setState(prev => ({ ...prev, isColdStart: false }));
           }
           
-          // Tentar atualizar imediatamente se o buffer tiver um tamanho significativo
-          if (chunkBufferRef.current.length >= BUFFER_SIZE_THRESHOLD) {
-            updateStateWithBuffer();
+          // Processar imediatamente se o chunk tiver conteúdo significativo
+          if (chunk.length > 0) {
+            const currentBufferSize = chunkBufferRef.current.length;
+            console.log('[useChat] Tamanho do buffer acumulado:', currentBufferSize);
+            
+            // Tentar atualizar imediatamente se o buffer tiver um tamanho significativo
+            if (currentBufferSize >= BUFFER_SIZE_THRESHOLD) {
+              console.log('[useChat] Buffer atingiu tamanho significativo, atualizando estado');
+              
+              // Atualização manual em vez de chamar updateStateWithBuffer para ter mais controle
+              const bufferToProcess = chunkBufferRef.current;
+              chunkBufferRef.current = ''; // Reset do buffer
+              
+              setState(prevState => {
+                const newMessages = [...prevState.messages];
+                const assistantIndex = newMessages.findIndex(
+                  m => m.id === currentAssistantMessageId.current
+                );
+                
+                if (assistantIndex !== -1) {
+                  const assistantMessage = newMessages[assistantIndex];
+                  console.log('[useChat] Mensagem atual:', assistantMessage.content.length, 'caracteres');
+                  
+                  // Update com conteúdo novo
+                  const newContent = assistantMessage.content + bufferToProcess;
+                  console.log('[useChat] Novo tamanho da mensagem:', newContent.length);
+                  
+                  newMessages[assistantIndex] = {
+                    ...assistantMessage,
+                    content: newContent
+                  };
+                }
+                
+                return {
+                  ...prevState,
+                  messages: newMessages,
+                  currentResponse: prevState.currentResponse + bufferToProcess,
+                  isStreaming: true
+                };
+              });
+              
+              lastUpdateTimestampRef.current = Date.now();
+            }
           }
         },
         // Handle when streaming is complete
         (responseData) => {
-          // Final update of buffer contents - garantir que isso seja executado
-          if (chunkBufferRef.current.length > 0) {
-            updateStateWithBuffer();
+          // Marcar que recebemos pelo menos um chunk e limpar timeout
+          receivedChunkRef.current = true;
+          if (firstChunkTimeoutId) {
+            clearTimeout(firstChunkTimeoutId);
+            firstChunkTimeoutId = null;
           }
           
-          // Pequeno timeout para garantir que a última atualização do buffer seja processada
-          setTimeout(() => {
-            // Mark streaming as complete
-            setState((prevState) => {
-              const newMessages = [...prevState.messages];
-              const assistantMessageIndex = newMessages.findIndex(
-                (m) => m.id === currentAssistantMessageId.current
-              );
+          console.log('[useChat] Streaming completo, responseData:', responseData);
+          
+          // Em vez de setTimeout, atualizamos o estado de uma vez após o streaming
+          setState((prevState) => {
+            const newMessages = [...prevState.messages];
+            const assistantMessageIndex = newMessages.findIndex(
+              (m) => m.id === currentAssistantMessageId.current
+            );
+            
+            let completedMessage = '';
+            
+            // Certificar-se de que toda a resposta está na mensagem antes de finalizar
+            if (assistantMessageIndex !== -1) {
+              const assistantMessage = newMessages[assistantMessageIndex];
+              completedMessage = assistantMessage.content;
               
-              // Certificar-se de que toda a resposta está na mensagem antes de finalizar
-              if (assistantMessageIndex !== -1) {
-                const assistantMessage = newMessages[assistantMessageIndex];
+              // Verificar se há conteúdo no buffer para aplicar
+              if (chunkBufferRef.current.length > 0) {
+                const finalBuffer = chunkBufferRef.current;
+                chunkBufferRef.current = '';
                 
-                // Verificar se ainda tem conteúdo no buffer
-                if (chunkBufferRef.current.length > 0) {
-                  newMessages[assistantMessageIndex] = {
-                    ...assistantMessage,
-                    content: assistantMessage.content + chunkBufferRef.current,
-                  };
-                  chunkBufferRef.current = '';
-                }
+                console.log('[useChat] Aplicando buffer final do streaming, tamanho:', finalBuffer.length);
+                completedMessage = assistantMessage.content + finalBuffer;
+                
+                // Atualizar a mensagem
+                newMessages[assistantMessageIndex] = {
+                  ...assistantMessage,
+                  content: completedMessage
+                };
               }
               
-              // Log para depuração do interaction_id
-              console.log('Received interaction_id from API:', responseData.interaction_id, 
-                'Type:', typeof responseData.interaction_id);
+              console.log('[useChat] Conteúdo final da mensagem:', completedMessage.length, 'caracteres');
+              console.log('[useChat] Primeiros 50 caracteres:', completedMessage.substring(0, 50));
               
-              return {
-                ...prevState,
-                isLoading: false,
-                isStreaming: false,
-                currentInteractionId: responseData.interaction_id ? 
-                  Number(responseData.interaction_id) : 
-                  // Gerar um ID temporário se a API não retornar um
-                  Math.floor(Date.now() / 1000),
-                messages: newMessages,
-                isColdStart: false
-              };
-            });
-          }, 50); // Pequeno delay para garantir sincronização
+              // Se a mensagem estiver vazia após todo o processamento, adicionar texto padrão
+              if (!completedMessage.trim()) {
+                console.warn('[useChat] Mensagem está vazia após processamento, adicionando mensagem genérica');
+                completedMessage = "Desculpe, houve um problema ao gerar a resposta. Por favor, tente novamente.";
+                
+                newMessages[assistantMessageIndex] = {
+                  ...assistantMessage,
+                  content: completedMessage
+                };
+              }
+            }
+            
+            // Debugando o interaction_id
+            console.log('[useChat] Received interaction_id from API:', responseData.interaction_id, 
+              'Type:', typeof responseData.interaction_id);
+            
+            // Retornar estado atualizado
+            return {
+              ...prevState,
+              isLoading: false,
+              isStreaming: false,
+              currentInteractionId: responseData.interaction_id ? 
+                Number(responseData.interaction_id) : 
+                // Gerar um ID temporário se a API não retornar um
+                Math.floor(Date.now() / 1000),
+              messages: newMessages,
+              isColdStart: false
+            };
+          });
           
-          if (intervalId) clearInterval(intervalId);
+          if (intervalId) {
+            console.log('[useChat] Limpando intervalo de atualização de buffer');
+            clearInterval(intervalId);
+            intervalId = null;
+          }
         }
       );
     } catch (error) {
+      console.error('[useChat] Erro capturado durante envio/processamento da mensagem:', error);
+      
       // Limpar o intervalo em caso de erro
-      if (intervalId) clearInterval(intervalId);
+      if (intervalId) {
+        console.log('[useChat] Limpando intervalo devido a erro');
+        clearInterval(intervalId);
+      }
+      
+      // Limpar o timeout do primeiro chunk
+      if (firstChunkTimeoutId) {
+        clearTimeout(firstChunkTimeoutId);
+        firstChunkTimeoutId = null;
+      }
       
       // Checar se é um erro de conectividade (backend indisponível ou cold start)
       if (isConnectivityError(error)) {
+        console.log('[useChat] Detectado erro de conectividade, verificando status do backend...');
+        
         // Se for o primeiro erro de conectividade, verificar se é um cold start
         if (retryCount === 0) {
           // Verificar se o backend está disponível
+          console.log('[useChat] Verificando disponibilidade do backend');
           attemptBackendConnection().then(isHealthy => {
             if (!isHealthy) {
+              console.log('[useChat] Backend indisponível, ativando modo cold start');
               // Backend não está disponível, provavelmente é um cold start
               setState(prev => ({
                 ...prev,
@@ -382,11 +548,13 @@ const useChat = () => {
               }));
               
               // Tentar novamente após um período maior
+              console.log('[useChat] Agendando nova tentativa após 3 segundos');
               setTimeout(() => {
                 sendUserMessage(message, retryCount + 1);
               }, 3000);
             } else {
               // Backend está disponível, é outro tipo de erro
+              console.log('[useChat] Backend disponível, mas ocorreu outro tipo de erro');
               handleNormalError(error);
             }
           });
@@ -395,10 +563,13 @@ const useChat = () => {
         
         // Para retentativas subsequentes durante um cold start
         if (state.isColdStart) {
+          const retryDelay = Math.min(3000 + (retryCount * 500), 8000);
+          console.log(`[useChat] Em cold start, tentativa ${retryCount}, agendando retry em ${retryDelay}ms`);
+          
           // Continuar tentando indefinidamente durante cold start
           setTimeout(() => {
             sendUserMessage(message, retryCount + 1);
-          }, Math.min(3000 + (retryCount * 500), 8000)); // Backoff limitado a 8 segundos
+          }, retryDelay); // Backoff limitado a 8 segundos
           return;
         }
         
@@ -406,11 +577,14 @@ const useChat = () => {
         if (retryCount < MAX_RETRIES) {
           // Incrementar contador interno de retries
           retryCountRef.current++;
+          const retryDelay = RETRY_DELAY_MS * (retryCount + 1);
+          
+          console.log(`[useChat] Erro de conectividade normal, tentativa ${retryCount}, próxima tentativa em ${retryDelay}ms`);
           
           // Tentar novamente após um delay sem mostrar erro ao usuário
           setTimeout(() => {
             sendUserMessage(message, retryCount + 1);
-          }, RETRY_DELAY_MS * (retryCount + 1)); // Backoff exponencial
+          }, retryDelay); // Backoff exponencial
           
           return;
         }
@@ -418,6 +592,8 @@ const useChat = () => {
       
       // Função para tratar erros normais (não cold start)
       const handleNormalError = (error: any) => {
+        console.log('[useChat] Tratando erro normal:', error);
+        
         // Melhor tratamento de erros
         let errorMessage = 'Ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.';
         
@@ -482,6 +658,8 @@ const useChat = () => {
       // Se chegou aqui, não é um cold start ou já excedeu as retentativas
       if (!state.isColdStart) {
         handleNormalError(error);
+      } else {
+        console.log('[useChat] Erro em cold start, mas vai continuar tentando');
       }
     }
   }, [updateStateWithBuffer, attemptBackendConnection, state.isColdStart]);

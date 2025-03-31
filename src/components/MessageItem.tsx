@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, memo } from 'react';
 import { Message } from '../types';
 import MessageText from './MessageText';
 import { FaCopy, FaWhatsapp, FaCheck } from 'react-icons/fa';
@@ -11,7 +11,8 @@ interface Props {
   questionText?: string; // Pergunta do usuário que originou esta resposta
 }
 
-export const MessageItem: React.FC<Props> = ({ 
+// Usando memo para evitar re-renderizações desnecessárias durante streaming
+export const MessageItem: React.FC<Props> = memo(({ 
   message, 
   isLastMessage = false,
   isStreaming = false,
@@ -87,20 +88,22 @@ export const MessageItem: React.FC<Props> = ({
   return (
     <div 
       ref={containerRef}
-      className={`flex w-full mb-4 ${
+      className={`flex w-full mb-3 ${
         isUser ? 'justify-end' : ''
       }`}
       data-testid="message-item"
+      style={isUser ? { marginTop: '5px' } : {}}
     >
       <div
-        className={`p-3 sm:p-4 rounded-lg ${
+        className={`p-3 rounded-lg ${
           isUser
-            ? 'bg-bible-brown text-white font-medium rounded-br-md user-message user-message-container max-w-[85%]'
+            ? 'bg-bible-brown text-white font-medium rounded-user-message user-message user-message-container max-w-[85%]'
             : 'bg-white text-gray-800 rounded-tl-md assistant-message w-full'
         } ${isStreaming ? 'streaming-message' : ''}`}
         style={{ 
           boxShadow: 'none',
-          backgroundColor: isUser ? '' : 'white'
+          backgroundColor: isUser ? '' : 'white',
+          borderRadius: isUser ? '20px' : '20px'
         }}
       >
         <div 
@@ -115,7 +118,7 @@ export const MessageItem: React.FC<Props> = ({
         {/* Exibir os botões de compartilhamento apenas se for uma mensagem do assistente e não estiver em streaming */}
         {!isUser && !isStreaming && (
           <div 
-            className="flex items-center justify-end mt-2 pt-2 gap-2 share-buttons-container"
+            className="flex items-center justify-end mt-2 pt-1 gap-2 share-buttons-container"
             style={{ borderTop: 'none' }}
           >
             <motion.button
@@ -152,7 +155,7 @@ export const MessageItem: React.FC<Props> = ({
         )}
         
         {!isUser && message.feedbackGiven !== undefined && (
-          <div className="text-xs mt-2 italic text-gray-400 pt-2">
+          <div className="text-xs mt-1 italic text-gray-400 pt-1">
             {message.feedback
               ? 'Você achou esta resposta útil'
               : 'Você indicou que esta resposta não foi útil'}
@@ -161,4 +164,4 @@ export const MessageItem: React.FC<Props> = ({
       </div>
     </div>
   );
-};
+});
