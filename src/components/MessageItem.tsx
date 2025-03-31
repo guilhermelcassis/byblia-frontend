@@ -125,7 +125,7 @@ export const MessageItem: React.FC<Props> = memo(({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={copyToClipboard}
-              className="flex items-center justify-center text-xs bg-white text-gray-600 hover:text-bible-brown border border-gray-200 rounded-full px-3 py-1 transition-colors share-button"
+              className="flex items-center justify-center text-xs text-gray-600 hover:text-bible-brown rounded-full px-3 py-1 transition-colors share-button"
               aria-label="Copiar mensagem"
             >
               {copied ? (
@@ -145,7 +145,7 @@ export const MessageItem: React.FC<Props> = memo(({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={shareViaWhatsApp}
-              className="flex items-center justify-center text-xs bg-white text-gray-600 hover:text-green-600 border border-gray-200 rounded-full px-3 py-1 transition-colors share-button"
+              className="flex items-center justify-center text-xs text-gray-600 hover:text-green-600 rounded-full px-3 py-1 transition-colors share-button"
               aria-label="Compartilhar via WhatsApp"
             >
               <FaWhatsapp size={10} className="mr-1" />

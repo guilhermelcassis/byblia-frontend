@@ -285,7 +285,7 @@ const ChatContainer: React.FC = () => {
             !state.isLoading && 
             !state.isStreaming && 
             !state.isColdStart && (
-              <div className="mt-1 mb-2 sm:mb-0">
+              <div className="mt-0 mb-0">
                 <FeedbackButtons onFeedback={submitFeedback} />
               </div>
             );

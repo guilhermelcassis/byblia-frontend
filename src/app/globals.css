@@ -334,9 +334,10 @@ div.rounded-user-message {
   
   /* Otimizar botões de feedback para mobile */
   .feedback-buttons {
-    margin-top: 6px;
-    margin-bottom: 0;
-    padding-bottom: 0;
+    margin-top: 3px !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
   }
   
   /* Reduzir espaçamento entre mensagens */
@@ -593,6 +594,8 @@ header + section .message-list {
 .share-button {
   transition: all 0.2s ease;
   touch-action: manipulation;
+  background-color: #f5f5f7 !important;
+  border: 1px solid rgba(229, 231, 235, 0.8) !important;
 }
 
 .share-button:active {
@@ -933,6 +936,23 @@ body.menu-open .navbar-fixed {
   transition: box-shadow 0.3s ease,
               background-color 0.3s ease,
               border-color 0.3s ease;
+}
+
+/* Ensure navbar is fixed on mobile in portrait orientation */
+@media (max-width: 768px) and (orientation: portrait) {
+  .navbar-fixed {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 100 !important;
+  }
+  
+  /* Add proper spacing to content to prevent navbar overlap */
+  main {
+    padding-top: 56px !important;
+  }
 }
 
 /* Estilo do logo */
