@@ -100,6 +100,7 @@ export const MessageItem: React.FC<Props> = ({
         } ${isStreaming ? 'streaming-message' : ''}`}
         style={{ 
           boxShadow: 'none',
+          backgroundColor: isUser ? '' : 'white'
         }}
       >
         <div 
@@ -113,7 +114,10 @@ export const MessageItem: React.FC<Props> = ({
         
         {/* Exibir os botões de compartilhamento apenas se for uma mensagem do assistente e não estiver em streaming */}
         {!isUser && !isStreaming && (
-          <div className="flex items-center justify-end mt-2 pt-2 border-t border-gray-100 gap-2 share-buttons-container">
+          <div 
+            className="flex items-center justify-end mt-2 pt-2 gap-2 share-buttons-container"
+            style={{ borderTop: 'none' }}
+          >
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

@@ -9,6 +9,7 @@ import useChat from '../hooks/useChat';
 import { checkBackendHealth } from '../services/api';
 import { FaServer, FaQuestionCircle, FaCommentDots, FaSyncAlt } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useScreen } from '@/app/page';
 
 // Componente para mostrar o status do backend
 const BackendStatus: React.FC = () => {
@@ -56,6 +57,7 @@ const ChatContainer: React.FC = () => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const prevMessagesLengthRef = useRef<number>(0);
   const lastMessageRef = useRef<string>('');
+  const screen = useScreen();
   
   // Scroll suave para o final do chat somente quando uma nova mensagem é adicionada
   useEffect(() => {
@@ -170,37 +172,36 @@ const ChatContainer: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full w-full mx-auto rounded-lg bg-white border-0 overflow-hidden">
-      {/* Chat header minimalista sem a frase */}
-      <div className="p-2 bg-white border-b border-gray-50">
-        {/* Conteúdo do header removido pois a frase já está na navbar */}
-      </div>
+      {/* Removed redundant header div with border */}
       
       {/* Messages container */}
       <div 
         ref={chatContainerRef}
-        className="flex-grow overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 mb-0 bg-white manual-scroll pb-36 md:pb-0" 
+        className="flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-3 sm:space-y-4 md:space-y-5 mb-0 bg-white manual-scroll" 
         id="chat-messages"
         style={{ 
           overscrollBehavior: 'contain',
           WebkitOverflowScrolling: 'touch',
-          scrollPaddingBottom: state.isStreaming ? '100px' : '120px',
-          paddingBottom: state.isStreaming ? '100px' : '120px'
+          scrollPaddingBottom: state.isStreaming ? '60px' : '80px',
+          paddingBottom: screen.isLandscape 
+            ? '60px' 
+            : state.isStreaming ? '100px' : '120px'
         }}
       >      
         {state.messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full px-4 md:px-6 py-12">
+          <div className={`flex flex-col items-center justify-center h-full px-4 md:px-6 ${screen.isLandscape ? 'pt-2 pb-4' : 'pt-3 pb-6 md:py-6'}`}>
             {/* Mensagem de boas-vindas estilo DeepSeek - centralizada com logo ou ícone */}
-            <div className="flex flex-col items-center justify-center text-center max-w-md w-full mb-12">
-              <h2 className="text-2xl font-bold mb-2 text-bible-brown byblia-title-md">
+            <div className={`flex flex-col items-center justify-center text-center max-w-md w-full ${screen.isLandscape ? 'mb-3' : 'mb-5 md:mb-8'}`}>
+              <h2 className={`${screen.isLandscape ? 'text-lg' : 'text-xl md:text-2xl'} font-bold mb-1 md:mb-2 text-bible-brown byblia-title-md`}>
                 Oi, eu sou a Byblia,
               </h2>
-              <p className="text-sm text-gray-500 mb-0">
-                Como eu posso te ajudar hoje?
+              <p className={`${screen.isLandscape ? 'text-xs' : 'text-sm'} text-gray-500 mb-0`}>
+                Como posso te ajudar hoje?
               </p>
             </div>
             
             {/* Input centralizado após a mensagem de boas-vindas */}
-            <div className="w-full max-w-2xl z-50 mb-10 mx-auto">
+            <div className="w-full max-w-2xl z-50 mb-4 md:mb-8 mx-auto">
               <ChatInput 
                 onSendMessage={handleSendMessage} 
                 isLoading={state.isLoading || state.isStreaming}

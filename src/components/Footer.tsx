@@ -3,6 +3,7 @@
 import React from 'react';
 import { FaGithub, FaEnvelope } from 'react-icons/fa';
 import Link from 'next/link';
+import { useScreen } from '@/app/page';
 
 interface FooterProps {
   isMobile: boolean;
@@ -13,11 +14,16 @@ export const Footer: React.FC<FooterProps> = ({
   isMobile,
   showContactLink = true 
 }) => {
+  // Use the shared screen context
+  const screen = useScreen();
+  
   return (
     <footer 
-      className="fixed bottom-0 left-0 w-full bg-white py-1.5 border-t border-gray-50 shadow-xs z-10"
+      className={`fixed bottom-0 left-0 w-full bg-white border-t border-gray-50 shadow-xs z-10 ${
+        screen.isLandscape ? 'py-0.5' : isMobile ? 'py-1' : 'py-1.5'
+      }`}
       style={{ 
-        height: isMobile ? '28px' : 'auto',
+        height: screen.isLandscape ? '22px' : (isMobile ? '28px' : 'auto'),
         display: 'flex',
         alignItems: 'center'
       }}
@@ -25,14 +31,14 @@ export const Footer: React.FC<FooterProps> = ({
       <div 
         className="max-w-4xl mx-auto px-4 flex flex-row justify-between items-center text-[10px] md:text-xs text-gray-400"
         style={{
-          padding: isMobile ? '0 16px' : undefined
+          padding: screen.isLandscape ? '0 12px' : isMobile ? '0 16px' : undefined
         }}
       >
         <div className="flex items-center gap-2">
           <div>
             © {new Date().getFullYear()} Byblia
           </div>
-          {showContactLink && (
+          {showContactLink && !screen.isLandscape && (
             <>
               <span className="hidden md:inline">•</span>
               <Link href="/contact" className="text-gray-400 hover:text-bible-brown transition-colors hidden md:flex items-center">
@@ -44,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
         <div className="flex items-center">
           <a href="https://github.com/guilhermelcassis/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-bible-brown flex items-center transition-colors">
-            <FaGithub size={12} className="md:mr-1" />
+            <FaGithub size={screen.isLandscape ? 10 : 12} className="md:mr-1" />
             <span className="font-medium hidden md:inline">guilhermelcassis</span>
           </a>
         </div>

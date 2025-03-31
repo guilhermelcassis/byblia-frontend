@@ -1,5 +1,6 @@
 import React, { useState, FormEvent, useEffect, useRef } from 'react';
 import { FaArrowRight, FaExclamationTriangle } from 'react-icons/fa';
+import { useScreen } from '@/app/page';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -29,7 +30,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   const [consecutiveRequests, setConsecutiveRequests] = useState(0);
   const [lastRequestTime, setLastRequestTime] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const screen = useScreen();
 
   useEffect(() => {
     setCharCount(inputValue.length);
@@ -39,6 +41,21 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
       setValidationError('');
     }
   }, [inputValue, validationError]);
+
+  // Auto-resize textarea when content changes
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = 'auto';
+      
+      // Set a smaller max height in landscape mode
+      const maxHeight = screen.isLandscape ? 120 : 300;
+      
+      // Set height to scrollHeight to fit content, but respect max height
+      textarea.style.height = `${Math.max(screen.isLandscape ? 48 : 64, Math.min(textarea.scrollHeight, maxHeight))}px`;
+    }
+  }, [inputValue, screen.isLandscape]);
 
   // Validação de segurança para entrada do usuário
   const validateInput = (text: string): boolean => {
@@ -117,6 +134,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
       
       onSendMessage(sanitizedInput);
       setInputValue('');
+
+      // Reset textarea height after sending
+      if (textareaRef.current) {
+        textareaRef.current.style.height = 'auto';
+      }
     }
   };
 
@@ -128,7 +150,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     setIsFocused(false);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     
     // Prevenir caracteres especiais que causam problemas antes mesmo do envio
@@ -143,6 +165,15 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
       setInputValue(newValue);
     }
   };
+  
+  // Handle keyboard shortcuts
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Send message on Enter key (without Shift)
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e as unknown as FormEvent);
+    }
+  };
 
   return (
     <div className="w-full mobile-input-container">
@@ -151,24 +182,25 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           onSubmit={handleSubmit} 
           className="flex items-start bg-transparent w-full mx-auto transition-all"
         >
-          <input
-            ref={inputRef}
-            type="text"
+          <textarea
+            ref={textareaRef}
             value={inputValue}
             onChange={handleInputChange}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder="Faça uma pergunta, peça conselhos ou compartilhe um problema"
-            className="flex-grow py-4 px-3 bg-transparent outline-none placeholder-gray-500 text-gray-800 text-sm font-normal align-top rounded-2xl"
+            onKeyDown={handleKeyDown}
+            placeholder={screen.isLandscape ? "Digite sua pergunta..." : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
+            className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 bg-transparent outline-none placeholder-gray-500 text-gray-800 text-sm font-normal rounded-2xl resize-none overflow-hidden w-full`}
             disabled={isLoading}
             maxLength={MAX_MESSAGE_LENGTH}
             aria-describedby="message-validation"
+            rows={1}
             style={{ 
-              verticalAlign: 'top', 
-              minHeight: '90px', 
+              minHeight: screen.isLandscape ? '42px' : '64px',
+              maxHeight: screen.isLandscape ? '120px' : '300px',
               wordWrap: 'break-word',
-              paddingBottom: '45px', // Espaço para o botão na parte inferior
-              lineHeight: '1.4'
+              lineHeight: screen.isLandscape ? '1.3' : '1.4',
+              paddingRight: screen.isLandscape ? '40px' : '60px' // Espaço para o botão
             }}
           />
           
@@ -176,14 +208,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           <button
             type="submit"
             disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
-            className={`absolute right-3 bottom-3 w-10 h-10 flex items-center justify-center rounded-full transition-all z-10 ${
+            className={`absolute ${screen.isLandscape ? 'right-2 top-1/2 transform -translate-y-1/2' : 'right-3 bottom-3'} w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full transition-all z-10 ${
               !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 : 'bg-bible-brown text-white hover:bg-bible-darkbrown'
             }`}
+            style={{
+              width: screen.isLandscape ? '32px' : '',
+              height: screen.isLandscape ? '32px' : ''
+            }}
             aria-label="Enviar mensagem"
           >
-            <FaArrowRight size={18} />
+            <FaArrowRight size={screen.isLandscape ? 14 : 18} />
           </button>
         </form>
       </div>
