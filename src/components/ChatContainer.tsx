@@ -143,7 +143,13 @@ const ChatContainer: React.FC = () => {
     // Save the last message to allow resending in case of error
     lastMessageRef.current = message;
     
+    // Send the message
     sendUserMessage(message);
+    
+    // Force scroll to the user's message
+    setTimeout(() => {
+      scrollToBottom();
+    }, 50);
   };
 
   // Função para tentar novamente a última mensagem
@@ -280,17 +286,16 @@ const ChatContainer: React.FC = () => {
         style={{ 
           overscrollBehavior: 'contain',
           WebkitOverflowScrolling: 'touch',
-          scrollPaddingBottom: state.isStreaming ? '50px' : '70px',
-          paddingBottom: screen.isLandscape 
-            ? '50px' 
-            : state.isStreaming ? '70px' : '20px',
-          paddingTop: '10px'
+          scrollPaddingBottom: '70px',
+          paddingBottom: screen.isLandscape ? '50px' : '20px',
+          paddingTop: '10px',
+          position: 'relative'
         }}
       >      
         {state.messages.length === 0 ? (
           <div className={`flex flex-col items-center justify-center h-full px-4 md:px-6 ${screen.isLandscape ? 'pt-2 pb-4' : 'pt-3 pb-6 md:py-6'}`}>
             {/* Mensagem de boas-vindas estilo DeepSeek - centralizada com logo ou ícone */}
-            <div className={`flex flex-col items-center justify-center text-center max-w-md w-full ${screen.isLandscape ? 'mb-3' : 'mb-5 md:mb-8'}`}>
+            <div className={`flex flex-col items-center justify-center text-center max-w-md w-full ${screen.isLandscape ? 'mb-4' : 'mb-5 md:mb-8'}`}>
               <h2 className={`${screen.isLandscape ? 'text-lg' : 'text-xl md:text-2xl'} font-bold mb-3 md:mb-4 text-bible-brown byblia-title-md`}>
                 Oi, eu sou a Byblia,
               </h2>
@@ -314,14 +319,21 @@ const ChatContainer: React.FC = () => {
             {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
             {state.isColdStart && <ColdStartIndicator />}
             
-            {/* Mostrar o indicador de carregamento quando estiver carregando,
-                incluindo durante o streaming em mobile ou cold start */}
-            {state.isLoading && !state.isColdStart && <LoadingIndicator />}
+            {/* Mini indicador de carregamento que não interrompe a visualização da pergunta */}
+            {state.isLoading && !state.isStreaming && !state.isColdStart && (
+              <div className="flex items-center justify-end mt-1 mb-1 mr-4">
+                <div className="p-2 bg-white rounded-full shadow-sm">
+                  <FaSyncAlt className="animate-spin text-bible-brown" size={14} />
+                </div>
+              </div>
+            )}
             
-            {/* Novo indicador de carregamento para mobile durante streaming */}
+            {/* Mini indicador durante streaming em mobile */}
             {state.isStreaming && screen.isMobile && !screen.isLandscape && (
-              <div className="flex justify-center py-4">
-                <FaSyncAlt className="animate-spin text-bible-brown" size={20} />
+              <div className="flex justify-end mt-1 mr-4">
+                <div className="p-2 bg-white rounded-full shadow-sm">
+                  <FaSyncAlt className="animate-spin text-bible-brown" size={14} />
+                </div>
               </div>
             )}
           </div>
@@ -336,9 +348,8 @@ const ChatContainer: React.FC = () => {
           />
         )}
 
-        {/* Feedback buttons - agora com estilo mais minimalista */}
+        {/* Feedback buttons */}
         {(() => {
-          // Log para depuração do interaction_id
           console.log('Feedback rendering check, currentInteractionId:', state.currentInteractionId);
           
           return state.messages.length > 0 &&
@@ -352,7 +363,7 @@ const ChatContainer: React.FC = () => {
         })()}
       </div>
       
-      {/* Input area - posicionado na parte inferior apenas quando já existem mensagens e não está em streaming */}
+      {/* Input area */}
       <AnimatePresence>
         {state.messages.length > 0 && !state.isStreaming && !state.isColdStart && (
           <motion.div 
