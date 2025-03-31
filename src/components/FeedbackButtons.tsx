@@ -41,21 +41,21 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
     display: 'inline-flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '4px', // Gap muito pequeno entre elementos
+    gap: '6px', // Aumentado de 4px para 6px
     width: 'auto',
     textAlign: 'center',
     margin: '0 auto',
-    padding: '1px 0',
+    padding: '2px 4px', // Aumentado de 1px 0 para 2px 4px
     maxWidth: 'fit-content',
     borderRadius: '12px',
-    fontSize: '11px'
+    fontSize: '12px' // Aumentado de 11px para 12px
   };
   
   // Se o feedback já foi enviado, mostrar mensagem discreta de agradecimento
   if (feedbackGiven !== null) {
     return (
       <div style={containerStyle} className="feedback-buttons opacity-60">
-        <p style={{ margin: '0 auto', fontSize: '0.7rem', fontStyle: 'italic', color: '#9ca3af' }}>
+        <p style={{ margin: '0 auto', fontSize: '0.75rem', fontStyle: 'italic', color: '#9ca3af' }}>
           Obrigado
         </p>
       </div>
@@ -65,7 +65,7 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
   // Estilo compacto para botões
   const buttonStyle: React.CSSProperties = {
     color: '#9ca3af',
-    padding: '0.1rem',
+    padding: '0.15rem', // Ligeiramente aumentado
     margin: '0',
     background: 'none',
     border: 'none',
@@ -80,13 +80,13 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
   return (
     <div style={containerStyle} className="feedback-buttons">
       {error && (
-        <div style={{ fontSize: '0.65rem', color: '#ef4444', marginRight: '0.1rem' }}>
+        <div style={{ fontSize: '0.7rem', color: '#ef4444', marginRight: '0.1rem' }}>
           {error}
         </div>
       )}
       
       {/* Texto entre os botões para economizar espaço horizontal */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}> {/* Gap aumentado de 2px para 4px */}
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -95,10 +95,10 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
           aria-label="Resposta útil"
           disabled={isLoading}
         >
-          {isLoading ? <FaSpinner className="animate-spin" size={10} /> : <FaThumbsUp size={10} />}
+          {isLoading ? <FaSpinner className="animate-spin" size={12} /> : <FaThumbsUp size={12} />} {/* Tamanho aumentado de 10px para 12px */}
         </motion.button>
         
-        <span style={{ fontSize: '0.65rem', color: '#9ca3af' }}>útil?</span>
+        <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>útil?</span> {/* Tamanho aumentado de 0.65rem para 0.7rem */}
         
         <motion.button
           whileHover={{ scale: 1.1 }}
@@ -108,7 +108,7 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
           aria-label="Resposta não útil"
           disabled={isLoading}
         >
-          {isLoading ? <FaSpinner className="animate-spin" size={10} /> : <FaThumbsDown size={10} />}
+          {isLoading ? <FaSpinner className="animate-spin" size={12} /> : <FaThumbsDown size={12} />} {/* Tamanho aumentado de 10px para 12px */}
         </motion.button>
       </div>
     </div>

@@ -112,9 +112,7 @@ const ChatContainer: React.FC = () => {
   // Use the new scroll hook
   const { containerRef, userHasScrolled, scrollToBottom } = useScroll({
     isStreaming: state.isStreaming,
-    messagesCount: state.messages.length,
-    hasNewContent: streamHasNewContent,
-    currentResponseText: state.currentResponse
+    messagesCount: state.messages.length
   });
 
   // Add scroll event listener to detect manual scrolling up
@@ -123,20 +121,8 @@ const ChatContainer: React.FC = () => {
     if (!container) return;
 
     const handleScroll = () => {
-      // Simplificado: apenas verificar se o usuário rolou significativamente para cima
-      const currentScrollTop = container.scrollTop;
-      const scrollDistance = Math.abs(currentScrollTop - lastScrollPositionRef.current);
-      
-      // Se rolou para cima mais de 20px, considerar como scroll manual
-      if (currentScrollTop < lastScrollPositionRef.current && scrollDistance > 20) {
-        setUserManuallyScrolled(true);
-      }
-      // Se voltou para perto do final, reativar auto-scroll
-      else if (container.scrollHeight - currentScrollTop - container.clientHeight < 120) {
-        setUserManuallyScrolled(false);
-      }
-      
-      lastScrollPositionRef.current = currentScrollTop;
+      // Simplificar para apenas atualizar a posição, toda a lógica está no hook useScroll
+      lastScrollPositionRef.current = container.scrollTop;
     };
 
     container.addEventListener('scroll', handleScroll, { passive: true });
@@ -145,39 +131,88 @@ const ChatContainer: React.FC = () => {
 
   // Simplificar o efeito de streaming para um único responsável pelo scroll
   useEffect(() => {
-    // Durante streaming, forçar atualização do estado para triggar scroll
+    // Durante streaming, sempre garantir que a classe is-streaming esteja no body e html
     if (state.isStreaming) {
       setStreamHasNewContent(true);
       
-      // Resetar após um pequeno delay para permitir o batching de atualizações
+      // Adicionar classes para scroll styling com garantia total de aplicação
+      document.body.classList.add('is-streaming');
+      document.documentElement.classList.add('is-streaming');
+      
+      // SCROLL AGRESSIVO - Forçar um scroll APENAS se o usuário NÃO rolou manualmente
+      if (containerRef.current && !userHasScrolled) {
+        // Scroll direto, sem behavior
+        containerRef.current.scrollTop = containerRef.current.scrollHeight + 5000;
+        
+        // Também forçar scroll da página inteira
+        window.scrollTo(0, document.body.scrollHeight);
+      } else if (userHasScrolled) {
+        // Log para confirmar que estamos respeitando a rolagem manual
+        console.log('Respeitando scroll manual do usuário - scroll automático pausado');
+      }
+      
+      // Resetar a flag após um curto período para permitir múltiplas atualizações
       const timeout = setTimeout(() => {
         setStreamHasNewContent(false);
-      }, 80);
+      }, 10);
       
-      // Forçar scroll para o final se o usuário não rolou manualmente para cima
-      if (!userManuallyScrolled) {
-        scrollToBottom();
-      }
-      
-      return () => clearTimeout(timeout);
-    } 
-    // Ao finalizar o streaming, fazer um scroll final
-    else if (state.messages.length > 0 && !state.isLoading) {
-      // Se o usuário não rolou manualmente para cima
-      if (!userManuallyScrolled) {
-        setTimeout(() => {
-          scrollToBottom();
-        }, 50);
-      }
+      return () => {
+        clearTimeout(timeout);
+        // Remover as classes quando o streaming terminar
+        document.body.classList.remove('is-streaming');
+        document.documentElement.classList.remove('is-streaming');
+      };
+    } else {
+      // Garantir que as classes sejam removidas quando não há streaming
+      document.body.classList.remove('is-streaming');
+      document.documentElement.classList.remove('is-streaming');
     }
-  }, [state.currentResponse, state.isStreaming, state.messages.length, state.isLoading, scrollToBottom, userManuallyScrolled]);
+  }, [state.currentResponse, state.isStreaming, userHasScrolled]);
+  
+  // Função específica para scroll DURANTE streaming - COM RESPEITO AO SCROLL MANUAL
+  useEffect(() => {
+    if (!state.isStreaming) return;
+    
+    // Polling menos frequente (200ms) para verificar se precisamos rolar - RESPEITANDO scroll manual
+    const forcedScrollInterval = setInterval(() => {
+      // APENAS faça scroll se o usuário NÃO rolou manualmente para cima
+      if (containerRef.current && !userHasScrolled) {
+        // Scroll direto sem comportamento suave
+        containerRef.current.scrollTop = containerRef.current.scrollHeight + 5000;
+        
+        // Também forçar scroll da página inteira
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+    }, 200); // Reduzi a frequência para ser menos agressivo
+    
+    // MutationObserver que respeita rigorosamente o scroll manual
+    const observer = new MutationObserver(() => {
+      // APENAS faça scroll se o usuário NÃO rolou manualmente para cima
+      if (containerRef.current && !userHasScrolled) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight + 5000;
+      }
+    });
+    
+    // Observar todo o contêiner de mensagens
+    if (containerRef.current) {
+      observer.observe(containerRef.current, {
+        childList: true,
+        subtree: true,
+        characterData: true
+      });
+    }
+    
+    return () => {
+      clearInterval(forcedScrollInterval);
+      observer.disconnect();
+    };
+  }, [state.isStreaming, userHasScrolled]);
 
   // Function to scroll to the last user message specifically
   const scrollToLastUserMessage = useCallback(() => {
     if (containerRef.current && state.messages.length > 0) {
       // Sempre garantir que a navbar esteja visível no topo em dispositivos móveis
       if (screen.isMobile) {
-        // Scroll to top of page to ensure navbar is visible
         window.scrollTo({
           top: 0,
           behavior: 'auto'
@@ -187,42 +222,10 @@ const ChatContainer: React.FC = () => {
       // Reset user manually scrolled flag when sending a new message
       setUserManuallyScrolled(false);
       
-      // Find all user message elements - targeting the right CSS class
-      const userMessages = containerRef.current.querySelectorAll('.user-message-container');
-      
-      if (userMessages.length > 0) {
-        // Get the last user message element
-        const lastUserMessage = userMessages[userMessages.length - 1];
-        
-        // No mobile, após remover a seção "Sua Pergunta", vamos apenas rolar para o topo da mensagem do usuário
-        if (screen.isMobile && !screen.isLandscape) {
-          // Small delay to ensure scrollToTop completed first
-          setTimeout(() => {
-            if (containerRef.current) {
-              // Scroll to the latest message - como removemos a exibição da pergunta no topo,
-              // agora vamos apenas rolar para garantir que a última mensagem esteja visível
-              containerRef.current.scrollTo({
-                top: 0,
-                behavior: 'auto'
-              });
-            }
-          }, 50);
-        } else {
-          // Default behavior for non-mobile or landscape mode
-          const container = containerRef.current;
-          const messageTop = lastUserMessage.getBoundingClientRect().top;
-          const containerTop = container.getBoundingClientRect().top;
-          const scrollOffset = messageTop - containerTop - 20; // 20px padding from top
-          
-          // Smooth scroll to position
-          container.scrollBy({
-            top: scrollOffset,
-            behavior: 'auto' // Changed to auto for immediate scroll
-          });
-        }
-      }
+      // Deixar o scrollToBottom do hook useScroll cuidar do scroll
+      scrollToBottom();
     }
-  }, [state.messages.length, screen.isMobile, screen.isLandscape]);
+  }, [state.messages.length, screen.isMobile, scrollToBottom]);
 
   // Wrapper for sending message and updating the ref of the message length
   const handleSendMessage = (message: string) => {
@@ -263,7 +266,7 @@ const ChatContainer: React.FC = () => {
     // Force scroll to the user's message with a small delay to ensure render is complete
     setTimeout(() => {
       scrollToLastUserMessage();
-    }, 10); // Reduced delay for more immediate response
+    }, 10);
   };
 
   // Handle response display and ensure no zoom is applied
@@ -282,25 +285,9 @@ const ChatContainer: React.FC = () => {
             viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
           }, 800);
         }
-        
-        // Ensure the window is scrolled to a good position to see the response
-        setTimeout(() => {
-          // Only auto-scroll if the user hasn't manually scrolled up
-          if (!userManuallyScrolled && containerRef.current) {
-            // Scroll to show the last message but not too far down
-            const scrollPosition = Math.max(
-              0,
-              containerRef.current.scrollTop - 120
-            );
-            containerRef.current.scrollTo({
-              top: scrollPosition,
-              behavior: 'auto'
-            });
-          }
-        }, 100);
       }
     }
-  }, [state.messages.length, state.isStreaming, screen.isMobile, userManuallyScrolled]);
+  }, [state.messages.length, state.isStreaming, screen.isMobile]);
 
   // Função para tentar novamente a última mensagem
   const handleRetry = useCallback(() => {
@@ -425,23 +412,19 @@ const ChatContainer: React.FC = () => {
   };
 
   return (
-    <div className={`flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden ${state.messages.length === 0 ? 'state-messages-length-0' : ''}`}>
-      {/* Mobile view com a pergunta do usuário sempre visível - REMOVIDO CONFORME SOLICITAÇÃO */}
-      
-      {/* Messages container */}
-      <div 
+    <section className="flex-1 h-full relative">
+      <div
         ref={containerRef}
-        className={`flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-2 sm:space-y-3 mb-0 manual-scroll`}
         id="chat-messages"
-        style={{ 
-          overscrollBehavior: 'contain',
-          WebkitOverflowScrolling: 'touch',
-          scrollPaddingBottom: '70px',
-          paddingBottom: screen.isLandscape ? '50px' : '20px',
-          paddingTop: '10px',
-          position: 'relative'
-        }}
-      >      
+        className="flex flex-col flex-1 overflow-y-auto max-h-full pb-24 md:pb-36"
+      >
+        {/* Pequena indicação de que o scroll automático foi pausado - sem botão */}
+        {state.isStreaming && userHasScrolled && (
+          <div className="auto-scroll-paused">
+            <span>Rolagem automática pausada</span>
+          </div>
+        )}
+      
         {state.messages.length === 0 ? (
           <div className={`flex flex-col items-center ${screen.isMobile && !screen.isLandscape ? 'justify-start pt-10' : 'justify-center h-full'} px-4 md:px-6 ${screen.isLandscape ? 'pt-2 pb-4' : 'pb-4'}`}>
             {/* Mensagem de boas-vindas estilo DeepSeek - agora com efeito de relevo */}
@@ -475,62 +458,19 @@ const ChatContainer: React.FC = () => {
             </motion.div>
           </div>
         ) : (
-          <div className="message-list pb-2 mb-2" style={{ position: 'relative' }}>
-            {messageItems}
-            
-            {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
-            {state.isColdStart && <ColdStartIndicator />}
-          </div>
-        )}
-
-        {/* Loading indicators - positioned fixed to not affect layout */}
-        {state.isLoading && !state.isStreaming && !state.isColdStart && (
-          <div className="fixed top-20 right-4 z-40">
-            <div className="p-2 bg-white rounded-full shadow-sm opacity-90">
-              <FaSyncAlt className="animate-spin text-bible-brown" size={14} />
-            </div>
-          </div>
+          state.messages.map((message, index) => (
+            <MessageItem
+              key={message.id}
+              message={message}
+              isLastMessage={index === state.messages.length - 1}
+              isStreaming={message.role === 'assistant' && index === state.messages.length - 1 && state.isStreaming}
+              questionText={index > 0 && message.role === 'assistant' ? state.messages[index - 1].content : ''}
+            />
+          ))
         )}
         
-        {/* Mini indicador durante streaming em mobile - fixed positioning */}
-        {state.isStreaming && screen.isMobile && !screen.isLandscape && (
-          <div className="fixed top-20 right-4 z-40">
-            <div className="p-2 bg-white rounded-full shadow-sm opacity-90">
-              <FaSyncAlt className="animate-spin text-bible-brown" size={14} />
-            </div>
-          </div>
-        )}
-
-        {/* Error message display - não mostrar durante cold start */}
-        {state.error && !state.isColdStart && (
-          <ErrorMessage 
-            message={state.error}
-            severity={getErrorSeverity()}
-            onRetry={handleRetry}
-          />
-        )}
-
-        {/* Feedback buttons */}
-        {(() => {
-          console.log('Feedback rendering check, currentInteractionId:', state.currentInteractionId);
-          
-          return state.messages.length > 0 &&
-            !state.isLoading && 
-            !state.isStreaming && 
-            !state.isColdStart && (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: 'auto',
-                margin: '0 auto',
-                padding: '0',
-                position: 'relative'
-              }}>
-                <FeedbackButtons onFeedback={submitFeedback} />
-              </div>
-            );
-        })()}
+        {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
+        {state.isColdStart && <ColdStartIndicator />}
       </div>
       
       {/* Input area when messages exist */}
@@ -597,8 +537,37 @@ const ChatContainer: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Botão de diagnóstico - removido conforme solicitado */}
-    </div>
+      {/* Error message display - não mostrar durante cold start */}
+      {state.error && !state.isColdStart && (
+        <ErrorMessage 
+          message={state.error}
+          severity={getErrorSeverity()}
+          onRetry={handleRetry}
+        />
+      )}
+
+      {/* Feedback buttons */}
+      {(() => {
+        console.log('Feedback rendering check, currentInteractionId:', state.currentInteractionId);
+        
+        return state.messages.length > 0 &&
+          !state.isLoading && 
+          !state.isStreaming && 
+          !state.isColdStart && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: 'auto',
+              margin: '0 auto',
+              padding: '0',
+              position: 'relative'
+            }}>
+              <FeedbackButtons onFeedback={submitFeedback} />
+            </div>
+          );
+      })()}
+    </section>
   );
 };
 

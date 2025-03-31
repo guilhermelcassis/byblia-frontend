@@ -187,34 +187,45 @@ body {
   margin-bottom: 0;
 }
 
-/* Controle de scroll suave quando necessário */
-.manual-scroll {
-  /* Permitir scroll suave somente quando programaticamente acionado */
-  scroll-behavior: smooth;
-  /* Permitir controle manual do scroll*/
-  overscroll-behavior: contain;
+/* Estilos críticos para o scroll automático durante streaming */
+.streaming-scroll {
+  scroll-behavior: auto !important;
+  overflow-anchor: auto !important;
   -webkit-overflow-scrolling: touch;
-  /* Remove o comportamento de anchor que mantém o scroll preso ao fundo */
-  overflow-anchor: none;
+  scrollbar-width: none; /* Esconder scrollbar no Firefox */
+  scroll-padding: 0 !important;
+  scroll-snap-type: none !important;
 }
 
-/* Otimização para o container de streaming */
-.message-list {
-  position: relative;
-  will-change: contents; /* Optimize rendering */
-  width: 100%;
-  max-width: 100%;
+.streaming-scroll::-webkit-scrollbar {
+  display: none; /* Esconder scrollbar no Chrome/Safari */
 }
 
-/* Estilos para mensagens em streaming - without animations */
+.is-streaming .message-text-content {
+  overflow-anchor: auto !important;
+}
+
 .streaming-message {
-  position: relative;
+  scroll-margin: 0 !important;
+  scroll-snap-align: end !important;
+  overflow-anchor: auto !important;
 }
 
-/* Otimização de especificamente para o contêiner de mensagens */
+/* Estilos base para o contêiner de mensagens */
 #chat-messages {
-  transform: translateZ(0);
+  scroll-behavior: auto !important; 
   -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-anchor: auto !important;
+  scroll-padding: 0 !important;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+  padding-bottom: 120px !important;
+}
+
+#chat-messages::-webkit-scrollbar {
+  display: none;
 }
 
 /* Estilo para garantir que o container do input seja visível */
@@ -401,6 +412,9 @@ div.rounded-user-message {
   /* Ajustar padding para compensar o espaço removido */
   #chat-messages {
     padding-bottom: 70px !important;
+    scroll-behavior: auto !important; /* Use 'auto' em vez de 'smooth' para evitar atrasos */
+    overflow-anchor: auto !important; /* Permite que o navegador ajuste automaticamente o scroll */
+    overscroll-behavior-y: contain !important; /* Contém o comportamento de scroll */
   }
   
   /* Improve button tap targets */
@@ -413,8 +427,12 @@ div.rounded-user-message {
 
   /* Fix iOS form elements */
   input, textarea, select {
-    font-size: 15px !important; /* Prevent zoom on focus in iOS */
+    font-size: 16px !important; /* Prevent zoom on focus in iOS */
     display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   /* Better text selection on mobile */
@@ -1376,28 +1394,29 @@ div[class*="max-w-"] .input-box-3d {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 4px !important;
-  padding: 1px 6px !important;
+  gap: 6px !important;
+  padding: 2px 8px !important;
   margin: 4px auto !important;
   max-width: fit-content !important;
-  background-color: rgba(249, 250, 251, 0.5) !important;
+  background-color: rgba(249, 250, 251, 0.7) !important;
   border-radius: 12px !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
 }
 
 .feedback-buttons > div {
   display: flex !important;
   align-items: center !important;
-  gap: 2px !important;
+  gap: 4px !important;
 }
 
 .feedback-buttons button {
   min-height: auto !important;
   min-width: auto !important;
-  padding: 2px !important;
+  padding: 4px !important;
 }
 
-/* Otimizar comportamento de scroll */
+/* Ajustar comportamento de scroll para funcionar bem durante streaming */
 #chat-messages {
   scroll-behavior: auto !important; /* Garantir scroll imediato */
   -webkit-overflow-scrolling: touch;
@@ -1405,32 +1424,57 @@ div[class*="max-w-"] .input-box-3d {
   overflow-x: hidden;
   scroll-padding-bottom: 80px;
   overscroll-behavior-y: contain;
+  scrollbar-width: none; /* Esconder scrollbar no Firefox */
+}
+
+#chat-messages::-webkit-scrollbar {
+  display: none; /* Esconder scrollbar no Chrome/Safari */
 }
 
 /* Evitar problemas com scroll em elementos internos */
 .message-list {
   position: relative;
   scrollbar-width: none; /* Esconder scrollbar no Firefox */
+  scroll-behavior: auto !important;
 }
 
-.message-list::-webkit-scrollbar {
-  display: none; /* Esconder scrollbar no Chrome/Safari */
+/* Melhorar a consistência visual dos botões de compartilhamento - centralizado como feedback */
+.share-buttons-container {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  margin: 8px auto !important;
+  padding: 2px 6px !important;
+  border-radius: 12px !important;
+  background-color: rgba(249, 250, 251, 0.7) !important;
+  max-width: fit-content !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
 }
 
-/* Garantir que os botões de feedback sejam compactos em mobile */
 @media (max-width: 768px) {
-  .feedback-buttons {
-    padding: 0 4px !important;
-    font-size: 10px !important;
+  /* Melhorar container de mensagens para auto-scroll */
+  #chat-messages {
+    scroll-behavior: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-bottom: 120px;
   }
   
-  .feedback-buttons span {
-    font-size: 0.65rem !important;
+  .share-buttons-container {
+    padding: 2px 4px !important;
+    gap: 0px !important;
+    margin: 6px auto !important;
   }
-  
-  .feedback-buttons button {
-    transform: scale(0.9);
-  }
+}
+
+/* Garantir que o conteúdo de streaming seja sempre visível */
+.streaming-message {
+  overflow-anchor: auto !important;
+}
+
+.message-text-content {
+  overflow-anchor: auto !important;
 }
 
 /* Estilos específicos para inputs para evitar zoom */
@@ -1466,4 +1510,271 @@ input:focus, textarea:focus {
     text-size-adjust: 100% !important;
     transform: translateZ(0);
   }
+}
+
+/* Garantir que os botões de feedback sejam compactos em mobile */
+@media (max-width: 768px) {
+  .feedback-buttons {
+    padding: 2px 6px !important;
+    font-size: 11px !important;
+  }
+  
+  .feedback-buttons span {
+    font-size: 0.7rem !important;
+  }
+  
+  .feedback-buttons button {
+    padding: 3px !important;
+  }
+  
+  .share-button {
+    font-size: 10px !important;
+    padding: 2px 4px !important;
+    min-height: 22px !important;
+  }
+}
+
+/* Estilo para botões de compartilhamento */
+.share-button {
+  font-size: 11px !important;
+  padding: 3px 6px !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 24px !important;
+}
+
+.share-button:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Estilos específicos para quando o streaming está ativo */
+.streaming-scroll {
+  scroll-behavior: auto !important;
+  overflow-anchor: auto !important;
+}
+
+.is-streaming .message-text-content {
+  overflow-anchor: auto !important;
+}
+
+/* Garantir que o último elemento em streaming receba foco de scroll */
+.streaming-message:last-child {
+  scroll-snap-align: end;
+}
+
+/* Ajuste para scroll automático mais confiável */
+@media (max-width: 768px) {
+  .streaming-scroll {
+    scroll-snap-type: y proximity;
+  }
+  
+  .streaming-message:last-child {
+    scroll-margin-bottom: 120px;
+  }
+}
+
+/* Scroll automático - estilo de máxima prioridade */
+body .streaming-scroll {
+  scroll-behavior: auto !important;
+  overflow-anchor: auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+body .streaming-message {
+  scroll-snap-align: end !important;
+  overflow-anchor: auto !important;
+  position: relative !important;
+}
+
+body .is-streaming .message-list {
+  overflow-anchor: auto !important;
+}
+
+/* Botões de compartilhamento perfeitamente centralizados */
+body .share-buttons-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+  width: fit-content !important;
+}
+
+/* Garantir que durante streaming, sempre fazemos scroll para o final */
+body.is-streaming #chat-messages {
+  scroll-snap-type: y proximity !important;
+}
+
+body.is-streaming .streaming-message:last-child {
+  scroll-snap-align: end !important;
+  margin-bottom: 50px !important;
+}
+
+/* Remover scroll personalizado durante streaming para evitar problemas */
+@media (max-width: 768px) {
+  body.is-streaming #chat-messages {
+    padding-bottom: 150px !important;
+  }
+  
+  body .streaming-message {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+}
+
+/* Melhorar scrolling em elementos móveis com alta especificidade */
+body.is-streaming #chat-messages {
+  scroll-padding-bottom: 100px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Usar scroll-snap para manter visível o último elemento durante streaming */
+body.is-streaming .message-list > div:last-child {
+  scroll-snap-align: end !important;
+  scroll-margin-bottom: 80px !important;
+}
+
+/* Centralização completa dos botões de compartilhamento */
+.share-buttons-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 8px auto !important;
+  padding: 2px 6px !important;
+  max-width: fit-content !important;
+  border-radius: 12px !important;
+  background: rgba(249, 250, 251, 0.8) !important;
+}
+
+/* Garantir que o texto nos botões de compartilhamento tenha o mesmo tamanho */
+.share-button span {
+  font-size: 0.75rem !important;
+  line-height: 1 !important;
+}
+
+/* Improve button tap targets */
+button, a {
+  min-height: 36px; /* Ajustado para ficar com tamanho do DeepSeek */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ESTILOS CRÍTICOS PARA AUTO-SCROLL FUNCIONANDO - MAIOR ESPECIFICIDADE */
+html body.is-streaming #chat-messages {
+  scroll-behavior: auto !important;
+  overflow-anchor: auto !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-snap-type: y mandatory !important;
+  height: auto !important;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  overflow: auto !important;
+  max-height: none !important;
+  min-height: auto !important;
+}
+
+html body.is-streaming .message-list > div:last-child {
+  scroll-snap-align: end !important;
+  scroll-margin-bottom: 0 !important;
+  position: relative !important;
+}
+
+html body.is-streaming .streaming-message {
+  scroll-snap-align: end !important;
+  overflow-anchor: auto !important;
+  margin-bottom: 100px !important;
+  position: relative !important;
+}
+
+/* NOVO - SUPER AGRESSIVO - Remover fixed positioning */
+html body.is-streaming {
+  /* Remover qualquer posicionamento fixo que possa interferir */
+  position: relative !important;
+  overflow: auto !important;
+  height: auto !important;
+  min-height: 100% !important;
+  top: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  right: auto !important;
+}
+
+/* NOVO - SUPER AGRESSIVO - Remover scroll-snap, pode estar atrapalhando */
+html body.is-streaming #chat-messages {
+  scroll-snap-type: none !important;
+}
+
+html body.is-streaming .message-list > div:last-child {
+  scroll-snap-align: none !important;
+}
+
+/* NOVO - FORÇAR VISIBILIDADE DA ÚLTIMA MENSAGEM */
+html body.is-streaming .streaming-message {
+  margin-bottom: 300px !important; /* Espaço grande no final para garantir visibilidade */
+  padding-bottom: 30px !important;
+}
+
+/* Remover FIXED e outros posicionamentos que podem travar o scroll durante streaming */
+html body.is-streaming .fixed,
+html body.is-streaming [class*="fixed"],
+html body.is-streaming [style*="fixed"],
+html body.is-streaming .sticky,
+html body.is-streaming [class*="sticky"] {
+  position: absolute !important;
+  bottom: auto !important;
+  top: auto !important;
+}
+
+/* Garantir que mensagem em streaming tenha prioridade de scroll */
+.is-streaming .message-text-content {
+  overflow-anchor: auto !important;
+}
+
+/* Estilos para streaming e scroll automático */
+.is-streaming .auto-scroll-paused {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 400;
+  z-index: 1000;
+  opacity: 0.8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  animation: fadeIn 0.3s ease-in-out;
+  max-width: 90%;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 0.8; transform: translateX(-50%) translateY(0); }
+}
+
+/* Remover estilos de botão que não serão mais usados */
+.auto-scroll-paused {
+  display: none;
 }

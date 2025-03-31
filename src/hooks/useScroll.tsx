@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useScreen } from '@/hooks/useScreen';
 
 interface UseScrollOptions {
@@ -21,8 +21,7 @@ interface UseScrollOptions {
 }
 
 /**
- * Hook to handle automatic scrolling behavior with user interaction detection
- * Simplificado para garantir melhor funcionalidade
+ * Hook que garante auto-scroll durante streaming, mas respeita scroll manual do usuário
  */
 export function useScroll({ 
   isStreaming, 
@@ -32,113 +31,142 @@ export function useScroll({
 }: UseScrollOptions) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [userHasScrolled, setUserHasScrolled] = useState(false);
-  const prevMessagesCountRef = useRef<number>(0);
-  const prevResponseLengthRef = useRef<number>(0);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastContentLengthRef = useRef<number>(0);
+  const lastScrollPositionRef = useRef<number>(0);
   const screen = useScreen();
+  const scrollDetectionThresholdRef = useRef(20);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const mutationObserverRef = useRef<MutationObserver | null>(null);
+  const streamingIdRef = useRef<number | null>(null);
   
-  // Simplified scroll detection - apenas verifica se o usuário rolou para cima
+  // Quando o status de streaming muda, atualizar o ID de streaming
   useEffect(() => {
+    if (isStreaming && streamingIdRef.current === null) {
+      // Novo streaming iniciou - criar um novo ID
+      streamingIdRef.current = Date.now();
+    } else if (!isStreaming) {
+      // Streaming terminou - resetar o ID e a flag de scroll
+      streamingIdRef.current = null;
+      setUserHasScrolled(false);
+    }
+  }, [isStreaming]);
+  
+  // Função para rolar para o final do container
+  const scrollToBottom = useCallback(() => {
+    if (!containerRef.current || userHasScrolled) return;
+
     const container = containerRef.current;
-    if (!container) return;
-
-    // Variável para armazenar a última posição de scroll
-    let lastScrollTop = container.scrollTop;
-
-    const handleScroll = () => {
-      // Se o usuário rolou para cima significativamente (mais de 40px)
-      if (container.scrollTop < lastScrollTop - 40) {
-        setUserHasScrolled(true);
-      }
-      
-      // Se o usuário rolou para perto do fim, reativar auto-scroll
-      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
-      if (isNearBottom) {
-        setUserHasScrolled(false);
-      }
-      
-      // Atualizar a posição para a próxima verificação
-      lastScrollTop = container.scrollTop;
-    };
-
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Scroll simples quando novas mensagens são adicionadas
+    
+    // Usar scrollTop direto para rolar sem comportamento suave durante streaming
+    container.scrollTop = container.scrollHeight + 5000;
+    
+    // Para garantir que toda a página também role junto
+    window.scrollTo(0, document.body.scrollHeight);
+  }, [userHasScrolled]);
+  
+  // Detecção de scroll manual pelo usuário - mais sensível
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current || !isStreaming) return;
+    
+    const container = containerRef.current;
+    const currentScrollTop = container.scrollTop;
+    
+    // Detectar qualquer movimento para cima
+    if (lastScrollPositionRef.current > currentScrollTop) {
+      console.log('Scroll manual para cima detectado - pausando auto-scroll permanentemente');
+      setUserHasScrolled(true);
+    }
+    
+    // Atualizar posição de scroll anterior
+    lastScrollPositionRef.current = currentScrollTop;
+  }, [isStreaming]);
+  
+  // Configurar observer para monitorar mudanças no conteúdo
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Se uma nova mensagem foi adicionada
-    if (messagesCount > prevMessagesCountRef.current) {
-      prevMessagesCountRef.current = messagesCount;
-      
-      // Solução simples: sempre scrollar para o final após nova mensagem
-      if (!userHasScrolled) {
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-        
-        scrollTimeoutRef.current = setTimeout(() => {
-          if (containerRef.current) {
-            containerRef.current.scrollTo({
-              top: containerRef.current.scrollHeight,
-              behavior: 'auto' // Comportamento imediato para ser mais confiável
-            });
-          }
-        }, 50);
-      }
+    // Limpar observer existente se houver
+    if (mutationObserverRef.current) {
+      mutationObserverRef.current.disconnect();
     }
-  }, [messagesCount, userHasScrolled]);
-
-  // Comportamento simplificado durante streaming
-  useEffect(() => {
-    if (!isStreaming || !containerRef.current || userHasScrolled) return;
     
-    // Verificar mudanças no tamanho da resposta
-    const currentLength = currentResponseText?.length || 0;
-    const hasGrown = currentLength > prevResponseLengthRef.current;
-    
-    if (hasGrown || hasNewContent) {
-      prevResponseLengthRef.current = currentLength;
-      
-      // Limpar timeout anterior para evitar múltiplos scrolls
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
+    // Criar novo observer
+    const observer = new MutationObserver(() => {
+      if (isStreaming && !userHasScrolled) {
+        scrollToBottom();
       }
-      
-      // Usar um timeout curto para agrupar múltiplas atualizações
-      scrollTimeoutRef.current = setTimeout(() => {
-        if (containerRef.current) {
-          containerRef.current.scrollTo({
-            top: containerRef.current.scrollHeight,
-            behavior: 'auto' // 'auto' é mais consistente que 'smooth'
-          });
-        }
-      }, 30);
-    }
-  }, [isStreaming, currentResponseText, hasNewContent, userHasScrolled]);
-
-  // Limpar timeout ao desmontar
-  useEffect(() => {
+    });
+    
+    // Configurar observer
+    observer.observe(containerRef.current, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+    
+    // Salvar referência e limpar ao desmontar
+    mutationObserverRef.current = observer;
     return () => {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
+      observer.disconnect();
+    };
+  }, [isStreaming, scrollToBottom, userHasScrolled]);
+  
+  // Adicionar event listener de scroll
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, [handleScroll]);
+  
+  // Polling para forçar scroll durante streaming - menos frequente para evitar problemas
+  useEffect(() => {
+    if (isStreaming && !userHasScrolled) {
+      // Limpar timer existente
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      
+      // Configurar novo timer para forçar scroll a cada 200ms (menos frequente)
+      timerRef.current = setInterval(() => {
+        scrollToBottom();
+      }, 200);
+      
+      // Scroll inicial
+      scrollToBottom();
+    } else if (timerRef.current) {
+      // Limpar timer quando não estiver mais em streaming ou usuário rolou
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     };
-  }, []);
-
-  // Função para scroll manual
-  const scrollToBottom = () => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo({
-        top: containerRef.current.scrollHeight,
-        behavior: 'auto' // Simplificado para sempre usar 'auto'
-      });
+  }, [isStreaming, userHasScrolled, scrollToBottom]);
+  
+  // Resetar scroll APENAS quando uma nova mensagem é enviada (não durante o streaming)
+  useEffect(() => {
+    // Resetar a flag de scroll manual APENAS quando uma nova mensagem é enviada
+    // e não durante o streaming atual
+    if (!isStreaming) {
       setUserHasScrolled(false);
+      
+      // Pequeno timeout para garantir que o scroll aconteça
+      setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = containerRef.current.scrollHeight + 5000;
+        }
+      }, 10);
     }
-  };
-
+  }, [messagesCount, isStreaming]);
+  
   return {
     containerRef,
     userHasScrolled,

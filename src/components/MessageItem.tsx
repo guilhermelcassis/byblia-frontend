@@ -31,29 +31,15 @@ export const MessageItem: React.FC<Props> = memo(({
   const [copied, setCopied] = useState(false);
   const screen = useScreen();
 
-  // Garantir que não haja zoom automático quando uma mensagem é exibida
+  // Remover manipulação de zoom sem necessidade - pode estar interferindo no scroll
   useEffect(() => {
-    if (isLastMessage && screen.isMobile && !isUser) {
-      // Impedir zoom em dispositivos móveis
-      const resetZoom = () => {
-        const viewportMeta = document.querySelector('meta[name="viewport"]');
-        if (viewportMeta) {
-          // Temporariamente prevenir zoom
-          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
-          
-          // Restaurar configuração normal após um breve momento
-          setTimeout(() => {
-            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
-          }, 500);
-        }
-      };
-      
-      resetZoom();
-      
-      // Remover comportamento de scrollIntoView para evitar conflito com o sistema de auto-scroll
-      // O containerRef no ChatContainer será responsável pelo scroll adequado
-    }
-  }, [isLastMessage, isUser, screen.isMobile, message.content]);
+    // Não fazer nada aqui que possa afetar scroll
+  }, [isLastMessage, isUser, screen.isMobile]);
+
+  // Remover completamente qualquer manipulação de scroll
+  useEffect(() => {
+    // Este componente NÃO deve controlar o scroll, apenas mostrar o conteúdo
+  }, [isLastMessage, isStreaming]);
 
   // Função auxiliar para truncar texto se necessário
   const truncateText = (text: string, maxLength: number): string => {
@@ -159,38 +145,47 @@ export const MessageItem: React.FC<Props> = memo(({
         {/* Exibir os botões de compartilhamento apenas se for uma mensagem do assistente e não estiver em streaming */}
         {!isUser && !isStreaming && (
           <div 
-            className="flex items-center justify-end mt-2 pt-1 gap-2 share-buttons-container"
-            style={{ borderTop: 'none' }}
+            className="flex items-center justify-center mt-2 pt-1 gap-1 share-buttons-container"
+            style={{ 
+              borderTop: 'none', 
+              background: 'rgba(249, 250, 251, 0.7)', 
+              borderRadius: '12px', 
+              padding: '2px 4px',
+              margin: '4px auto',
+              maxWidth: 'fit-content'
+            }}
           >
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={copyToClipboard}
-              className="flex items-center justify-center text-xs text-gray-600 hover:text-bible-brown rounded-full px-3 py-1 transition-colors share-button"
+              className="flex items-center justify-center text-xs text-gray-600 hover:text-bible-brown rounded-full px-2 py-1 transition-colors share-button"
               aria-label="Copiar mensagem"
             >
               {copied ? (
                 <>
-                  <FaCheck size={10} className="mr-1 text-green-500" />
+                  <FaCheck size={12} className="mr-1 text-green-500" />
                   <span>Copiado</span>
                 </>
               ) : (
                 <>
-                  <FaCopy size={10} className="mr-1" />
-                  <span>{questionText ? "Copiar conversa" : "Copiar resposta"}</span>
+                  <FaCopy size={12} className="mr-1" />
+                  <span>{questionText ? "Copiar" : "Copiar"}</span>
                 </>
               )}
             </motion.button>
+            
+            <div className="text-gray-300 mx-1">|</div>
             
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={shareViaWhatsApp}
-              className="flex items-center justify-center text-xs text-gray-600 hover:text-green-600 rounded-full px-3 py-1 transition-colors share-button"
+              className="flex items-center justify-center text-xs text-gray-600 hover:text-green-600 rounded-full px-2 py-1 transition-colors share-button"
               aria-label="Compartilhar via WhatsApp"
             >
-              <FaWhatsapp size={10} className="mr-1" />
-              <span>{questionText ? "Compartilhar conversa" : "Compartilhar"}</span>
+              <FaWhatsapp size={12} className="mr-1" />
+              <span>{questionText ? "Compartilhar" : "Compartilhar"}</span>
             </motion.button>
           </div>
         )}
