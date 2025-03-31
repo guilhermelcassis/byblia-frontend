@@ -292,7 +292,7 @@ const useChat = () => {
       setState((prevState) => ({
         ...prevState,
         isLoading: true,
-        isStreaming: true,
+        isStreaming: false, // Inicialmente apenas isLoading é true, isStreaming será ativado quando o primeiro chunk chegar
         error: null,
         messages: [...prevState.messages, userMessage, assistantMessage],
         currentResponse: '',
@@ -370,6 +370,12 @@ const useChat = () => {
             clearTimeout(firstChunkTimeoutId);
             firstChunkTimeoutId = null;
           }
+          
+          // Quando recebemos o primeiro chunk, ativamos o streaming
+          setState(prevState => ({
+            ...prevState,
+            isStreaming: true // Agora ativamos o streaming
+          }));
           
           console.log('[useChat] Recebido chunk de tamanho:', chunk.length);
           // Para debug, mostrar o início do chunk

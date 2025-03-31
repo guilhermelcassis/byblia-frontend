@@ -2131,3 +2131,72 @@ header + section .message-list {
     padding-top: 0 !important;
   }
 }
+
+/* Estilo para o indicador de pré-streaming */
+.pre-streaming-indicator {
+  position: relative;
+  width: 100%;
+  border-radius: 24px;
+  background-color: rgba(248, 245, 242, 0.95);
+  min-height: 48px;
+  max-width: 900px;
+  box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+  border: 1px solid rgba(139, 93, 51, 0.15);
+  color: #8B5D33;
+  animation: pulse-loading 2s infinite ease-in-out;
+}
+
+/* Animação de pulso para o indicador de pré-streaming */
+@keyframes pulse-loading {
+  0% {
+    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
+    border: 1px solid rgba(139, 93, 51, 0.15);
+  }
+  50% {
+    box-shadow: 0 2px 12px rgba(139, 93, 51, 0.15);
+    border: 1px solid rgba(139, 93, 51, 0.25);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
+    border: 1px solid rgba(139, 93, 51, 0.15);
+  }
+}
+
+.pre-streaming-indicator .streaming-indicator-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  pointer-events: auto;
+  padding: 0 12px;
+}
+
+.pre-streaming-indicator .streaming-indicator-icon {
+  margin-right: 8px;
+  color: #8B5D33;
+}
+
+@media (max-width: 768px) {
+  .pre-streaming-indicator {
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    box-shadow: 0 1px 6px rgba(139, 93, 51, 0.08);
+    width: 100%;
+    margin: 0;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+  }
+  
+  .pre-streaming-indicator .streaming-indicator-text {
+    font-size: 13px;
+  }
+}

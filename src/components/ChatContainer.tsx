@@ -540,6 +540,43 @@ const ChatContainer: React.FC = () => {
             </div>
           </motion.div>
         )}
+
+        {/* Indicador de carregamento antes do início do streaming */}
+        {state.messages.length > 0 && state.isLoading && !state.isStreaming && !state.isColdStart && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="p-2 sm:p-3 bg-transparent relative z-[90]"
+            style={{ margin: 0, pointerEvents: 'none' }}
+          >
+            <div className="max-w-2xl mx-auto">
+              <div 
+                className="pre-streaming-indicator" 
+                style={!screen.isLandscape && screen.isMobile ? {
+                  ...fixedIndicatorStyle,
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  border: '1px solid rgba(139, 93, 51, 0.15)',
+                  color: '#8B5D33'
+                } : {}}
+              >
+                <div className="streaming-indicator-text">
+                  <FaSyncAlt className="animate-spin streaming-indicator-icon" size={14} />
+                  <span>Preparando resposta bíblica...</span>
+                  <button 
+                    onClick={handleRetry} 
+                    className="ml-2 text-xs text-bible-brown underline cursor-pointer pointer-events-auto"
+                    title="Cancelar e tentar novamente"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    (cancelar)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Error message display - não mostrar durante cold start */}
