@@ -70,21 +70,14 @@ export const MessageItem: React.FC<Props> = ({
 
   // Função para compartilhar via WhatsApp
   const shareViaWhatsApp = () => {
-    // Limitar o tamanho da pergunta e da resposta para o URL do WhatsApp não ficar muito longo
-    const maxQuestionLength = 300; // Tamanho máximo para a pergunta
-    const maxAnswerLength = 800;   // Tamanho máximo para a resposta
-    
-    const truncatedQuestion = questionText ? truncateText(questionText, maxQuestionLength) : '';
-    const truncatedAnswer = truncateText(message.content, maxAnswerLength);
-    
-    // Formato da mensagem com a pergunta original, se disponível
-    const messageWithQuestion = questionText 
-      ? `Pergunta: ${truncatedQuestion}\n\nResposta da Byblia:\n${truncatedAnswer}`
-      : `Mensagem da Byblia:\n\n${truncatedAnswer}`;
+    // Usar a mensagem completa sem truncamento, igual à função de cópia
+    const messageToShare = questionText 
+      ? `Pergunta: ${questionText}\n\nResposta da Byblia:\n${message.content}`
+      : `Mensagem da Byblia:\n\n${message.content}`;
     
     // Criar URL do WhatsApp com a mensagem codificada
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-      messageWithQuestion + '\n\n— Enviado via Byblia (https://byblia.com/)'
+      messageToShare + '\n\n— Enviado via Byblia (https://byblia.com/)'
     )}`;
     
     // Abrir em uma nova aba
