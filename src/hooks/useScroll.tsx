@@ -88,6 +88,15 @@ export function useScroll({
     if (messagesCount > prevMessagesCountRef.current) {
       prevMessagesCountRef.current = messagesCount;
       
+      // Em dispositivos móveis, garantir que a navbar esteja visível
+      if (screen.isMobile && !screen.isLandscape) {
+        // Scroll to top of page to ensure navbar is visible
+        window.scrollTo({
+          top: 0,
+          behavior: 'auto'
+        });
+      }
+      
       // On mobile portrait mode, don't auto-scroll after submitting a question
       // to prioritize showing the question at the top
       if (screen.isMobile && !screen.isLandscape && prioritizeQuestion) {

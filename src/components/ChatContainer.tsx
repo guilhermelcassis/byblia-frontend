@@ -142,6 +142,15 @@ const ChatContainer: React.FC = () => {
   // Function to scroll to the last user message specifically
   const scrollToLastUserMessage = useCallback(() => {
     if (containerRef.current && state.messages.length > 0) {
+      // Sempre garantir que a navbar esteja visível no topo em dispositivos móveis
+      if (screen.isMobile) {
+        // Scroll to top of page to ensure navbar is visible
+        window.scrollTo({
+          top: 0,
+          behavior: 'auto'
+        });
+      }
+      
       // Find all user message elements - targeting the right CSS class
       const userMessages = containerRef.current.querySelectorAll('.user-message-container');
       
@@ -151,13 +160,7 @@ const ChatContainer: React.FC = () => {
         
         // In mobile view, scroll to the very top to show question and navbar
         if (screen.isMobile && !screen.isLandscape) {
-          // Scroll to top of page to show navbar first
-          window.scrollTo({
-            top: 0,
-            behavior: 'auto'
-          });
-          
-          // Then position the container to show the user message at top
+          // Small delay to ensure scrollToTop completed first
           setTimeout(() => {
             const container = containerRef.current;
             if (container) {
@@ -324,39 +327,10 @@ const ChatContainer: React.FC = () => {
     }
   };
 
-  // State for minimize/maximize view
-  const [minimizedView, setMinimizedView] = useState(false);
-
-  // Function to toggle between minimized and maximized view
-  const toggleView = useCallback(() => {
-    setMinimizedView(prev => !prev);
-    
-    // When maximizing, scroll to the user's message
-    if (minimizedView) {
-      setTimeout(() => {
-        scrollToLastUserMessage();
-      }, 50);
-    }
-  }, [minimizedView, scrollToLastUserMessage]);
-
   return (
     <div className={`flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden ${state.messages.length === 0 ? 'state-messages-length-0' : ''}`}>
-      {/* Toggle button for mobile view */}
+      {/* Mobile view com a pergunta do usuário sempre visível */}
       {screen.isMobile && !screen.isLandscape && state.messages.length > 1 && (
-        <motion.button
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={toggleView}
-          className="fixed top-16 right-3 z-50 bg-bible-brown text-white rounded-full p-2 shadow-md"
-          style={{ fontSize: '12px' }}
-        >
-          {minimizedView ? 'Ver pergunta' : 'Minimizar'}
-        </motion.button>
-      )}
-      
-      {/* Mobile view with question focus feature */}
-      {screen.isMobile && !screen.isLandscape && !minimizedView && state.messages.length > 1 && (
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -369,7 +343,7 @@ const ChatContainer: React.FC = () => {
         </motion.div>
       )}
       
-      {/* Messages container - adjust padding when in focus mode */}
+      {/* Messages container */}
       <div 
         ref={containerRef}
         className={`flex-grow overflow-y-auto pt-0 px-2 sm:px-3 md:px-5 space-y-2 sm:space-y-3 mb-0 manual-scroll`}
@@ -379,7 +353,7 @@ const ChatContainer: React.FC = () => {
           WebkitOverflowScrolling: 'touch',
           scrollPaddingBottom: '70px',
           paddingBottom: screen.isLandscape ? '50px' : '20px',
-          paddingTop: (!minimizedView && screen.isMobile && !screen.isLandscape && state.messages.length > 1) ? '10px' : '10px',
+          paddingTop: '10px',
           position: 'relative'
         }}
       >      

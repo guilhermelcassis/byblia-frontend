@@ -1293,26 +1293,27 @@ div[class*="max-w-"] .input-box-3d {
 
 /* Media queries specific for portrait mode in mobile */
 @media (max-width: 768px) and (orientation: portrait) {
-  /* Ensure navbar is visible and fixed at top */
+  /* Ensure navbar is visible and fixed at top - enhanced styles */
   .navbar-fixed {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    background-color: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    padding: 0.5rem 1rem;
-    height: 60px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 100 !important;
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    padding: 0.5rem 1rem !important;
+    height: 60px !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    transition: all 0.2s ease-in-out !important;
   }
 
   /* Adjust main content to account for fixed navbar */
   main {
-    padding-top: 60px;
-    min-height: 100vh;
-    position: relative;
+    padding-top: 60px !important;
+    min-height: 100vh !important;
+    position: relative !important;
   }
 
   /* Ajustar página inicial para melhor visualização em mobile */
@@ -1321,7 +1322,7 @@ div[class*="max-w-"] .input-box-3d {
     height: auto !important;
     justify-content: flex-start !important;
   }
-
+  
   /* Reduzir o tamanho do título em boas-vindas em mobile */
   .byblia-title-md {
     font-size: 1.25rem !important;
@@ -1387,62 +1388,5 @@ div[class*="max-w-"] .input-box-3d {
   /* Reduzir altura do container */
   .min-h-\[calc\(100vh-90px\)\] {
     min-height: fit-content !important;
-  }
-}
-
-/* Style for the minimize/maximize toggle button */
-.mobile-view-toggle {
-  position: fixed;
-  top: 70px;
-  right: 10px;
-  z-index: 50;
-  background-color: #8B5D33;
-  color: white;
-  border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 12px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.mobile-view-toggle:active {
-  transform: scale(0.95);
-}
-
-/* Otimização específica para mobile - redução de margens e paddings */
-@media (max-width: 768px) and (orientation: portrait) {
-  /* Ajustar página inicial para melhor visualização em mobile */
-  #chat-messages div[class*="justify-center"] {
-    padding-top: 10px !important;
-    height: auto !important;
-    justify-content: flex-start !important;
-  }
-
-  /* Reduzir o tamanho do título em boas-vindas em mobile */
-  .byblia-title-md {
-    font-size: 1.25rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-
-  /* Reduzir espaçamento do container principal em mobile */
-  .app-container main {
-    min-height: calc(100vh - 60px);
-  }
-
-  /* Ajustar altura do container principal para evitar scroll desnecessário */
-  .h-\[calc\(100vh-80px\)\] {
-    min-height: calc(100vh - 90px) !important;
-    height: auto !important;
-  }
-  
-  /* Melhoria na visualização vertical para evitar espaços em branco */
-  .flex.flex-col.items-center.justify-center {
-    margin-top: 0 !important;
-    padding-top: 10px !important;
   }
 }
