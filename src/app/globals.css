@@ -78,6 +78,15 @@ body {
   -webkit-tap-highlight-color: rgba(0,0,0,0); /* Remove tap highlight on mobile */
   touch-action: manipulation; /* Optimize touch actions */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Impede rolagem no body, deixando apenas para .page-content */
+  height: 100%;
+}
+
+html {
+  height: 100%;
+  overflow: hidden; /* Impede rolagem no html também */
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -221,7 +230,8 @@ body {
   scroll-padding: 0 !important;
   overscroll-behavior-y: contain;
   scrollbar-width: none;
-  padding-bottom: 120px !important;
+  padding-bottom: 70px !important;
+  max-height: 100% !important;
 }
 
 #chat-messages::-webkit-scrollbar {
@@ -415,6 +425,7 @@ div.rounded-user-message {
     scroll-behavior: auto !important; /* Use 'auto' em vez de 'smooth' para evitar atrasos */
     overflow-anchor: auto !important; /* Permite que o navegador ajuste automaticamente o scroll */
     overscroll-behavior-y: contain !important; /* Contém o comportamento de scroll */
+    max-height: 100% !important; /* Garante que o conteúdo fique dentro do limite da .page-content */
   }
   
   /* Improve button tap targets */
@@ -446,6 +457,7 @@ div.rounded-user-message {
     overscroll-behavior-y: contain;
     scroll-padding-bottom: 80px; /* Aumentado para dar espaço ao input fixo */
     padding-bottom: 80px; /* Espaço extra no final para não esconder conteúdo */
+    max-height: calc(100% - 20px) !important; /* Ajuste para garantir que fique dentro da .page-content */
   }
   
   /* Estilo moderno para o input field */
@@ -901,6 +913,26 @@ body.menu-open .navbar-fixed {
 .page-content {
   flex: 1;
   padding-top: 56px; /* Mesma altura do navbar */
+  overflow-y: auto; /* Adicionar rolagem apenas para o conteúdo */
+  height: calc(100vh - 56px); /* Altura total menos altura da navbar */
+  position: relative;
+  width: 100%;
+}
+
+/* Ajuste para mobile para garantir que a rolagem funcione adequadamente */
+@media (max-width: 768px) {
+  .page-content {
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Melhor suporte para scroll em iOS */
+  }
+}
+
+/* Para dispositivos com tela pequena em modo paisagem */
+@media (max-width: 768px) and (orientation: landscape) {
+  .page-content {
+    height: calc(100vh - 56px);
+  }
 }
 
 /* Menu */
@@ -995,6 +1027,15 @@ body.menu-open .navbar-fixed {
   main {
     padding-top: 56px !important;
   }
+  
+  /* Garantir que a rolagem afete apenas o conteúdo da página */
+  .page-content {
+    overflow-y: auto;
+    height: calc(100vh - 56px);
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    width: 100%;
+  }
 }
 
 /* Estilo do logo */
@@ -1027,6 +1068,11 @@ html[data-scroll="true"] .navbar-fixed {
 /* Ajustes para menu aberto */
 body.menu-open {
   overflow: hidden;
+}
+
+/* Quando o menu estiver aberto, evitar rolagem na área de conteúdo também */
+body.menu-open .page-content {
+  overflow: hidden !important;
 }
 
 /* Ajustes para dispositivos touch */
