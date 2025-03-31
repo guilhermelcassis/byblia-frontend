@@ -2403,3 +2403,40 @@ html[data-scroll="true"] .navbar-fixed {
     }
   }
 }
+
+/* Estilos para o indicador de pré-streaming removidos */
+.pre-streaming-indicator {
+  display: none;
+}
+
+.pre-streaming-container {
+  display: none;
+}
+
+.streaming-indicator {
+  display: none;
+}
+
+.streaming-indicator-text {
+  display: none;
+}
+
+.streaming-indicator-icon {
+  display: none;
+}
+
+/* Garantir que o indicador esteja oculto em todos os dispositivos */
+@media (max-width: 768px) {
+  .pre-streaming-container,
+  .pre-streaming-indicator,
+  .streaming-indicator {
+    display: none;
+  }
+}
+
+/* Remover keyframe de animação não utilizada */
+@keyframes pulse-loading {
+  0%, 100% {
+    opacity: 0;
+  }
+}

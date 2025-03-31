@@ -37,12 +37,8 @@ const ColdStartIndicator: React.FC = () => {
           </div>
           
           <h3 className="text-base font-medium text-bible-brown text-center">
-            Preparando a Bíblia Sagrada
+            Iniciando Byblia
           </h3>
-          
-          <p className="text-sm text-gray-700 text-center">
-            Consultando as Escrituras para encontrar sua resposta{dots}
-          </p>
           
           <motion.div 
             className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden mt-2"
@@ -64,7 +60,7 @@ const ColdStartIndicator: React.FC = () => {
           </motion.div>
           
           <p className="text-xs text-gray-500 text-center italic mt-2">
-            O servidor está inicializando. Isso pode levar alguns segundos...
+            Aguarde um momento{dots}
           </p>
         </div>
       </motion.div>
