@@ -270,19 +270,7 @@ const ChatContainer: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden">
-      {/* Botão "Ver resposta" para mobile */}
-      {state.isStreaming && screen.isMobile && !screen.isLandscape && state.messages.length > 0 && (
-        <div 
-          style={viewResponseButtonStyle}
-          onClick={scrollToCurrentResponse}
-          className="cursor-pointer"
-        >
-          <FaCommentDots size={14} className="text-bible-brown" />
-          <span className="text-sm font-medium">Ver resposta</span>
-        </div>
-      )}
-      
-      {/* Removed redundant header div with border */}
+      {/* Botão "Ver resposta" para mobile - REMOVED as per request */}
       
       {/* Messages container */}
       <div 
@@ -326,9 +314,16 @@ const ChatContainer: React.FC = () => {
             {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
             {state.isColdStart && <ColdStartIndicator />}
             
-            {/* Mostrar o indicador de carregamento apenas quando estiver inicialmente carregando, 
-                não durante o streaming ou cold start */}
-            {state.isLoading && !state.isStreaming && !state.isColdStart && <LoadingIndicator />}
+            {/* Mostrar o indicador de carregamento quando estiver carregando,
+                incluindo durante o streaming em mobile ou cold start */}
+            {state.isLoading && !state.isColdStart && <LoadingIndicator />}
+            
+            {/* Novo indicador de carregamento para mobile durante streaming */}
+            {state.isStreaming && screen.isMobile && !screen.isLandscape && (
+              <div className="flex justify-center py-4">
+                <FaSyncAlt className="animate-spin text-bible-brown" size={20} />
+              </div>
+            )}
           </div>
         )}
 
@@ -377,8 +372,8 @@ const ChatContainer: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Indicador de streaming que substitui o input quando uma resposta está sendo gerada */}
-        {state.messages.length > 0 && (state.isStreaming || state.isColdStart) && (
+        {/* Indicador de streaming apenas para desktop ou em caso de cold start */}
+        {state.messages.length > 0 && ((state.isStreaming && (!screen.isMobile || screen.isLandscape)) || state.isColdStart) && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -397,9 +392,7 @@ const ChatContainer: React.FC = () => {
                   <span>
                     {state.isColdStart 
                       ? "Iniciando o servidor..." 
-                      : screen.isMobile && !screen.isLandscape
-                        ? "Gerando resposta..." 
-                        : "Consultando as Escrituras para encontrar sua resposta..."}
+                      : "Consultando as Escrituras para encontrar sua resposta..."}
                   </span>
                   {state.isStreaming && 
                     <button 
