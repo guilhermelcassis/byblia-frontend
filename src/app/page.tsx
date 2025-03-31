@@ -132,8 +132,14 @@ function HomeContent() {
 
   return (
     <MainLayout>
-      <section className="w-full max-w-4xl p-2 md:px-6 mx-auto flex flex-col">
-        <div className={`flex-grow flex flex-col rounded-2xl ${screen.isMobile && !screen.isLandscape ? 'min-h-[calc(100vh-90px)]' : 'h-[calc(100vh-80px)]'}`}>
+      <section className="w-full max-w-4xl mx-auto flex flex-col p-2 md:px-6">
+        <div className={`flex-grow flex flex-col ${
+          screen.isMobile && !screen.isLandscape 
+            ? 'min-h-[calc(100vh-90px)]' 
+            : screen.isMobile 
+              ? 'h-[calc(100vh-80px)]'
+              : 'h-[calc(100vh-100px)]'
+        }`}>
           <ChatContainer />
         </div>
       </section>

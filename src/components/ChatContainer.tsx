@@ -432,11 +432,11 @@ const ChatContainer: React.FC = () => {
   const showShareButton = false; // Implemente a lógica para mostrar o botão de compartilhamento
 
   return (
-    <section className="flex-1 h-full relative" style={{ paddingTop: '0', marginTop: '0' }}>
+    <section className="flex-1 h-full relative flex flex-col" style={{ paddingTop: '0', marginTop: '0' }}>
       <div
         ref={containerRef}
         id="chat-messages"
-        className="flex flex-col flex-1 overflow-y-auto max-h-full pb-24 md:pb-36"
+        className="flex flex-col flex-1 overflow-y-auto max-h-full pb-2 md:pb-3"
         style={{ 
           paddingTop: '0', 
           marginTop: '56px', // Apenas a altura exata do header
@@ -489,12 +489,12 @@ const ChatContainer: React.FC = () => {
         {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
         {state.isColdStart && <ColdStartIndicator />}
         
-        {/* Mostrar o indicador de loading quando estiver carregando */}
-        {!state.isColdStart && (state.isLoading || state.isStreaming) && (
-          <div className="pre-streaming-container">
-            <div className="pre-streaming-indicator">
-              <div className="streaming-indicator-text">
-                <span>Gerando uma resposta nas escrituras{loadingDots}</span>
+        {/* Mostrar o indicador de loading apenas antes do streaming iniciar */}
+        {!state.isColdStart && state.isLoading && !state.isStreaming && (
+          <div className="pre-streaming-container" style={{ margin: 0, maxHeight: '36px' }}>
+            <div className="pre-streaming-indicator" style={{ padding: '4px 10px', margin: 0 }}>
+              <div className="streaming-indicator-text" style={{ margin: 0, padding: '2px 4px' }}>
+                <span style={{ fontSize: '13px', color: '#8B5D33' }}> Produrando uma resposta nas Escrituras{loadingDots} </span>
               </div>
             </div>
           </div>
@@ -509,10 +509,11 @@ const ChatContainer: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="p-3 sm:p-4 bg-transparent relative z-[100] w-full"
+            className="p-0 bg-transparent relative z-[100] w-full mt-0"
             style={{ 
-              padding: screen.isMobile ? '8px 8px 16px 8px' : '12px 16px',
-              margin: 0
+              padding: '0',
+              margin: '0',
+              marginTop: '0'
             }}
           >
             <div className="max-w-2xl mx-auto">

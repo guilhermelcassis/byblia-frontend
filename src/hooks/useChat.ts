@@ -11,11 +11,11 @@ const THROTTLE_TIME_MS = 800; // Reduzido para 800ms (era 5000ms)
 const MAX_MESSAGES_PER_MINUTE = 10; // Aumentado para 10 (era 5)
 
 // Configurações para retry em caso de falha na conexão
-const MAX_RETRIES = 2;
+const MAX_RETRIES = 8; // Aumentado para 8 para tentar mais vezes
 const RETRY_DELAY_MS = 1500;
 
 // Limite de tempo para aguardar a primeira resposta do streaming
-const FIRST_CHUNK_TIMEOUT_MS = 15000; // Aumentado para 10 segundos (antes era 5s)
+const FIRST_CHUNK_TIMEOUT_MS = 25000; // Aumentado para 25 segundos
 
 const useChat = () => {
   const [state, setState] = useState<ChatState>({
@@ -331,29 +331,26 @@ const useChat = () => {
             intervalId = null;
           }
           
-          // Mostrar mensagem de timeout em vez de ficar esperando indefinidamente
-          setState(prevState => {
-            // Encontrar e atualizar a mensagem do assistente
-            const newMessages = [...prevState.messages];
-            const assistantMessageIndex = newMessages.findIndex(
-              (m) => m.id === currentAssistantMessageId.current
-            );
+          // Em vez de mostrar uma mensagem de erro, tentamos novamente automaticamente
+          console.log('[useChat] Tentando novamente após timeout');
+          
+          // Limpar o timeout atual
+          if (firstChunkTimeoutId) {
+            clearTimeout(firstChunkTimeoutId);
+            firstChunkTimeoutId = null;
+          }
+          
+          // Tentar novamente com o mesmo message
+          setTimeout(() => {
+            // Incrementar contador interno de retries
+            retryCountRef.current++;
+            const retryDelay = RETRY_DELAY_MS * (retryCountRef.current);
             
-            if (assistantMessageIndex !== -1) {
-              newMessages[assistantMessageIndex] = {
-                ...newMessages[assistantMessageIndex],
-                content: "A resposta está demorando mais que o normal. O servidor pode estar ocupado ou pode haver um problema de comunicação. Por favor, tente novamente."
-              };
-            }
+            console.log(`[useChat] Tentando novamente após timeout, tentativa ${retryCountRef.current}, próxima tentativa em ${retryDelay}ms`);
             
-            return {
-              ...prevState,
-              isLoading: false,
-              isStreaming: false,
-              error: "Tempo de resposta excedido. Por favor, tente novamente.",
-              messages: newMessages
-            };
-          });
+            // Tentar novamente sem mostrar erro ao usuário
+            sendUserMessage(message, retryCountRef.current);
+          }, RETRY_DELAY_MS);
         }
       }, FIRST_CHUNK_TIMEOUT_MS);
       
@@ -535,130 +532,69 @@ const useChat = () => {
         firstChunkTimeoutId = null;
       }
       
-      // Checar se é um erro de conectividade (backend indisponível ou cold start)
-      if (isConnectivityError(error)) {
-        console.log('[useChat] Detectado erro de conectividade, verificando status do backend...');
-        
-        // Se for o primeiro erro de conectividade, verificar se é um cold start
-        if (retryCount === 0) {
-          // Verificar se o backend está disponível
-          console.log('[useChat] Verificando disponibilidade do backend');
-          attemptBackendConnection().then(isHealthy => {
-            if (!isHealthy) {
-              console.log('[useChat] Backend indisponível, ativando modo cold start');
-              // Backend não está disponível, provavelmente é um cold start
-              setState(prev => ({
-                ...prev,
-                isColdStart: true,  // Ativar o modo cold start
-                error: null         // Não mostrar erro
-              }));
-              
-              // Tentar novamente após um período maior
-              console.log('[useChat] Agendando nova tentativa após 3 segundos');
-              setTimeout(() => {
-                sendUserMessage(message, retryCount + 1);
-              }, 3000);
-            } else {
-              // Backend está disponível, é outro tipo de erro
-              console.log('[useChat] Backend disponível, mas ocorreu outro tipo de erro');
-              handleNormalError(error);
-            }
-          });
-          return;
-        }
-        
-        // Para retentativas subsequentes durante um cold start
-        if (state.isColdStart) {
-          const retryDelay = Math.min(3000 + (retryCount * 500), 8000);
-          console.log(`[useChat] Em cold start, tentativa ${retryCount}, agendando retry em ${retryDelay}ms`);
-          
-          // Continuar tentando indefinidamente durante cold start
-          setTimeout(() => {
-            sendUserMessage(message, retryCount + 1);
-          }, retryDelay); // Backoff limitado a 8 segundos
-          return;
-        }
-        
-        // Para erros de conectividade normais (não cold start)
-        if (retryCount < MAX_RETRIES) {
-          // Incrementar contador interno de retries
-          retryCountRef.current++;
-          const retryDelay = RETRY_DELAY_MS * (retryCount + 1);
-          
-          console.log(`[useChat] Erro de conectividade normal, tentativa ${retryCount}, próxima tentativa em ${retryDelay}ms`);
-          
-          // Tentar novamente após um delay sem mostrar erro ao usuário
-          setTimeout(() => {
-            sendUserMessage(message, retryCount + 1);
-          }, retryDelay); // Backoff exponencial
-          
-          return;
-        }
-      }
-      
       // Função para tratar erros normais (não cold start)
       const handleNormalError = (error: any) => {
         console.log('[useChat] Tratando erro normal:', error);
         
-        // Melhor tratamento de erros
-        let errorMessage = 'Ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.';
+        // Verificar se é um erro de conectividade para tentar novamente sem notificar o usuário
+        const isConnectivity = isConnectivityError(error);
         
-        if (error instanceof Error) {
-          // Se for um erro do axios, extrair a mensagem mais amigável
-          if (axios.isAxiosError(error)) {
-            const status = error.response?.status || 0;
+        // Se chegou aqui, não é um cold start ou já excedeu as retentativas
+        if (!state.isColdStart) {
+          // Em vez de mostrar o erro, continuar tentando se for um erro de conectividade
+          if (isConnectivity) {
+            // Incrementar contador interno de retries
+            retryCountRef.current++;
             
-            if (status === 422) {
-              errorMessage = 'Sua mensagem não pôde ser processada pelo servidor. Por favor, verifique o conteúdo e tente novamente com uma formulação diferente.';
+            // Limitar o número máximo de retentativas para evitar loops infinitos
+            // mas tentar mais vezes antes de desistir
+            if (retryCountRef.current < MAX_RETRIES * 2) {
+              const retryDelay = RETRY_DELAY_MS * Math.min(retryCountRef.current, 5);
               
-              // Se houver detalhes específicos no corpo da resposta
-              const responseData = error.response?.data;
-              if (responseData && responseData.detail) {
-                errorMessage = `Erro: ${responseData.detail}`;
-              }
-            } else if (status === 429) {
-              errorMessage = 'Muitas requisições foram feitas em um curto período de tempo. Por favor, aguarde um momento antes de tentar novamente.';
-            } else if (status >= 500) {
-              errorMessage = 'Nosso servidor está enfrentando problemas. Por favor, tente novamente mais tarde.';
-            } else if (!error.response || error.code === 'ECONNABORTED') {
-              errorMessage = 'Não foi possível conectar ao servidor. O backend pode estar temporariamente indisponível ou em processo de inicialização. Por favor, tente novamente em alguns instantes.';
-            } else if (error.message.includes('Network Error')) {
-              errorMessage = 'Erro de conexão. Verifique sua conexão com a internet e tente novamente.';
+              console.log(`[useChat] Erro em tentativa ${retryCountRef.current}, tentando novamente em ${retryDelay}ms`);
+              
+              // Tentar novamente após um delay sem mostrar erro ao usuário
+              setTimeout(() => {
+                sendUserMessage(message, retryCountRef.current);
+              }, retryDelay);
+              
+              return;
             }
-          } else {
-            // Para outros tipos de erro, usamos a mensagem do erro se disponível
-            errorMessage = error.message || errorMessage;
           }
-        }
-        
-        // Limpar a mensagem do assistente que ficou vazia devido ao erro
-        setState((prevState) => {
-          // Remover a mensagem do assistente que estava aguardando resposta
-          const newMessages = prevState.messages.filter(m => m.id !== assistantMessageId);
           
-          return {
-            ...prevState,
-            isLoading: false,
-            isStreaming: false,
-            error: errorMessage,
-            messages: newMessages,
-            isColdStart: false
-          };
-        });
-        
-        // Tempo de exibição de erro baseado na complexidade da mensagem
-        const errorDisplayTime = errorMessage.length > 100 ? 10000 : 6000;
-        
-        // Limpar erro após o tempo definido
-        setTimeout(() => {
-          setState(prev => {
-            // Só limpar o erro se for o mesmo erro
-            if (prev.error === errorMessage) {
-              return { ...prev, error: null };
-            }
-            return prev;
+          // Em vez de mostrar erro ao usuário, apenas loga no console e limpa a mensagem do assistente
+          console.error('[useChat] Erro após múltiplas tentativas:', error);
+          
+          // Limpar a mensagem do assistente que ficou vazia devido ao erro
+          setState((prevState) => {
+            // Remover a mensagem do assistente que estava aguardando resposta
+            const newMessages = prevState.messages.filter(m => m.id !== assistantMessageId);
+            
+            return {
+              ...prevState,
+              isLoading: false,
+              isStreaming: false,
+              // Não definir mensagem de erro para o usuário
+              error: null,
+              messages: newMessages,
+              isColdStart: false
+            };
           });
-        }, errorDisplayTime);
+          
+          // Agendar uma nova tentativa após um período maior
+          setTimeout(() => {
+            // Verificar se já não estamos próximos do limite de retentativas
+            if (retryCountRef.current < MAX_RETRIES * 3) {
+              retryCountRef.current++;
+              console.log(`[useChat] Tentando novamente após erro não-conectividade, tentativa ${retryCountRef.current}`);
+              sendUserMessage(message, retryCountRef.current);
+            } else {
+              console.log('[useChat] Desistindo após muitas tentativas sem sucesso');
+            }
+          }, RETRY_DELAY_MS * 2);
+        } else {
+          console.log('[useChat] Erro em cold start, mas vai continuar tentando');
+        }
       };
       
       // Se chegou aqui, não é um cold start ou já excedeu as retentativas

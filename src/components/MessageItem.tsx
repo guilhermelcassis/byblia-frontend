@@ -117,24 +117,27 @@ export const MessageItem: React.FC<Props> = memo(({
     <div 
       ref={containerRef}
       className={`flex w-full ${
-        isUser ? 'justify-end user-message-item' : 'mb-3'
+        isUser ? 'justify-end user-message-item' : 'mb-0'
       }`}
       data-testid="message-item"
-      style={isUser ? { marginTop: '0', padding: '0' } : {}}
+      style={isUser ? { marginTop: '0', padding: '0' } : { marginBottom: '0' }}
     >
       <div
-        className={`p-3 rounded-lg ${
+        className={`${
           isUser
-            ? 'bg-bible-brown text-white font-medium rounded-user-message user-message user-message-container max-w-[85%]'
-            : 'bg-white text-gray-800 rounded-tl-md assistant-message w-full'
+            ? 'p-3 bg-bible-brown text-white font-medium rounded-user-message user-message user-message-container max-w-[85%]'
+            : 'text-gray-800 rounded-tl-md assistant-message w-full'
         } ${isStreaming ? 'streaming-message' : ''}`}
         style={{ 
-          boxShadow: 'none',
-          backgroundColor: isUser ? '' : 'white',
-          borderRadius: isUser ? '20px' : '20px',
-          fontSize: '16px', // Garantir tamanho adequado para prevenir zoom automático
-          padding: isUser ? '8px 12px' : '12px', // Menos padding para mensagens do usuário
-          marginTop: isUser ? '0' : '' // Sem margem superior para mensagens do usuário
+          boxShadow: isUser ? 'none' : 'none',
+          backgroundColor: isUser ? '' : 'transparent',
+          borderRadius: isUser ? '20px' : '0',
+          fontSize: screen.isMobile ? '16px' : '17px', 
+          padding: isUser ? '8px 12px' : '0',
+          marginTop: isUser ? '0' : '',
+          marginBottom: '0',
+          maxWidth: screen.isMobile ? '' : '100%',
+          margin: screen.isMobile ? '' : '0 auto'
         }}
       >
         {/* Show timestamp for user messages in mobile view */}
@@ -148,7 +151,7 @@ export const MessageItem: React.FC<Props> = memo(({
           className={`whitespace-pre-wrap prose prose-sm max-w-none ${
             isUser ? 'prose-invert font-medium user-message-text' : ''
           }`}
-          style={isUser ? { color: 'white' } : {}}
+          style={isUser ? { color: 'white' } : { lineHeight: screen.isMobile ? '1.5' : '1.7' }}
         >
           <MessageText content={message.content} isStreaming={isStreaming} isUser={isUser} />
         </div>
@@ -156,13 +159,13 @@ export const MessageItem: React.FC<Props> = memo(({
         {/* Exibir os botões de compartilhamento apenas se for uma mensagem do assistente e não estiver em streaming ou carregando */}
         {!isUser && !isStreaming && !isLoading && (
           <div 
-            className="flex items-center justify-center mt-2 pt-1 gap-1 share-buttons-container"
+            className="flex items-center justify-start mt-2 gap-1 share-buttons-container"
             style={{ 
               borderTop: 'none', 
-              background: 'rgba(249, 250, 251, 0.7)', 
-              borderRadius: '12px', 
-              padding: '2px 4px',
-              margin: '4px auto',
+              background: 'transparent', 
+              borderRadius: '0', 
+              padding: '0',
+              margin: '8px 0 2px 0',
               maxWidth: 'fit-content'
             }}
           >
@@ -203,7 +206,7 @@ export const MessageItem: React.FC<Props> = memo(({
         
         {/* Feedback buttons - mostrar abaixo dos botões de compartilhamento */}
         {!isUser && !isStreaming && !isLoading && showFeedback && onFeedback && (
-          <div className="flex justify-center mt-1">
+          <div className="flex justify-center mt-0 mb-0">
             <FeedbackButtons onFeedback={onFeedback} />
           </div>
         )}

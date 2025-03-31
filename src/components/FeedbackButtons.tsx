@@ -41,21 +41,21 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
     display: 'inline-flex',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '6px', // Aumentado de 4px para 6px
+    gap: '2px', // Reduzido para minimizar espaço
     width: 'auto',
     textAlign: 'center',
     margin: '0 auto',
-    padding: '2px 4px', // Aumentado de 1px 0 para 2px 4px
+    padding: '0px 2px', // Reduzido ao mínimo
     maxWidth: 'fit-content',
     borderRadius: '12px',
-    fontSize: '12px' // Aumentado de 11px para 12px
+    fontSize: '10px' // Reduzido ao mínimo legível
   };
   
   // Se o feedback já foi enviado, mostrar mensagem discreta de agradecimento
   if (feedbackGiven !== null) {
     return (
       <div style={containerStyle} className="feedback-buttons opacity-60">
-        <p style={{ margin: '0 auto', fontSize: '0.75rem', fontStyle: 'italic', color: '#9ca3af' }}>
+        <p style={{ margin: '0 auto', fontSize: '0.7rem', fontStyle: 'italic', color: '#9ca3af' }}>
           Obrigado
         </p>
       </div>

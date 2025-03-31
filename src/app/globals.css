@@ -239,8 +239,18 @@ html {
 /* Estilo para garantir que o container do input seja visível */
 .mobile-input-container {
   position: relative;
-  z-index: 10000;
   width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.mobile-input-container form {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.mobile-input-container form:focus-within {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
 }
 
 /* Estilização moderna similar ao DeepSeek */
@@ -1165,7 +1175,9 @@ body.menu-open .page-content {
   transition: all 0.3s ease;
   border-radius: 24px;
   background-color: #f2f3f5; /* Tom de cinza claro com leve tom azulado */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(var(--bible-main-rgb), 0.08);
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
   overflow: hidden;
   width: 100%;
   margin: 0 auto;
@@ -1190,6 +1202,7 @@ body.menu-open .page-content {
   animation: gradientInput 8s ease infinite;
   opacity: 0;
   transition: opacity 0.3s ease;
+  display: none !important;
 }
 
 .input-box-3d:hover::before,
@@ -1965,48 +1978,27 @@ div.bg-bible-brown {
   z-index: 3;
 }
 
-/* Estilos específicos para iPhone - valores muito reduzidos */
-@media screen and (max-width: 428px) and (min-height: 750px) {
-  .message-list > div:first-child,
-  .message-list > div.bg-bible-brown {
-    margin-top: 40px !important; /* Reduzido de 80px para 40px */
-    padding-top: 10px !important; /* Reduzido de 20px para 10px */
+/* Estilos específicos para fixar espaçamento entre a navbar e a caixa de pergunta - valor mínimo */
+header + section .message-list {
+  padding-top: 20px !important;
+  margin-top: 5px !important;
+}
+
+/* Ajuste extremo para dispositivos iOS */
+@supports (-webkit-touch-callout: none) {
+  .message-list > div:first-child {
+    margin-top: 20px !important;
+    padding-top: 10px !important;
   }
   
   header + section .message-list {
-    padding-top: 40px !important; /* Reduzido de 80px para 40px */
-    margin-top: 5px !important; /* Reduzido de 10px para 5px */
+    padding-top: 20px !important;
+    margin-top: 5px !important;
   }
   
-  /* Reduzir espaço entre header e seção */
-  header + section {
-    padding-top: 5px !important; /* Reduzido de 10px para 5px */
-    margin-top: 0 !important; /* Reduzido de 60px para 0 */
-  }
-  
-  /* Ajustar padding para chat messages */
-  #chat-messages {
-    padding-top: 10px !important; /* Reduzido de 20px para 10px */
-    scroll-padding-top: 40px !important; /* Reduzido de 80px para 40px */
-  }
-}
-
-/* Solução alternativa para iOS Safari - extremamente específica */
-@supports (-webkit-touch-callout: none) {
-  @media screen and (max-width: 428px) {
-    .message-list > div:first-child {
-      margin-top: 40px !important; /* Reduzido de 80px para 40px */
-    }
-    
-    /* Reduzir espaço da navbar para a primeira mensagem nos iPhones */
-    header + * {
-      padding-top: 5px !important;
-    }
-    
-    /* Garantir que a mensagem fique visível no iOS */
-    #chat-messages > div:first-child {
-      padding-top: 5px !important;
-    }
+  /* Remover qualquer extra space in iOS/Safari */
+  body:not(.is-streaming) .message-list > div:first-child {
+    margin-top: 20px !important;
   }
 }
 
@@ -2045,9 +2037,9 @@ header + section .message-list {
     margin-top: 5px !important;
   }
   
-  /* Removing any extra space in iOS/Safari */
-  body:not(.is-streaming) .message-list > div:first-child {
-    margin-top: 20px !important;
+  /* Remover qualquer espaço não essencial na thread de mensagens */
+  .message-list {
+    padding-top: 10px !important;
   }
 }
 
@@ -2158,7 +2150,7 @@ header + section .message-list {
 /* Contenedor fixo para o indicador de pré-streaming */
 .pre-streaming-container {
   position: fixed;
-  bottom: 16px;
+  bottom: 12px; /* Reduced from 16px */
   left: 0;
   right: 0;
   z-index: 90;
@@ -2166,7 +2158,7 @@ header + section .message-list {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 12px; /* Reduced from 16px */
   /* Garantir que não haja transições de posição */
   transform: none !important;
   transition: opacity 0.2s ease-in-out !important;
@@ -2176,37 +2168,38 @@ header + section .message-list {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px; /* Reduced from 14px */
   font-weight: 500;
-  line-height: 1.4;
+  line-height: 1.2; /* Reduced from 1.4 */
   pointer-events: auto;
-  padding: 0 12px;
+  padding: 0 8px; /* Reduced from 12px */
 }
 
 .pre-streaming-indicator .streaming-indicator-icon {
-  margin-right: 8px;
+  margin-right: 6px; /* Reduced from 8px */
   color: #8B5D33;
 }
 
 @media (max-width: 768px) {
   .pre-streaming-container {
-    bottom: 80px; /* Maior distância do fundo em dispositivos móveis para evitar sobreposição com o input */
-    padding: 0 8px;
+    bottom: 65px; /* Reduced from 80px */
+    padding: 0 6px; /* Reduced from 8px */
   }
   
   .pre-streaming-indicator {
-    min-height: 44px;
-    padding: 8px 12px;
-    border-radius: 20px;
-    box-shadow: 0 1px 6px rgba(139, 93, 51, 0.08);
-    width: 100%;
-    margin: 0;
+    min-height: 36px; /* Reduced from 44px */
+    padding: 6px 10px; /* Reduced from 8px 12px */
+    border-radius: 18px; /* Reduced from 20px */
+    box-shadow: 0 1px 4px rgba(139, 93, 51, 0.08);
+    width: auto; /* Changed from 100% to auto */
+    max-width: 280px; /* Added max-width */
+    margin: 0 auto; /* Added auto horizontal margin */
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
   }
   
   .pre-streaming-indicator .streaming-indicator-text {
-    font-size: 13px;
+    font-size: 12px; /* Reduced from 13px */
   }
 }
 
@@ -2448,4 +2441,440 @@ html[data-scroll="true"] .navbar-fixed {
     box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
     border: 1px solid rgba(139, 93, 51, 0.15);
   }
+}
+
+/* Animação mais compacta para o indicador de pré-streaming */
+@keyframes compact-pulse-loading {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.85;
+    transform: scale(0.98);
+  }
+}
+
+/* Estilos para o indicador de loading mais compacto */
+.pre-streaming-indicator {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(139, 93, 51, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  animation: compact-pulse-loading 1.5s infinite ease-in-out;
+  max-width: 280px;
+  margin: 0 auto;
+  padding: 4px 12px;
+  min-height: auto;
+}
+
+.streaming-indicator-text span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #8B5D33;
+}
+
+@media (max-width: 768px) {
+  .pre-streaming-container {
+    bottom: 62px;
+  }
+  
+  .pre-streaming-indicator {
+    min-height: auto;
+    max-width: 250px;
+  }
+}
+
+/* Desktop Improvements - DeepSeek Style */
+@media (min-width: 769px) {
+  /* Better typography for desktop */
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Improve chat message container */
+  .message-item {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 12px 0;
+  }
+
+  /* Enhance assistant message styling */
+  .assistant-message {
+    padding: 20px 24px !important;
+    font-size: 17px !important;
+    line-height: 1.7 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  /* Improve message texts */
+  .message-text-content, 
+  .prose p, 
+  .prose-sm p {
+    font-size: 17px !important;
+    line-height: 1.7 !important;
+    letter-spacing: 0.01em;
+  }
+
+  /* Improve Scripture references */
+  .message-text-content strong, 
+  .prose strong {
+    font-weight: 600;
+    color: rgb(var(--bible-main-rgb));
+  }
+
+  /* Bible verse styling */
+  .prose blockquote, 
+  .prose-sm blockquote {
+    border-left-color: rgb(var(--bible-main-rgb), 0.5);
+    font-style: italic;
+    padding-left: 1.2em;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Center the main container */
+  .page-content,
+  .chat-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Header styling */
+  .navbar-fixed {
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 1rem 0;
+  }
+
+  /* Input area styling */
+  .input-box-3d {
+    max-width: 900px;
+    margin: 0 auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+  }
+
+  /* Message container spacing */
+  #chat-messages {
+    padding: 1rem 0;
+    margin-bottom: 7rem;
+  }
+
+  /* Improve headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+  }
+
+  .prose h1, .prose-sm h1 { font-size: 1.8rem; line-height: 1.3; }
+  .prose h2, .prose-sm h2 { font-size: 1.5rem; line-height: 1.35; }
+  .prose h3, .prose-sm h3 { font-size: 1.3rem; line-height: 1.4; }
+  
+  /* Improve lists */
+  .prose ul, .prose-sm ul,
+  .prose ol, .prose-sm ol {
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+    padding-left: 1.5em;
+  }
+  
+  .prose li, .prose-sm li {
+    margin-top: 0.375em;
+    margin-bottom: 0.375em;
+    padding-left: 0.25em;
+  }
+
+  /* Improve the logo display */
+  .byblia-logo {
+    font-size: 1.8rem;
+  }
+
+  /* Better feedback buttons */
+  .feedback-buttons {
+    margin-top: 0.5rem;
+    opacity: 0.9;
+  }
+
+  .feedback-buttons button {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+
+  .feedback-buttons button:hover {
+    transform: translateY(-1px);
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Additional Desktop Enhancements - DeepSeek Style */
+@media (min-width: 769px) {
+  body {
+    background-color: white;
+  }
+  
+  /* Improve chat container styling */
+  .chat-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  /* Criar um layout mais fluido e menos encaixotado */
+  #chat-messages {
+    background-color: transparent;
+    border-radius: 0;
+    padding: 1.5rem 0;
+    box-shadow: none;
+    margin-bottom: 2rem;
+  }
+  
+  /* Improve message styling */
+  .message-item {
+    padding: 12px 0;
+  }
+  
+  /* Ajustar estilo da mensagem do assistente - sem caixa */
+  .assistant-message {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  
+  /* Better spacing between messages */
+  .message-item + .message-item {
+    margin-top: 1.5rem;
+  }
+  
+  /* Improve user message styling */
+  .user-message {
+    padding: 12px 16px !important;
+    max-width: 85% !important;
+  }
+  
+  /* Improve footer spacing */
+  footer {
+    margin-top: 2rem;
+  }
+
+  /* Fix spacing for links and buttons */
+  .prose a, .prose-sm a {
+    text-decoration: none;
+    color: #4285f4;
+    font-weight: 500;
+  }
+  
+  .prose a:hover, .prose-sm a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Improve list spacing and bullets */
+  .prose ul li, .prose-sm ul li {
+    margin-bottom: 0.5em;
+    position: relative;
+  }
+  
+  .prose ul li::before, .prose-sm ul li::before {
+    content: "•";
+    color: rgb(var(--bible-main-rgb));
+    font-weight: bold;
+    display: inline-block;
+    margin-left: -1em;
+    margin-right: 0.5em;
+  }
+}
+
+/* Remover efeitos de "caixa" para design mais fluido */
+.input-box-3d {
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.input-box-3d::before {
+  display: none !important;
+}
+
+/* Melhorar a visualização de conteúdo no desktop */
+@media (min-width: 769px) {
+  /* Melhorar espaçamento do texto nas mensagens */
+  .prose p, .prose-sm p {
+    margin-bottom: 1.2em;
+  }
+  
+  /* Ajustar visualização de listas */
+  .prose ul, .prose ol,
+  .prose-sm ul, .prose-sm ol {
+    margin-left: 0;
+    padding-left: 1.5em;
+  }
+  
+  /* Melhorar espaçamento de elementos no chat */
+  .message-list > div {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Remover bordas de mensagens */
+  .message-item .message-text-content {
+    border: none;
+    box-shadow: none;
+  }
+  
+  /* Melhorar visualização de citações */
+  .prose blockquote, .prose-sm blockquote {
+    border-left: 3px solid rgb(var(--bible-main-rgb), 0.3);
+    padding-left: 1em;
+    font-style: italic;
+    margin: 1.5em 0 1.5em 0;
+  }
+  
+  /* Destacar a área de entrada */
+  .mobile-input-container {
+    margin-top: 1.5rem;
+  }
+}
+
+/* Estilos responsivos para a área de entrada */
+@media (max-width: 768px) {
+  .chat-input-form {
+    margin-bottom: 8px;
+  }
+}
+
+/* Estilos específicos para a caixa de input do chat */
+.chat-input-form {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.chat-input-form:hover {
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.07), 0 0 15px rgba(0, 0, 0, 0.04), 0 0 5px rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.chat-input-form:focus-within {
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.09), 0 0 20px rgba(0, 0, 0, 0.07), 0 0 10px rgba(var(--bible-main-rgb), 0.15) !important;
+  border-color: rgba(var(--bible-main-rgb), 0.2) !important;
+  transform: translateY(-5px) !important;
+  animation: professional-glow 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@keyframes professional-glow {
+  0% {
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.06), 0 0 12px rgba(0, 0, 0, 0.04), 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+  40% {
+    box-shadow: 0 0 40px rgba(var(--bible-main-rgb), 0.12), 0 0 25px rgba(0, 0, 0, 0.08), 0 0 15px rgba(var(--bible-main-rgb), 0.2);
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.09), 0 0 20px rgba(0, 0, 0, 0.07), 0 0 10px rgba(var(--bible-main-rgb), 0.15);
+  }
+}
+
+/* Estilos para desktop */
+@media (min-width: 769px) {
+  .mobile-input-container form {
+    margin: 20px auto;
+    border-radius: 28px !important;
+  }
+  
+  .mobile-input-container textarea {
+    font-size: 16px !important;
+    border-radius: 24px !important;
+  }
+}
+
+/* Estilos para mobile */
+@media (max-width: 768px) {
+  .mobile-input-container {
+    padding: 0 8px;
+  }
+  
+  .mobile-input-container form {
+    margin: 12px auto;
+    border-radius: 28px !important;
+  }
+  
+  .mobile-input-container textarea {
+    border-radius: 22px !important;
+  }
+}
+
+/* Adicionar efeito de profundidade para o botão de enviar */
+.chat-input-form button[type="submit"] {
+  transition: all 0.35s cubic-bezier(0.215, 0.61, 0.355, 1) !important;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.08), 0 0 6px rgba(0, 0, 0, 0.04) !important;
+}
+
+.chat-input-form button[type="submit"]:not(:disabled):hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.12), 0 0 10px rgba(0, 0, 0, 0.08) !important;
+}
+
+.chat-input-form button[type="submit"]:not(:disabled):active {
+  transform: translateY(1px) !important;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.08), 0 0 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ======= ESTILOS AVANÇADOS PARA O CAMPO DE ENTRADA ======= */
+.chat-input-form textarea::placeholder {
+  color: rgba(0, 0, 0, 0.35);
+  font-weight: 400;
+  font-style: normal;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.chat-input-form textarea:focus::placeholder {
+  opacity: 1;
+  animation: fade-in 0.5s ease forwards;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.5; }
+}
+
+/* Efeito de gradiente na borda do campo */
+.chat-input-form {
+  position: relative;
+}
+
+.chat-input-form:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 24px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.chat-input-form:hover:after {
+  opacity: 0.8;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+}
+
+.chat-input-form:focus-within:after {
+  opacity: 1;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
 }

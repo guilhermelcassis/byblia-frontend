@@ -216,7 +216,17 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     <div className="mobile-input-container">
       <form 
         onSubmit={handleSubmit} 
-        className="flex items-start w-full relative"
+        className="flex items-start w-full relative chat-input-form"
+        style={{
+          padding: '16px',
+          border: '1px solid rgba(0, 0, 0, 0.03)',
+          borderRadius: '24px',
+          boxShadow: '0 0 30px rgba(0, 0, 0, 0.04), 0 0 15px rgba(0, 0, 0, 0.02), 0 0 5px rgba(0, 0, 0, 0.01), inset 0 0 0 1px rgba(255, 255, 255, 0.9)',
+          background: 'linear-gradient(to bottom, #ffffff, #fafafa)',
+          marginTop: screen.isMobile ? '16px' : '32px',
+          marginBottom: screen.isMobile ? '10px' : '20px',
+          transition: 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)'
+        }}
       >
         <textarea
           ref={textareaRef}
@@ -226,22 +236,27 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           placeholder={screen.isLandscape ? "Faça uma pergunta, peça conselhos ou compartilhe um problema" : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
-          className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-3 text-gray-800 text-sm font-normal resize-none overflow-hidden w-full rounded-lg ${isFocused ? 'ring-2 ring-bible-brown/60' : ''} focus:outline-none transition-all duration-200`}
+          className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-4 text-gray-800 ${screen.isMobile ? 'text-sm' : 'text-base'} font-normal resize-none overflow-hidden w-full rounded-3xl ${isFocused ? 'ring-2 ring-bible-brown/30' : ''} focus:outline-none transition-all duration-300`}
           style={{ 
             minHeight: getMinHeight(),
-            maxHeight: screen.isLandscape ? '120px' : '300px',
+            maxHeight: screen.isLandscape ? '120px' : (screen.isMobile ? '300px' : '200px'),
             wordWrap: 'break-word',
-            lineHeight: screen.isLandscape ? '1.3' : '1.4',
+            lineHeight: screen.isLandscape ? '1.3' : (screen.isMobile ? '1.4' : '1.5'),
             paddingRight: screen.isLandscape ? '40px' : '60px', // Espaço para o botão
-            boxShadow: '0 3px 10px rgba(0,0,0,0.1)',
-            backgroundColor: '#f2f3f5', // Tom de cinza claro com leve tom azulado
-            border: '1px solid #e1e4e8', // Borda em cinza sutil para bom contraste
-            fontSize: '16px', // Garantir fonte de 16px para evitar zoom
+            paddingLeft: '20px', // Um pouco mais de padding à esquerda para melhor equilíbrio visual
+            boxShadow: 'none',
+            background: 'linear-gradient(to bottom, #f0f0f0, #f5f5f5)',
+            backgroundSize: '100% 200%',
+            fontSize: screen.isMobile ? '16px' : '17px', // Fonte maior para desktop
             WebkitTextSizeAdjust: '100%', // Prevenir ajuste de texto
             transformOrigin: 'top center', // Ponto de origem para transformações
             transform: 'translateZ(0)', // Usar GPU para renderização
             touchAction: 'manipulation', // Otimizar comportamento de toque
-            WebkitAppearance: 'none' // Remover estilo padrão do iOS
+            WebkitAppearance: 'none', // Remover estilo padrão do iOS
+            border: 'none',
+            borderRadius: '16px',
+            caretColor: '#946A4A', // Cursor colorido para melhor visualização
+            fontWeight: '400'
           }}
           inputMode="text"
           autoComplete="off"
@@ -255,26 +270,51 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           rows={1}
         />
         
-        {/* Botão estilo DeepSeek - com animação melhorada */}
+        {/* Indicador sutil de "onde digitar" quando o campo está vazio */}
+        {!inputValue && !isFocused && (
+          <div 
+            className="absolute pointer-events-none flex md:hidden"
+            style={{
+              left: '20px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'rgba(0, 0, 0, 0.35)',
+              fontSize: screen.isMobile ? '14px' : '15px',
+              fontStyle: 'italic',
+              opacity: 0.7,
+              fontWeight: '400',
+              display: 'flex',
+              alignItems: 'center',
+              zIndex: 3
+            }}
+          >
+            <span className="hidden sm:inline">Digite aqui para</span>
+            <span className="inline sm:hidden">Digite para</span>
+            <span className="ml-1 text-bible-brown/60 font-medium">conversar...</span>
+          </div>
+        )}
+        
+        {/* Botão com design profissional aprimorado */}
         <button
           type="submit"
           disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
           className={`absolute flex items-center justify-center rounded-full transition-all z-[150] ${
             !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-bible-brown text-white hover:bg-bible-darkbrown hover:shadow-md active:scale-95'
+              : 'bg-bible-brown text-white hover:bg-bible-darkbrown active:scale-95'
           }`}
           style={{
-            width: screen.isLandscape ? '36px' : '42px',
-            height: screen.isLandscape ? '36px' : '42px',
-            transition: 'all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1)',
-            right: screen.isLandscape ? '12px' : '16px',
-            bottom: screen.isLandscape ? '50%' : '14px',
-            transform: screen.isLandscape ? 'translateY(50%)' : 'none'
+            width: screen.isMobile ? (screen.isLandscape ? '40px' : '46px') : '52px',
+            height: screen.isMobile ? (screen.isLandscape ? '40px' : '46px') : '52px',
+            transition: 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)',
+            right: screen.isMobile ? (screen.isLandscape ? '12px' : '16px') : '18px',
+            bottom: screen.isMobile ? (screen.isLandscape ? '50%' : '14px') : '50%',
+            transform: (screen.isLandscape || !screen.isMobile) ? 'translateY(50%)' : 'none',
+            boxShadow: '0 0 15px rgba(0, 0, 0, 0.08), 0 0 8px rgba(0, 0, 0, 0.04), inset 0 -2px 5px rgba(0, 0, 0, 0.08)'
           }}
           aria-label="Enviar mensagem"
         >
-          <FaArrowRight size={screen.isLandscape ? 16 : 18} />
+          <FaArrowRight size={screen.isMobile ? (screen.isLandscape ? 16 : 18) : 22} />
         </button>
       </form>
       

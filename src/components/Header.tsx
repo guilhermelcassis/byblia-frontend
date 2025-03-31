@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   
   return (
     <header className="navbar-fixed w-full bg-white text-gray-800 flex items-center">
-      <div className="max-w-4xl mx-auto flex flex-row items-center justify-between w-full">
+      <div className="max-w-4xl mx-auto flex flex-row items-center justify-between w-full px-4">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
         </motion.div>
         
         <div className="flex-1 flex items-center justify-center">
-          <h2 className="text-sm font-medium text-gray-600 whitespace-nowrap text-center hidden md:block">
+          <h2 className={`${screen.isMobile ? 'text-sm' : 'text-base'} font-medium text-gray-600 whitespace-nowrap text-center ${screen.isMobile ? 'hidden md:block' : ''}`} style={{ letterSpacing: '0.01em' }}>
             Seu conselheiro bíblico
           </h2>
         </div>
@@ -60,8 +60,8 @@ export const Header: React.FC<HeaderProps> = ({
           <motion.button 
             className="flex items-center justify-center text-gray-500 hover:text-bible-brown hover:bg-gray-50 rounded-full transition-all mobile-menu-button touch-area"
             style={{
-              width: '40px',
-              height: '40px'
+              width: screen.isMobile ? '40px' : '44px',
+              height: screen.isMobile ? '40px' : '44px'
             }}
             onClick={toggleMenu}
             aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
@@ -69,9 +69,9 @@ export const Header: React.FC<HeaderProps> = ({
             whileTap={{ scale: 0.95 }}
           >
             {menuOpen ? (
-              <FaTimes size={16} aria-hidden="true" />
+              <FaTimes size={screen.isMobile ? 16 : 18} aria-hidden="true" />
             ) : (
-              <FaBars size={16} aria-hidden="true" />
+              <FaBars size={screen.isMobile ? 16 : 18} aria-hidden="true" />
             )}
           </motion.button>
         </div>
