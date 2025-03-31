@@ -123,15 +123,19 @@ const ChatContainer: React.FC = () => {
     if (!container) return;
 
     const handleScroll = () => {
+      // Simplificado: apenas verificar se o usuário rolou significativamente para cima
       const currentScrollTop = container.scrollTop;
-      // If scrolling up and the difference is significant (reduced threshold)
-      if (currentScrollTop < lastScrollPositionRef.current - 30) {
+      const scrollDistance = Math.abs(currentScrollTop - lastScrollPositionRef.current);
+      
+      // Se rolou para cima mais de 20px, considerar como scroll manual
+      if (currentScrollTop < lastScrollPositionRef.current && scrollDistance > 20) {
         setUserManuallyScrolled(true);
       }
-      // If scrolled back to near-bottom, allow auto-scroll again (increased threshold)
-      else if (container.scrollHeight - currentScrollTop - container.clientHeight < 150) {
+      // Se voltou para perto do final, reativar auto-scroll
+      else if (container.scrollHeight - currentScrollTop - container.clientHeight < 120) {
         setUserManuallyScrolled(false);
       }
+      
       lastScrollPositionRef.current = currentScrollTop;
     };
 
@@ -139,26 +143,28 @@ const ChatContainer: React.FC = () => {
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Forcing scroll to bottom for new content during streaming
+  // Simplificar o efeito de streaming para um único responsável pelo scroll
   useEffect(() => {
+    // Durante streaming, forçar atualização do estado para triggar scroll
     if (state.isStreaming) {
       setStreamHasNewContent(true);
       
-      // Reset after a short delay to allow for batched updates
+      // Resetar após um pequeno delay para permitir o batching de atualizações
       const timeout = setTimeout(() => {
         setStreamHasNewContent(false);
-      }, 100); // Reduced delay
+      }, 80);
       
-      // Always force auto-scroll during streaming
+      // Forçar scroll para o final se o usuário não rolou manualmente para cima
       if (!userManuallyScrolled) {
         scrollToBottom();
       }
       
       return () => clearTimeout(timeout);
-    } else if (state.messages.length > 0 && !state.isLoading) {
-      // When streaming stops, do a final scroll to bottom
+    } 
+    // Ao finalizar o streaming, fazer um scroll final
+    else if (state.messages.length > 0 && !state.isLoading) {
+      // Se o usuário não rolou manualmente para cima
       if (!userManuallyScrolled) {
-        // Using setTimeout to ensure all content is rendered
         setTimeout(() => {
           scrollToBottom();
         }, 50);

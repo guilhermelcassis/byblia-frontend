@@ -50,13 +50,8 @@ export const MessageItem: React.FC<Props> = memo(({
       
       resetZoom();
       
-      // Garantir visualização adequada
-      if (containerRef.current) {
-        containerRef.current.scrollIntoView({ 
-          behavior: 'auto', 
-          block: 'nearest' 
-        });
-      }
+      // Remover comportamento de scrollIntoView para evitar conflito com o sistema de auto-scroll
+      // O containerRef no ChatContainer será responsável pelo scroll adequado
     }
   }, [isLastMessage, isUser, screen.isMobile, message.content]);
 

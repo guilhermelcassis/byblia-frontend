@@ -1373,36 +1373,63 @@ div[class*="max-w-"] .input-box-3d {
 
 /* Otimizar botões de feedback para mobile */
 .feedback-buttons {
-  margin-top: 3px !important;
-  margin-bottom: 0 !important;
-  padding-bottom: 0 !important;
-  padding-top: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 1px 6px !important;
+  margin: 4px auto !important;
+  max-width: fit-content !important;
+  background-color: rgba(249, 250, 251, 0.5) !important;
+  border-radius: 12px !important;
+  font-size: 11px !important;
 }
 
-/* Garantir centralização absoluta do botão de feedback */
+.feedback-buttons > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.feedback-buttons button {
+  min-height: auto !important;
+  min-width: auto !important;
+  padding: 2px !important;
+}
+
+/* Otimizar comportamento de scroll */
+#chat-messages {
+  scroll-behavior: auto !important; /* Garantir scroll imediato */
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-padding-bottom: 80px;
+  overscroll-behavior-y: contain;
+}
+
+/* Evitar problemas com scroll em elementos internos */
+.message-list {
+  position: relative;
+  scrollbar-width: none; /* Esconder scrollbar no Firefox */
+}
+
+.message-list::-webkit-scrollbar {
+  display: none; /* Esconder scrollbar no Chrome/Safari */
+}
+
+/* Garantir que os botões de feedback sejam compactos em mobile */
 @media (max-width: 768px) {
-  /* Regra especial para centralização dos botões de feedback no mobile */
-  .feedback-buttons,
-  div:has(> .feedback-buttons) {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important;
-    text-align: center !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    position: relative !important;
-    left: 0 !important;
-    transform: none !important;
+  .feedback-buttons {
+    padding: 0 4px !important;
+    font-size: 10px !important;
   }
   
-  /* Garantir que o componente principal e seus filhos são centralizados */
-  .feedback-buttons > *,
-  div:has(> .feedback-buttons) > * {
-    justify-content: center !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    text-align: center !important;
+  .feedback-buttons span {
+    font-size: 0.65rem !important;
+  }
+  
+  .feedback-buttons button {
+    transform: scale(0.9);
   }
 }
 
@@ -1415,16 +1442,6 @@ input, textarea, select {
   border-radius: 0;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-}
-
-/* Melhorar comportamento de auto-scroll */
-#chat-messages {
-  scroll-behavior: auto !important;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scroll-padding-bottom: 100px;
 }
 
 /* Impedir zoom em inputs em foco */

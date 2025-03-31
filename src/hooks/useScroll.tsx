@@ -22,6 +22,7 @@ interface UseScrollOptions {
 
 /**
  * Hook to handle automatic scrolling behavior with user interaction detection
+ * Simplificado para garantir melhor funcionalidade
  */
 export function useScroll({ 
   isStreaming, 
@@ -35,73 +36,45 @@ export function useScroll({
   const prevResponseLengthRef = useRef<number>(0);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const screen = useScreen();
-  // Track if we should prioritize showing the question over auto-scrolling
-  const [prioritizeQuestion, setPrioritizeQuestion] = useState(false);
-
-  // Reset prioritize question when message count changes
-  useEffect(() => {
-    if (messagesCount % 2 === 0 && messagesCount > 0) {
-      // New question was just sent (even number of messages means user message + placeholder response)
-      setPrioritizeQuestion(true);
-    } else if (messagesCount > prevMessagesCountRef.current) {
-      // After a short delay, reset the priority flag
-      const timeout = setTimeout(() => {
-        setPrioritizeQuestion(false);
-      }, 1500);
-      return () => clearTimeout(timeout);
-    }
-  }, [messagesCount]);
-
-  // Track user scrolling behavior
+  
+  // Simplified scroll detection - apenas verifica se o usuário rolou para cima
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const handleScroll = () => {
-      if (!isStreaming) return;
+    // Variável para armazenar a última posição de scroll
+    let lastScrollTop = container.scrollTop;
 
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      // Consideramos uma distância maior para dispositivos móveis em modo retrato
-      const scrollThreshold = screen.isMobile && !screen.isLandscape ? 200 : 100;
-      // Consider user as having scrolled up if they're not close to the bottom
-      const isNearBottom = scrollHeight - scrollTop - clientHeight < scrollThreshold;
-      
-      if (!isNearBottom) {
+    const handleScroll = () => {
+      // Se o usuário rolou para cima significativamente (mais de 40px)
+      if (container.scrollTop < lastScrollTop - 40) {
         setUserHasScrolled(true);
       }
       
-      // If user has scrolled back to the bottom, re-enable auto scrolling
-      if (isNearBottom && userHasScrolled) {
+      // Se o usuário rolou para perto do fim, reativar auto-scroll
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+      if (isNearBottom) {
         setUserHasScrolled(false);
       }
+      
+      // Atualizar a posição para a próxima verificação
+      lastScrollTop = container.scrollTop;
     };
 
     container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
-  }, [isStreaming, userHasScrolled, screen.isMobile, screen.isLandscape]);
+  }, []);
 
-  // Handle auto-scrolling during streaming
+  // Scroll simples quando novas mensagens são adicionadas
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Handle new complete messages
+    // Se uma nova mensagem foi adicionada
     if (messagesCount > prevMessagesCountRef.current) {
       prevMessagesCountRef.current = messagesCount;
       
-      // Em dispositivos móveis, garantir que a navbar esteja visível
-      if (screen.isMobile && !screen.isLandscape) {
-        // Scroll to top of page to ensure navbar is visible
-        window.scrollTo({
-          top: 0,
-          behavior: 'auto'
-        });
-      }
-      
-      // Em dispositivos móveis no modo retrato, vamos rolar para o topo do container
-      // para garantir visibilidade da conversa, já que removemos a exibição da pergunta no topo
-      if (screen.isMobile && !screen.isLandscape) {
-        console.log('[useScroll] Mobile mode - scrolling to the top of container');
-        
+      // Solução simples: sempre scrollar para o final após nova mensagem
+      if (!userHasScrolled) {
         if (scrollTimeoutRef.current) {
           clearTimeout(scrollTimeoutRef.current);
         }
@@ -109,87 +82,44 @@ export function useScroll({
         scrollTimeoutRef.current = setTimeout(() => {
           if (containerRef.current) {
             containerRef.current.scrollTo({
-              top: 0,
-              behavior: 'auto'
+              top: containerRef.current.scrollHeight,
+              behavior: 'auto' // Comportamento imediato para ser mais confiável
             });
           }
         }, 50);
-        
-        return;
       }
-      
-      // Always scroll for new complete messages, mas com animação mais suave em mobile
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      
-      scrollTimeoutRef.current = setTimeout(() => {
-        if (containerRef.current) {
-          console.log('[useScroll] Nova mensagem detectada, scrollando para o final');
-          containerRef.current.scrollTo({
-            top: containerRef.current.scrollHeight,
-            behavior: screen.isMobile && !screen.isLandscape ? 'auto' : 'smooth'
-          });
-        }
-      }, screen.isMobile && !screen.isLandscape ? 300 : 100);
     }
-  }, [messagesCount, screen.isMobile, screen.isLandscape, prioritizeQuestion]);
+  }, [messagesCount, userHasScrolled]);
 
-  // Handle streaming content scrolling using currentResponseText
+  // Comportamento simplificado durante streaming
   useEffect(() => {
     if (!isStreaming || !containerRef.current || userHasScrolled) return;
     
-    // Permitir rolagem automática em todos os dispositivos durante o streaming
-    // Removida a condição que impedia o scroll em dispositivos móveis
-    
-    // Detectar se houve mudança no tamanho da resposta
+    // Verificar mudanças no tamanho da resposta
     const currentLength = currentResponseText?.length || 0;
+    const hasGrown = currentLength > prevResponseLengthRef.current;
     
-    if (currentLength > prevResponseLengthRef.current) {
-      console.log('[useScroll] Resposta cresceu durante streaming, scrollando para o final');
+    if (hasGrown || hasNewContent) {
       prevResponseLengthRef.current = currentLength;
       
+      // Limpar timeout anterior para evitar múltiplos scrolls
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
       
+      // Usar um timeout curto para agrupar múltiplas atualizações
       scrollTimeoutRef.current = setTimeout(() => {
         if (containerRef.current) {
           containerRef.current.scrollTo({
             top: containerRef.current.scrollHeight,
-            behavior: screen.isMobile ? 'auto' : 'smooth' // Usar 'auto' em mobile para scroll instantâneo
+            behavior: 'auto' // 'auto' é mais consistente que 'smooth'
           });
         }
-      }, 50);
+      }, 30);
     }
-  }, [isStreaming, currentResponseText, userHasScrolled, screen.isMobile, screen.isLandscape]);
+  }, [isStreaming, currentResponseText, hasNewContent, userHasScrolled]);
 
-  // Handle streaming content scrolling based on hasNewContent flag
-  useEffect(() => {
-    if (!containerRef.current || !isStreaming || userHasScrolled) return;
-    
-    // Permitir rolagem automática em todos os dispositivos
-    // Removida a condição que impedia o scroll em dispositivos móveis
-
-    // During streaming, scroll if user hasn't manually scrolled up
-    if (hasNewContent && !userHasScrolled) {
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current);
-      }
-      
-      scrollTimeoutRef.current = setTimeout(() => {
-        if (containerRef.current) {
-          console.log('[useScroll] Novo conteúdo durante streaming, scrollando para o final');
-          containerRef.current.scrollTo({
-            top: containerRef.current.scrollHeight,
-            behavior: screen.isMobile ? 'auto' : 'smooth' // Usar 'auto' para scroll mais rápido no mobile
-          });
-        }
-      }, 30); // Ainda mais rápido para melhor responsividade 
-    }
-  }, [isStreaming, hasNewContent, userHasScrolled, screen.isMobile, screen.isLandscape]);
-
-  // Clean up timeout on unmount
+  // Limpar timeout ao desmontar
   useEffect(() => {
     return () => {
       if (scrollTimeoutRef.current) {
@@ -198,13 +128,12 @@ export function useScroll({
     };
   }, []);
 
-  // Scroll to bottom manually (can be called after streaming ends)
+  // Função para scroll manual
   const scrollToBottom = () => {
     if (containerRef.current) {
-      console.log('[useScroll] Scroll manual para o final solicitado');
       containerRef.current.scrollTo({
         top: containerRef.current.scrollHeight,
-        behavior: screen.isMobile && !screen.isLandscape ? 'auto' : 'smooth'
+        behavior: 'auto' // Simplificado para sempre usar 'auto'
       });
       setUserHasScrolled(false);
     }

@@ -36,83 +36,81 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
     }
   };
   
-  // Estilo centralizado comum para todas as versões do componente
+  // Estilo ainda mais compacto para o container
   const containerStyle: React.CSSProperties = {
-    display: 'flex',
+    display: 'inline-flex',
     justifyContent: 'center',
     alignItems: 'center',
+    gap: '4px', // Gap muito pequeno entre elementos
     width: 'auto',
     textAlign: 'center',
     margin: '0 auto',
-    padding: '2px 0'
+    padding: '1px 0',
+    maxWidth: 'fit-content',
+    borderRadius: '12px',
+    fontSize: '11px'
   };
   
   // Se o feedback já foi enviado, mostrar mensagem discreta de agradecimento
   if (feedbackGiven !== null) {
     return (
       <div style={containerStyle} className="feedback-buttons opacity-60">
-        <p style={{ margin: '0 auto', fontSize: '0.75rem', fontStyle: 'italic', color: '#9ca3af' }}>
+        <p style={{ margin: '0 auto', fontSize: '0.7rem', fontStyle: 'italic', color: '#9ca3af' }}>
           Obrigado
         </p>
       </div>
     );
   }
   
+  // Estilo compacto para botões
+  const buttonStyle: React.CSSProperties = {
+    color: '#9ca3af',
+    padding: '0.1rem',
+    margin: '0',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 'auto',
+    minHeight: 'auto'
+  };
+  
   return (
     <div style={containerStyle} className="feedback-buttons">
       {error && (
-        <div style={{ fontSize: '0.75rem', color: '#ef4444', marginRight: '0.25rem' }}>
+        <div style={{ fontSize: '0.65rem', color: '#ef4444', marginRight: '0.1rem' }}>
           {error}
         </div>
       )}
       
-      <span style={{ fontSize: '0.7rem', color: '#9ca3af', marginRight: '0.25rem' }}>Útil?</span>
-      
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => handleFeedback(true)}
-        style={{ 
-          color: '#9ca3af', 
-          margin: '0 0.15rem',
-          padding: '0.15rem',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minWidth: 'auto',
-          minHeight: 'auto'
-        }}
-        aria-label="Resposta útil"
-        disabled={isLoading}
-      >
-        {isLoading ? <FaSpinner className="animate-spin" size={12} /> : <FaThumbsUp size={12} />}
-      </motion.button>
-      
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => handleFeedback(false)}
-        style={{ 
-          color: '#9ca3af', 
-          padding: '0.15rem',
-          margin: '0',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minWidth: 'auto',
-          minHeight: 'auto'
-        }}
-        aria-label="Resposta não útil"
-        disabled={isLoading}
-      >
-        {isLoading ? <FaSpinner className="animate-spin" size={12} /> : <FaThumbsDown size={12} />}
-      </motion.button>
+      {/* Texto entre os botões para economizar espaço horizontal */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => handleFeedback(true)}
+          style={buttonStyle}
+          aria-label="Resposta útil"
+          disabled={isLoading}
+        >
+          {isLoading ? <FaSpinner className="animate-spin" size={10} /> : <FaThumbsUp size={10} />}
+        </motion.button>
+        
+        <span style={{ fontSize: '0.65rem', color: '#9ca3af' }}>útil?</span>
+        
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => handleFeedback(false)}
+          style={buttonStyle}
+          aria-label="Resposta não útil"
+          disabled={isLoading}
+        >
+          {isLoading ? <FaSpinner className="animate-spin" size={10} /> : <FaThumbsDown size={10} />}
+        </motion.button>
+      </div>
     </div>
   );
 };
