@@ -592,8 +592,8 @@ div.rounded-user-message {
   
   /* Espaçamento adicional para a primeira mensagem (pergunta do usuário) */
   .message-list > div:first-child {
-    margin-top: 150px !important; /* Aumentado drasticamente de 30px para 150px */
-    padding-top: 25px !important; /* Aumentado de 15px para 25px */
+    margin-top: 70px !important; /* Reduzido de 150px para 70px */
+    padding-top: 15px !important; /* Reduzido de 25px para 15px */
     position: relative !important;
     z-index: 2 !important;
     visibility: visible !important;
@@ -641,8 +641,8 @@ div.rounded-user-message {
 
 /* Estilo específico para fixar espaçamento entre a navbar e a caixa de pergunta */
 header + section .message-list {
-  padding-top: 150px !important; /* Aumentado de 100px para 150px */
-  margin-top: 40px !important; /* Aumentado de 20px para 40px */
+  padding-top: 60px !important; /* Reduzido de 150px para 60px */
+  margin-top: 15px !important; /* Reduzido de 40px para 15px */
 }
 
 /* Estilos específicos para botões de compartilhamento */
@@ -1718,18 +1718,18 @@ body.is-streaming .message-list > div:first-child {
 
 /* Garantir espaçamento adequado para a seção após o header (contém as mensagens) */
 header + section {
-  padding-top: 80px !important; /* Aumentado para garantir visibilidade */
-  margin-top: 20px !important;
+  padding-top: 60px !important; /* Reduzido de 150px para 60px */
+  margin-top: 15px !important; /* Reduzido de 40px para 15px */
 }
 
 /* Ajuste para o chat-messages para garantir espaçamento adequado */
 section #chat-messages {
-  padding-top: 30px !important;
+  padding-top: 10px !important; /* Reduzido de 30px para 10px */
 }
 
 /* Garantir que qualquer div dentro da seção após o header tenha espaçamento adequado */
 header + section > div {
-  padding-top: 20px !important;
+  padding-top: 0 !important; /* Reduzido de 20px para 0 */
 }
 
 /* Ajustes específicos para dispositivos móveis */
@@ -1828,7 +1828,7 @@ body.is-streaming #chat-messages {
 /* Regras específicas para garantir que a pergunta permaneça visível */
 body:not(.is-streaming) .message-list > div:first-child {
   scroll-snap-align: start !important;
-  scroll-margin-top: 100px !important;
+  scroll-margin-top: 60px !important; /* Reduzido de 160px para 60px */
 }
 
 /* Regras para quando o streaming está ocorrendo */
@@ -1846,7 +1846,7 @@ body.is-streaming .message-list > div:last-child {
 /* Ajuste específico para o container de mensagens */
 #chat-messages {
   /* Garantir que a vista inicial fique na pergunta */
-  scroll-padding-top: 100px !important;
+  scroll-padding-top: 20px !important; /* Reduzido de 200px para 20px */
   scroll-padding-bottom: 150px !important;
 }
 
@@ -1898,13 +1898,13 @@ html:not(.is-streaming) .message-list {
 
 /* Forçar posicionamento inicial no topo da pergunta */
 #chat-messages {
-  padding-top: 50px !important; /* Adicionar padding extra no container de mensagens */
-  scroll-padding-top: 200px !important; /* Aumentado para garantir visibilidade da pergunta */
+  padding-top: 20px !important; /* Reduzido de 50px para 20px */
+  scroll-padding-top: 80px !important; /* Reduzido de 200px para 80px */
 }
 
 /* Garantir que o topo da pergunta tenha um espaço seguro da navbar */
 body:not(.is-streaming) .message-list > div:first-child {
-  scroll-margin-top: 160px !important; /* Aumentado para garantir visibilidade */
+  scroll-margin-top: 60px !important; /* Reduzido de 160px para 60px */
 }
 
 /* Ajustes específicos para Safari e iOS */
@@ -1913,27 +1913,27 @@ body:not(.is-streaming) .message-list > div:first-child {
   html body .message-list > div:first-child,
   body .message-list > div:first-child,
   .message-list > .bg-bible-brown {
-    margin-top: 220px !important; /* Valor extremamente aumentado */
-    padding-top: 60px !important;
-    margin-bottom: 20px !important;
+    margin-top: 40px !important; /* Reduzido de 80px para 40px */
+    padding-top: 10px !important; /* Reduzido de 20px para 10px */
+    margin-bottom: 10px !important;
   }
   
   header + section .message-list,
   html body header + section .message-list,
   section .message-list {
-    padding-top: 240px !important; /* Valor extremamente aumentado */
-    margin-top: 80px !important;
+    padding-top: 40px !important; /* Reduzido de 80px para 40px */
+    margin-top: 10px !important;
   }
   
   /* Forçar distanciamento da navbar */
   html body header + section {
-    padding-top: 120px !important;
-    margin-top: 40px !important;
+    padding-top: 5px !important; /* Reduzido de 10px para 5px */
+    margin-top: 0 !important;
   }
   
   /* Espaço extra no container principal */
   #chat-messages {
-    padding-top: 100px !important;
+    padding-top: 40px !important; /* Reduzido de 100px para 40px */
   }
 }
 
@@ -1950,10 +1950,10 @@ div.bg-bible-brown {
 .message-list > div:first-child::before {
   content: '';
   display: block;
-  height: 100px; /* Espaço invisível acima da pergunta */
+  height: 50px; /* Reduzido de 100px para 50px */
   width: 100%;
   position: absolute;
-  top: -100px;
+  top: -50px; /* Reduzido de -100px para -50px */
   left: 0;
 }
 
@@ -1965,34 +1965,29 @@ div.bg-bible-brown {
   z-index: 3;
 }
 
-/* Estilos específicos para iPhone - Valores extremos */
+/* Estilos específicos para iPhone - valores muito reduzidos */
 @media screen and (max-width: 428px) and (min-height: 750px) {
   .message-list > div:first-child,
   .message-list > div.bg-bible-brown {
-    margin-top: 250px !important; /* Valor extremamente alto para garantir visibilidade em iPhone */
-    padding-top: 80px !important;
+    margin-top: 40px !important; /* Reduzido de 80px para 40px */
+    padding-top: 10px !important; /* Reduzido de 20px para 10px */
   }
   
   header + section .message-list {
-    padding-top: 260px !important;
-    margin-top: 100px !important;
+    padding-top: 40px !important; /* Reduzido de 80px para 40px */
+    margin-top: 5px !important; /* Reduzido de 10px para 5px */
   }
   
-  /* Forçar distanciamento da navbar em iPhone */
+  /* Reduzir espaço entre header e seção */
   header + section {
-    padding-top: 140px !important;
-    margin-top: 60px !important;
+    padding-top: 5px !important; /* Reduzido de 10px para 5px */
+    margin-top: 0 !important; /* Reduzido de 60px para 0 */
   }
   
-  /* Garantir que todo conteúdo fique bem abaixo da navbar */
+  /* Ajustar padding para chat messages */
   #chat-messages {
-    padding-top: 120px !important;
-    scroll-padding-top: 280px !important;
-  }
-  
-  /* Ajustar posicionamento apenas quando não está em streaming */
-  body:not(.is-streaming) .message-list > div:first-child {
-    scroll-margin-top: 280px !important;
+    padding-top: 10px !important; /* Reduzido de 20px para 10px */
+    scroll-padding-top: 40px !important; /* Reduzido de 80px para 40px */
   }
 }
 
@@ -2000,7 +1995,80 @@ div.bg-bible-brown {
 @supports (-webkit-touch-callout: none) {
   @media screen and (max-width: 428px) {
     .message-list > div:first-child {
-      margin-top: 280px !important; /* Valor extremamente alto para iOS Safari */
+      margin-top: 40px !important; /* Reduzido de 80px para 40px */
+    }
+    
+    /* Reduzir espaço da navbar para a primeira mensagem nos iPhones */
+    header + * {
+      padding-top: 5px !important;
+    }
+    
+    /* Garantir que a mensagem fique visível no iOS */
+    #chat-messages > div:first-child {
+      padding-top: 5px !important;
     }
   }
+}
+
+/* Ajuste fino para a visualização da pergunta - espaço mínimo, mas suficiente */
+header {
+  height: 56px !important; /* Fixar altura do header */
+}
+
+/* Reduzir qualquer espaço em branco desnecessário */
+header + section {
+  padding-top: 10px !important;
+  margin-top: 0 !important;
+}
+
+/* Ajuste para garantir que a primeira mensagem fique logo após a navbar com mínimo espaço */
+.message-list > div:first-child {
+  margin-top: 20px !important; /* Valor mínimo para garantir visibilidade abaixo da navbar */
+  padding-top: 10px !important;
+}
+
+/* Estilo específico para fixar espaçamento entre a navbar e a caixa de pergunta - valor mínimo */
+header + section .message-list {
+  padding-top: 20px !important;
+  margin-top: 5px !important;
+}
+
+/* Ajuste mais radical para dispositivos iOS */
+@supports (-webkit-touch-callout: none) {
+  .message-list > div:first-child {
+    margin-top: 20px !important;
+    padding-top: 10px !important;
+  }
+  
+  header + section .message-list {
+    padding-top: 20px !important;
+    margin-top: 5px !important;
+  }
+  
+  /* Removing any extra space in iOS/Safari */
+  body:not(.is-streaming) .message-list > div:first-child {
+    margin-top: 20px !important;
+  }
+}
+
+/* Ajuste extremo para iPhone */
+@media screen and (max-width: 428px) {
+  .message-list > div:first-child {
+    margin-top: 10px !important; /* Valor mínimo possível */
+  }
+  
+  header + section .message-list {
+    padding-top: 15px !important;
+    margin-top: 0 !important;
+  }
+  
+  /* Assegurar que o container principal não tenha padding extra */
+  #chat-messages {
+    padding-top: 10px !important;
+  }
+}
+
+/* Remover qualquer espaço não essencial na thread de mensagens */
+.message-list {
+  padding-top: 10px !important;
 }

@@ -15,7 +15,7 @@ const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1500;
 
 // Limite de tempo para aguardar a primeira resposta do streaming
-const FIRST_CHUNK_TIMEOUT_MS = 10000; // Aumentado para 10 segundos (antes era 5s)
+const FIRST_CHUNK_TIMEOUT_MS = 15000; // Aumentado para 10 segundos (antes era 5s)
 
 const useChat = () => {
   const [state, setState] = useState<ChatState>({
