@@ -1258,26 +1258,6 @@ div[class*="max-w-"] .input-box-3d {
   max-width: 100%;
 }
 
-/* Question focus container styles - for mobile view */
-.question-focus-container {
-  position: relative;
-  z-index: 10;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Improve user message styles in mobile view */
 @media (max-width: 768px) {
   .user-message-item {

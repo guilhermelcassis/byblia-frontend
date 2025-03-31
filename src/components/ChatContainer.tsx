@@ -158,18 +158,15 @@ const ChatContainer: React.FC = () => {
         // Get the last user message element
         const lastUserMessage = userMessages[userMessages.length - 1];
         
-        // In mobile view, scroll to the very top to show question and navbar
+        // No mobile, após remover a seção "Sua Pergunta", vamos apenas rolar para o topo da mensagem do usuário
         if (screen.isMobile && !screen.isLandscape) {
           // Small delay to ensure scrollToTop completed first
           setTimeout(() => {
-            const container = containerRef.current;
-            if (container) {
-              const messageTop = lastUserMessage.getBoundingClientRect().top;
-              const containerTop = container.getBoundingClientRect().top;
-              const scrollOffset = messageTop - containerTop;
-              
-              container.scrollTo({
-                top: scrollOffset,
+            if (containerRef.current) {
+              // Scroll to the latest message - como removemos a exibição da pergunta no topo,
+              // agora vamos apenas rolar para garantir que a última mensagem esteja visível
+              containerRef.current.scrollTo({
+                top: 0,
                 behavior: 'auto'
               });
             }
@@ -329,19 +326,7 @@ const ChatContainer: React.FC = () => {
 
   return (
     <div className={`flex flex-col h-full w-full mx-auto rounded-lg border-0 overflow-hidden ${state.messages.length === 0 ? 'state-messages-length-0' : ''}`}>
-      {/* Mobile view com a pergunta do usuário sempre visível */}
-      {screen.isMobile && !screen.isLandscape && state.messages.length > 1 && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="question-focus-container bg-gray-50 py-3 px-4 border-b"
-        >
-          <div className="text-xs text-gray-500 mb-1">Sua pergunta:</div>
-          <div className="text-sm font-medium text-gray-800">
-            {state.messages.find(m => m.role === 'user')?.content || ''}
-          </div>
-        </motion.div>
-      )}
+      {/* Mobile view com a pergunta do usuário sempre visível - REMOVIDO CONFORME SOLICITAÇÃO */}
       
       {/* Messages container */}
       <div 

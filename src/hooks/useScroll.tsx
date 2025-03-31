@@ -97,10 +97,24 @@ export function useScroll({
         });
       }
       
-      // On mobile portrait mode, don't auto-scroll after submitting a question
-      // to prioritize showing the question at the top
-      if (screen.isMobile && !screen.isLandscape && prioritizeQuestion) {
-        console.log('[useScroll] Mobile mode - prioritizing question display, no auto-scroll');
+      // Em dispositivos móveis no modo retrato, vamos rolar para o topo do container
+      // para garantir visibilidade da conversa, já que removemos a exibição da pergunta no topo
+      if (screen.isMobile && !screen.isLandscape) {
+        console.log('[useScroll] Mobile mode - scrolling to the top of container');
+        
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        
+        scrollTimeoutRef.current = setTimeout(() => {
+          if (containerRef.current) {
+            containerRef.current.scrollTo({
+              top: 0,
+              behavior: 'auto'
+            });
+          }
+        }, 50);
+        
         return;
       }
       
