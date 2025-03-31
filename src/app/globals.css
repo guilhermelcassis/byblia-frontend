@@ -1114,8 +1114,8 @@ body.menu-open {
   transform-style: preserve-3d;
   transition: all 0.3s ease;
   border-radius: 24px;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(var(--bible-main-rgb), 0.06);
+  background-color: #f2f3f5; /* Tom de cinza claro com leve tom azulado */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(var(--bible-main-rgb), 0.08);
   overflow: hidden;
   width: 100%;
   margin: 0 auto;
@@ -1130,11 +1130,11 @@ body.menu-open {
   border-radius: 24px;
   background: linear-gradient(
     135deg,
-    rgba(var(--bible-main-rgb), 0.1),
-    rgba(var(--bible-main-rgb), 0.05),
+    rgba(var(--bible-main-rgb), 0.12),
+    rgba(var(--bible-main-rgb), 0.06),
     rgba(255, 255, 255, 0.8),
-    rgba(var(--bible-main-rgb), 0.05),
-    rgba(var(--bible-main-rgb), 0.1)
+    rgba(var(--bible-main-rgb), 0.06),
+    rgba(var(--bible-main-rgb), 0.12)
   );
   background-size: 300% 300%;
   animation: gradientInput 8s ease infinite;
@@ -1144,18 +1144,18 @@ body.menu-open {
 
 .input-box-3d:hover::before,
 .input-box-3d:focus-within::before {
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .input-box-3d:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(var(--bible-main-rgb), 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(var(--bible-main-rgb), 0.1);
 }
 
 .input-box-3d:focus-within {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(var(--bible-main-rgb), 0.12);
-  background-color: #fcfcfc;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(var(--bible-main-rgb), 0.15);
+  background-color: #f8f9fa; /* Cor um pouco mais clara quando em foco */
 }
 
 /* Corrigindo aninhamento excessivo e sobreposições */

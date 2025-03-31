@@ -208,6 +208,10 @@ const ChatContainer: React.FC = () => {
           viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
         }, 1000);
       }
+      
+      // Force the browser to reset zoom level
+      document.body.style.transform = 'scale(1)';
+      document.body.style.transformOrigin = 'center top';
     }
     
     // Force scroll to the user's message with a small delay to ensure render is complete
@@ -215,6 +219,41 @@ const ChatContainer: React.FC = () => {
       scrollToLastUserMessage();
     }, 10); // Reduced delay for more immediate response
   };
+
+  // Handle response display and ensure no zoom is applied
+  useEffect(() => {
+    // When a new response is received or streaming stops
+    if (state.messages.length > 0 && !state.isStreaming) {
+      // Ensure the page is not zoomed
+      if (screen.isMobile) {
+        // Reset any potential zoom
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+          
+          // Allow user scaling after a short delay
+          setTimeout(() => {
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+          }, 800);
+        }
+        
+        // Ensure the window is scrolled to a good position to see the response
+        setTimeout(() => {
+          if (containerRef.current) {
+            // Scroll to show the last message but not too far down
+            const scrollPosition = Math.max(
+              0,
+              containerRef.current.scrollTop - 120
+            );
+            containerRef.current.scrollTo({
+              top: scrollPosition,
+              behavior: 'auto'
+            });
+          }
+        }, 100);
+      }
+    }
+  }, [state.messages.length, state.isStreaming, screen.isMobile]);
 
   // Função para tentar novamente a última mensagem
   const handleRetry = useCallback(() => {

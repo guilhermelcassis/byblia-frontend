@@ -1,4 +1,4 @@
-import React, { useRef, useState, memo } from 'react';
+import React, { useRef, useState, memo, useEffect } from 'react';
 import { Message } from '../types';
 import MessageText from './MessageText';
 import { FaCopy, FaWhatsapp, FaCheck } from 'react-icons/fa';
@@ -30,6 +30,35 @@ export const MessageItem: React.FC<Props> = memo(({
   const containerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const screen = useScreen();
+
+  // Garantir que não haja zoom automático quando uma mensagem é exibida
+  useEffect(() => {
+    if (isLastMessage && screen.isMobile && !isUser) {
+      // Impedir zoom em dispositivos móveis
+      const resetZoom = () => {
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+          // Temporariamente prevenir zoom
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
+          
+          // Restaurar configuração normal após um breve momento
+          setTimeout(() => {
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
+          }, 500);
+        }
+      };
+      
+      resetZoom();
+      
+      // Garantir visualização adequada
+      if (containerRef.current) {
+        containerRef.current.scrollIntoView({ 
+          behavior: 'auto', 
+          block: 'nearest' 
+        });
+      }
+    }
+  }, [isLastMessage, isUser, screen.isMobile, message.content]);
 
   // Função auxiliar para truncar texto se necessário
   const truncateText = (text: string, maxLength: number): string => {
@@ -112,7 +141,8 @@ export const MessageItem: React.FC<Props> = memo(({
         style={{ 
           boxShadow: 'none',
           backgroundColor: isUser ? '' : 'white',
-          borderRadius: isUser ? '20px' : '20px'
+          borderRadius: isUser ? '20px' : '20px',
+          fontSize: '16px' // Garantir tamanho adequado para prevenir zoom automático
         }}
       >
         {/* Show timestamp for user messages in mobile view */}
