@@ -138,6 +138,31 @@ const ChatContainer: React.FC = () => {
     }
   }, [state.currentResponse, state.isStreaming]);
 
+  // Function to scroll to the last user message specifically
+  const scrollToLastUserMessage = useCallback(() => {
+    if (containerRef.current && state.messages.length > 0) {
+      // Find all user message elements - targeting the right CSS class
+      const userMessages = containerRef.current.querySelectorAll('.user-message-container');
+      
+      if (userMessages.length > 0) {
+        // Get the last user message element
+        const lastUserMessage = userMessages[userMessages.length - 1];
+        
+        // Calculate position to show message at top with some padding
+        const container = containerRef.current;
+        const messageTop = lastUserMessage.getBoundingClientRect().top;
+        const containerTop = container.getBoundingClientRect().top;
+        const scrollOffset = messageTop - containerTop - 20; // 20px padding from top
+        
+        // Smooth scroll to position
+        container.scrollBy({
+          top: scrollOffset,
+          behavior: 'auto' // Changed to auto for immediate scroll
+        });
+      }
+    }
+  }, [state.messages.length]);
+
   // Wrapper for sending message and updating the ref of the message length
   const handleSendMessage = (message: string) => {
     // Save the last message to allow resending in case of error
@@ -146,10 +171,10 @@ const ChatContainer: React.FC = () => {
     // Send the message
     sendUserMessage(message);
     
-    // Force scroll to the user's message
+    // Force scroll to the user's message with a small delay to ensure render is complete
     setTimeout(() => {
-      scrollToBottom();
-    }, 50);
+      scrollToLastUserMessage();
+    }, 10); // Reduced delay for more immediate response
   };
 
   // Função para tentar novamente a última mensagem
@@ -318,24 +343,24 @@ const ChatContainer: React.FC = () => {
             
             {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
             {state.isColdStart && <ColdStartIndicator />}
-            
-            {/* Mini indicador de carregamento que não interrompe a visualização da pergunta */}
-            {state.isLoading && !state.isStreaming && !state.isColdStart && (
-              <div className="flex items-center justify-end mt-1 mb-1 mr-4">
-                <div className="p-2 bg-white rounded-full shadow-sm">
-                  <FaSyncAlt className="animate-spin text-bible-brown" size={14} />
-                </div>
-              </div>
-            )}
-            
-            {/* Mini indicador durante streaming em mobile */}
-            {state.isStreaming && screen.isMobile && !screen.isLandscape && (
-              <div className="flex justify-end mt-1 mr-4">
-                <div className="p-2 bg-white rounded-full shadow-sm">
-                  <FaSyncAlt className="animate-spin text-bible-brown" size={14} />
-                </div>
-              </div>
-            )}
+          </div>
+        )}
+
+        {/* Loading indicators - positioned fixed to not affect layout */}
+        {state.isLoading && !state.isStreaming && !state.isColdStart && (
+          <div className="fixed top-20 right-4 z-40">
+            <div className="p-2 bg-white rounded-full shadow-sm opacity-90">
+              <FaSyncAlt className="animate-spin text-bible-brown" size={14} />
+            </div>
+          </div>
+        )}
+        
+        {/* Mini indicador durante streaming em mobile - fixed positioning */}
+        {state.isStreaming && screen.isMobile && !screen.isLandscape && (
+          <div className="fixed top-20 right-4 z-40">
+            <div className="p-2 bg-white rounded-full shadow-sm opacity-90">
+              <FaSyncAlt className="animate-spin text-bible-brown" size={14} />
+            </div>
           </div>
         )}
 
