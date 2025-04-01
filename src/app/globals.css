@@ -2756,36 +2756,60 @@ html[data-scroll="true"] .navbar-fixed {
 /* Estilos específicos para a caixa de input do chat */
 .chat-input-form {
   position: relative;
-  transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+  transition: all 0.3s ease;
   will-change: transform, box-shadow;
   backface-visibility: hidden;
   transform: translateZ(0);
-  border: 1px solid #333333 !important;
+  border: 1px solid #e0e0e0 !important;
   border-radius: 24px !important;
 }
 
 .chat-input-form:hover {
-  box-shadow: 0 0 30px rgba(51, 51, 51, 0.15), 0 0 15px rgba(51, 51, 51, 0.08), 0 0 5px rgba(51, 51, 51, 0.08) !important;
-  border-color: #333333 !important;
+  border-color: #c0c0c0 !important;
 }
 
 .chat-input-form:focus-within {
-  box-shadow: 0 0 40px rgba(51, 51, 51, 0.15), 0 0 20px rgba(51, 51, 51, 0.12), 0 0 10px rgba(51, 51, 51, 0.15) !important;
   border-color: #333333 !important;
-  transform: translateY(-5px) !important;
-  animation: professional-glow 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+  transform: translateY(-2px) !important;
 }
 
-@keyframes professional-glow {
-  0% {
-    box-shadow: 0 0 24px rgba(51, 51, 51, 0.06), 0 0 12px rgba(51, 51, 51, 0.04), 0 0 5px rgba(51, 51, 51, 0.1);
-  }
-  40% {
-    box-shadow: 0 0 40px rgba(51, 51, 51, 0.15), 0 0 25px rgba(51, 51, 51, 0.12), 0 0 15px rgba(51, 51, 51, 0.18);
-  }
-  100% {
-    box-shadow: 0 0 40px rgba(51, 51, 51, 0.15), 0 0 20px rgba(51, 51, 51, 0.12), 0 0 10px rgba(51, 51, 51, 0.15);
-  }
+/* Remover efeito de gradiente na borda do campo */
+.chat-input-form:after {
+  display: none;
+}
+
+.chat-input-form:hover:after {
+  display: none;
+}
+
+.chat-input-form:focus-within:after {
+  display: none;
+}
+
+/* Adicionar efeito de profundidade para o botão de enviar */
+.chat-input-form button[type="submit"] {
+  transition: all 0.3s ease !important;
+}
+
+.chat-input-form button[type="submit"]:not(:disabled):hover {
+  transform: translateY(-2px) !important;
+}
+
+.chat-input-form button[type="submit"]:not(:disabled):active {
+  transform: translateY(1px) !important;
+}
+
+/* ======= ESTILOS AVANÇADOS PARA O CAMPO DE ENTRADA ======= */
+.chat-input-form textarea::placeholder {
+  color: rgba(0, 0, 0, 0.35);
+  font-weight: 400;
+  font-style: normal;
+  transition: opacity 0.3s ease;
+  opacity: 0.5;
+}
+
+.chat-input-form textarea:focus::placeholder {
+  opacity: 0.7;
 }
 
 /* Estilos para desktop */
@@ -2816,83 +2840,6 @@ html[data-scroll="true"] .navbar-fixed {
   .mobile-input-container textarea {
     border-radius: 22px !important;
   }
-}
-
-/* Adicionar efeito de profundidade para o botão de enviar */
-.chat-input-form button[type="submit"] {
-  transition: all 0.35s cubic-bezier(0.215, 0.61, 0.355, 1) !important;
-  box-shadow: 0 0 12px rgba(51, 51, 51, 0.12), 0 0 6px rgba(51, 51, 51, 0.08) !important;
-}
-
-.chat-input-form button[type="submit"]:not(:disabled):hover {
-  transform: translateY(-3px) !important;
-  box-shadow: 0 0 20px rgba(51, 51, 51, 0.18), 0 0 10px rgba(51, 51, 51, 0.12) !important;
-}
-
-.chat-input-form button[type="submit"]:not(:disabled):active {
-  transform: translateY(1px) !important;
-  box-shadow: 0 0 6px rgba(51, 51, 51, 0.12), 0 0 3px rgba(51, 51, 51, 0.08) !important;
-}
-
-/* ======= ESTILOS AVANÇADOS PARA O CAMPO DE ENTRADA ======= */
-.chat-input-form textarea::placeholder {
-  color: rgba(0, 0, 0, 0.35);
-  font-weight: 400;
-  font-style: normal;
-  transition: opacity 0.3s ease;
-  opacity: 0;
-}
-
-.chat-input-form textarea:focus::placeholder {
-  opacity: 1;
-  animation: fade-in 0.5s ease forwards;
-}
-
-@keyframes fade-in {
-  0% { opacity: 0; }
-  50% { opacity: 0.7; }
-  100% { opacity: 0.5; }
-}
-
-/* Efeito de gradiente na borda do campo */
-.chat-input-form {
-  position: relative;
-}
-
-.chat-input-form:after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 24px;
-  pointer-events: none;
-  background: linear-gradient(to bottom, rgba(51, 51, 51, 0.1), rgba(51, 51, 51, 0.05));
-  opacity: 0.5;
-  z-index: 1;
-}
-
-.chat-input-form:hover:after {
-  opacity: 0.8;
-  background: linear-gradient(to bottom, rgba(51, 51, 51, 0.15), rgba(51, 51, 51, 0.08));
-}
-
-.chat-input-form:focus-within:after {
-  opacity: 1;
-  background: linear-gradient(to bottom, rgba(51, 51, 51, 0.2), rgba(51, 51, 51, 0.1));
-}
-
-/* Garantir que a navbar esteja visível em dispositivos móveis durante o streaming */
-body.is-streaming .navbar-fixed {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 9999 !important;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
-  background-color: #333333 !important;
-  color: white !important;
 }
 
 /* Estilos específicos para o botão do menu hamburger */

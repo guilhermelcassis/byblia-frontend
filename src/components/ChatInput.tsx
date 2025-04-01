@@ -30,7 +30,10 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   const [consecutiveRequests, setConsecutiveRequests] = useState(0);
   const [lastRequestTime, setLastRequestTime] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [showRipple, setShowRipple] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const screen = useScreen();
 
   useEffect(() => {
@@ -39,6 +42,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     // Limpar erro quando o usuário começa a digitar
     if (validationError) {
       setValidationError('');
+    }
+
+    // Detectar quando o usuário está digitando para animar o input
+    if (inputValue.length > 0) {
+      setIsTyping(true);
+      const timer = setTimeout(() => setIsTyping(false), 1000);
+      return () => clearTimeout(timer);
     }
   }, [inputValue, validationError]);
 
@@ -107,10 +117,15 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     e.preventDefault();
     
     if (inputValue.trim() && !isLoading) {
+      // Criar efeito de ripple no botão
+      if (buttonRef.current) {
+        setShowRipple(true);
+        setTimeout(() => setShowRipple(false), 400);
+      }
+
       // Validar entrada antes de enviar
       if (!validateInput(inputValue)) {
         return;
-
       }
       
       // Verificar frequência de requisições (proteção adicional de throttling)
@@ -212,6 +227,42 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
     }
   };
 
+  // Calcular a cor da borda baseada no comprimento da mensagem
+  const getBorderStyle = () => {
+    if (isFocused) {
+      if (charCount > MAX_MESSAGE_LENGTH) {
+        return '2px solid rgba(220, 38, 38, 0.5)'; // Vermelho para erro
+      } 
+      return '2px solid rgba(148, 106, 74, 0.6)'; // Marrom bíblia quando focado
+    }
+    if (isTyping) {
+      return '1px solid rgba(148, 106, 74, 0.4)'; // Sutilmente destacado enquanto digita
+    }
+    return '1px solid rgba(235, 235, 235, 0.8)'; // Default
+  };
+
+  // Calcular a cor de fundo do input baseado no estado
+  const getInputBackground = () => {
+    if (isFocused) {
+      return 'linear-gradient(to bottom, #ffffff, #f9f7f5)';
+    }
+    if (isTyping) {
+      return 'linear-gradient(to bottom, #f9f7f5, #f7f7f7)';
+    }
+    return 'linear-gradient(to bottom, #f7f7f7, #f5f5f5)';
+  };
+
+  // Classe para o contador de caracteres
+  const getCharCountClass = () => {
+    if (charCount > MAX_MESSAGE_LENGTH * 0.9) {
+      return 'text-red-500 font-medium';
+    }
+    if (charCount > MAX_MESSAGE_LENGTH * 0.7) {
+      return 'text-yellow-600';
+    }
+    return 'text-gray-400';
+  };
+
   return (
     <div className="mobile-input-container">
       <form 
@@ -219,62 +270,82 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         className="flex items-start w-full relative chat-input-form"
         style={{
           padding: '16px',
-          border: '1px solid rgba(0, 0, 0, 0.03)',
+          border: '1px solid rgba(0, 0, 0, 0.08)',
           borderRadius: '24px',
-          boxShadow: '0 0 30px rgba(0, 0, 0, 0.04), 0 0 15px rgba(0, 0, 0, 0.02), 0 0 5px rgba(0, 0, 0, 0.01), inset 0 0 0 1px rgba(255, 255, 255, 0.9)',
-          background: 'linear-gradient(to bottom, #ffffff, #fafafa)',
+          boxShadow: isFocused ? '0 4px 20px rgba(0, 0, 0, 0.08)' : 'none',
+          background: '#ffffff',
           marginTop: screen.isMobile ? '16px' : '32px',
           marginBottom: screen.isMobile ? '10px' : '20px',
-          transition: 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)'
+          transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'
         }}
       >
-        <textarea
-          ref={textareaRef}
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onKeyDown={handleKeyDown}
-          placeholder={screen.isLandscape ? "Faça uma pergunta, peça conselhos ou compartilhe um problema" : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
-          className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-4 text-gray-800 ${screen.isMobile ? 'text-sm' : 'text-base'} font-normal resize-none overflow-hidden w-full rounded-3xl ${isFocused ? 'ring-2 ring-bible-brown/30' : ''} focus:outline-none transition-all duration-300`}
-          style={{ 
-            minHeight: getMinHeight(),
-            maxHeight: screen.isLandscape ? '120px' : (screen.isMobile ? '300px' : '200px'),
-            wordWrap: 'break-word',
-            lineHeight: screen.isLandscape ? '1.3' : (screen.isMobile ? '1.4' : '1.5'),
-            paddingRight: screen.isLandscape ? '40px' : '60px', // Espaço para o botão
-            paddingLeft: '20px', // Um pouco mais de padding à esquerda para melhor equilíbrio visual
-            boxShadow: 'none',
-            background: 'linear-gradient(to bottom, #f0f0f0, #f5f5f5)',
-            backgroundSize: '100% 200%',
-            fontSize: screen.isMobile ? '16px' : '17px', // Fonte maior para desktop
-            WebkitTextSizeAdjust: '100%', // Prevenir ajuste de texto
-            transformOrigin: 'top center', // Ponto de origem para transformações
-            transform: 'translateZ(0)', // Usar GPU para renderização
-            touchAction: 'manipulation', // Otimizar comportamento de toque
-            WebkitAppearance: 'none', // Remover estilo padrão do iOS
-            border: 'none',
-            borderRadius: '16px',
-            caretColor: '#946A4A', // Cursor colorido para melhor visualização
-            fontWeight: '400'
-          }}
-          inputMode="text"
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          spellCheck="true"
-          data-lpignore="true"
-          disabled={isLoading}
-          maxLength={MAX_MESSAGE_LENGTH}
-          aria-describedby="message-validation"
-          rows={1}
-        />
+        <div className="relative flex-grow">
+          <textarea
+            ref={textareaRef}
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            placeholder={screen.isLandscape ? "Faça uma pergunta, peça conselhos ou compartilhe um problema" : "Faça uma pergunta, peça conselhos ou compartilhe um problema"}
+            className={`flex-grow ${screen.isLandscape ? 'py-2' : 'py-3'} px-4 text-gray-800 ${screen.isMobile ? 'text-sm' : 'text-base'} font-normal resize-none overflow-hidden w-full rounded-3xl focus:outline-none transition-all duration-300`}
+            style={{ 
+              minHeight: getMinHeight(),
+              maxHeight: screen.isLandscape ? '120px' : (screen.isMobile ? '300px' : '200px'),
+              wordWrap: 'break-word',
+              lineHeight: screen.isLandscape ? '1.3' : (screen.isMobile ? '1.4' : '1.5'),
+              paddingRight: screen.isLandscape ? '40px' : '60px', // Espaço para o botão
+              paddingLeft: '20px', // Um pouco mais de padding à esquerda para melhor equilíbrio visual
+              boxShadow: isFocused ? 'inset 0 1px 3px rgba(0, 0, 0, 0.05)' : 'none',
+              background: getInputBackground(),
+              fontSize: screen.isMobile ? '16px' : '17px', // Fonte maior para desktop
+              WebkitTextSizeAdjust: '100%', // Prevenir ajuste de texto
+              transformOrigin: 'top center', // Ponto de origem para transformações
+              transform: 'translateZ(0)', // Usar GPU para renderização
+              touchAction: 'manipulation', // Otimizar comportamento de toque
+              WebkitAppearance: 'none', // Remover estilo padrão do iOS
+              border: getBorderStyle(),
+              borderRadius: '16px',
+              caretColor: '#946A4A', // Cursor colorido para melhor visualização
+              fontWeight: '400',
+              transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), height 0.2s ease',
+              backdropFilter: 'blur(4px)'
+            }}
+            inputMode="text"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="true"
+            data-lpignore="true"
+            disabled={isLoading}
+            maxLength={MAX_MESSAGE_LENGTH + 100} // Permitir um pouco mais para mostrar erro
+            aria-describedby="message-validation"
+            rows={1}
+          />
+          
+          {/* Adicionar contador de caracteres elegante */}
+          {inputValue.length > 0 && (
+            <div 
+              className={`absolute ${getCharCountClass()} text-xs transition-all duration-300`}
+              style={{
+                right: screen.isMobile ? (screen.isLandscape ? '48px' : '66px') : '74px',
+                bottom: '8px',
+                opacity: isFocused || isTyping ? 1 : 0.7,
+                transform: charCount > MAX_MESSAGE_LENGTH ? 'scale(1.1)' : 'scale(1)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              {charCount}/{MAX_MESSAGE_LENGTH}
+            </div>
+          )}
+        </div>
         
         {/* Botão com design profissional aprimorado */}
         <button
+          ref={buttonRef}
           type="submit"
           disabled={!inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH}
-          className={`absolute flex items-center justify-center rounded-full transition-all z-[150] ${
+          className={`absolute flex items-center justify-center rounded-full transition-all z-[150] overflow-hidden ${
             !inputValue.trim() || isLoading || charCount > MAX_MESSAGE_LENGTH || charCount < MIN_MESSAGE_LENGTH
               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
               : `bg-bible-brown text-white hover:bg-bible-darkbrown ${screen.isMobile ? 'active:scale-95' : ''}`
@@ -282,28 +353,85 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           style={{
             width: screen.isMobile ? (screen.isLandscape ? '40px' : '46px') : '52px',
             height: screen.isMobile ? (screen.isLandscape ? '40px' : '46px') : '52px',
-            transition: 'all 0.4s cubic-bezier(0.19, 1, 0.22, 1)',
+            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
             right: screen.isMobile ? (screen.isLandscape ? '12px' : '16px') : '18px',
             bottom: screen.isMobile ? (screen.isLandscape ? '50%' : '14px') : '50%',
-            transform: (screen.isLandscape || !screen.isMobile) ? 'translateY(50%)' : 'none',
-            boxShadow: '0 0 15px rgba(0, 0, 0, 0.08), 0 0 8px rgba(0, 0, 0, 0.04), inset 0 -2px 5px rgba(0, 0, 0, 0.08)'
+            transform: (screen.isLandscape || !screen.isMobile) 
+              ? `translateY(50%) ${inputValue.trim() && !isLoading ? 'scale(1.03)' : 'scale(1)'}` 
+              : (inputValue.trim() && !isLoading ? 'scale(1.03)' : 'scale(1)'),
+            boxShadow: inputValue.trim() && !isLoading 
+              ? '0 4px 10px rgba(148, 106, 74, 0.3)' 
+              : 'none'
           }}
           aria-label="Enviar mensagem"
+          onMouseDown={() => setShowRipple(true)}
+          onMouseUp={() => setTimeout(() => setShowRipple(false), 400)}
+          onMouseLeave={() => setShowRipple(false)}
         >
-          <FaArrowRight size={screen.isMobile ? (screen.isLandscape ? 16 : 18) : 22} />
+          <FaArrowRight 
+            size={screen.isMobile ? (screen.isLandscape ? 16 : 18) : 22} 
+            className={`${inputValue.trim() && !isLoading ? 'transform transition-transform duration-300 group-hover:translate-x-0.5' : ''}`}
+          />
+          
+          {/* Efeito de ripple */}
+          {showRipple && inputValue.trim() && !isLoading && (
+            <span 
+              className="absolute inset-0 rounded-full" 
+              style={{
+                background: 'radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)',
+                animation: 'ripple 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards',
+                opacity: 0.6
+              }}
+            />
+          )}
         </button>
       </form>
       
       {validationError && (
         <div 
           id="message-validation" 
-          className="flex items-center justify-center space-x-1 text-red-500 text-xs mt-2 text-center"
+          className="flex items-center justify-center space-x-1 text-red-500 text-xs mt-2 text-center animate-pulse"
           role="alert"
+          style={{
+            animation: 'fadeIn 0.3s ease-out',
+            background: 'rgba(254, 242, 242, 0.7)',
+            padding: '6px 12px',
+            borderRadius: '16px',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.05)'
+          }}
         >
           <FaExclamationTriangle className="text-red-500" />
           <span>{validationError}</span>
         </div>
       )}
+
+      {/* Estilos para animações */}
+      <style jsx global>{`
+        @keyframes ripple {
+          0% {
+            transform: scale(0);
+            opacity: 0.8;
+          }
+          100% {
+            transform: scale(2.5);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+      `}</style>
     </div>
   );
 };
