@@ -35,7 +35,7 @@ const archivo = Archivo({
 export const metadata: Metadata = {
   title: "Byblia - Conselheiro Bíblico",
   description: "Um conselheiro virtual para encontrar sabedoria nas Escrituras Sagradas",
-  viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no",
+  viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no",
   icons: [
     { rel: "icon", url: "/biblia.png" },
     { rel: "icon", type: "image/png", url: "/biblia.png" },
@@ -52,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
         <link rel="icon" href="/biblia.png" sizes="any" />
         <link rel="apple-touch-icon" href="/biblia.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -65,12 +65,17 @@ export default function RootLayout({
             text-size-adjust: 100%; /* Previne texto crescer automaticamente */
             -webkit-text-size-adjust: 100%;
             -webkit-tap-highlight-color: transparent;
+            zoom: 1.0;
+            -webkit-zoom: 1.0;
+            -moz-transform: scale(1.0);
+            -moz-transform-origin: 0 0;
           }
           
           body {
             overscroll-behavior-y: contain; /* Previne scroll excessivo */
             touch-action: manipulation;
             -webkit-overflow-scrolling: touch;
+            max-height: 100vh;
           }
           
           input, textarea, select, button {
@@ -78,6 +83,21 @@ export default function RootLayout({
             -webkit-appearance: none;
             appearance: none;
             border-radius: 0;
+            max-height: 100%;
+          }
+          
+          /* Previne o zoom mesmo quando clicar em campos de entrada */
+          input[type="text"], 
+          input[type="email"], 
+          input[type="password"], 
+          input[type="number"], 
+          input[type="search"], 
+          input[type="tel"], 
+          input[type="url"], 
+          textarea {
+            font-size: 16px !important;
+            transform: scale(1);
+            transform-origin: left top;
           }
           
           @media (max-width: 768px) {

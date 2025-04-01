@@ -870,7 +870,7 @@ body.menu-open .navbar-fixed {
 /* Estilo para garantir que o título "Seu conselheiro bíblico" tenha o mesmo estilo em todos os dispositivos */
 .navbar-fixed h2 {
   font-family: 'Boldonse', var(--font-boldonse), sans-serif !important;
-  letter-spacing: -0.01em !important;
+  letter-spacing: 0.02em !important;
   color: white !important;
   font-size: 0.9rem !important;
 }
