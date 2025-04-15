@@ -99,18 +99,22 @@ const PWAInstallButton: React.FC = () => {
         console.error('⚠️ Error during installation:', error);
       }
     } else if (isIOS) {
-      console.log("📱 iOS device detected, showing installation instructions");
+      // For iOS, show a brief alert instead of a permanent message
+      alert("Para instalar no iOS: Toque no botão de compartilhar e depois em 'Adicionar à Tela de Início'");
+      console.log("📱 iOS device detected, showing alert with instructions");
     } else {
       console.log("⚠️ Installation prompt not available, but button was clicked");
       alert("Este aplicativo pode ser instalado apenas quando atender aos requisitos do navegador para aplicativos instaláveis. Tente novamente após navegar pelo site por mais tempo.");
     }
   };
 
-  const shouldShowButton = showDebugButton || (isInstallable && !!deferredPrompt);
+  // Always show the button regardless of platform
+  // Only hide if confirmed installed or in standalone mode
+  const showButton = !isInstalled && !isStandalone();
 
   return (
     <div className="install-button-container">
-      {shouldShowButton ? (
+      {showButton && (
         <button
           onClick={handleInstallClick}
           className="flex items-center justify-center gap-2 bg-gradient-to-r from-gray-700 to-black dark:from-gray-300 dark:to-white text-white dark:text-gray-900 px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all"
@@ -118,19 +122,7 @@ const PWAInstallButton: React.FC = () => {
           <Download size={18} />
           <span>Instalar App</span>
         </button>
-      ) : isIOS ? (
-        <div className="flex flex-col items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm">
-          <p className="mb-2">Para instalar no iOS:</p>
-          <div className="flex items-center gap-1">
-            <span>Toque em</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M8 12h8M12 8v8" />
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-            </svg>
-            <span>e depois em "Adicionar à Tela de Início"</span>
-          </div>
-        </div>
-      ) : null}
+      )}
     </div>
   );
 };
