@@ -9,6 +9,7 @@ import { useTheme } from 'next-themes';
 import WelcomeTitleEffect from '@/components/WelcomeTitleEffect';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookText, MessageSquareText, ChevronDown } from 'lucide-react';
+import PWAInstallButton from '@/components/PWAInstallButton';
 
 export default function Home() {
   return (
@@ -135,6 +136,11 @@ function HomeContent() {
     <MainLayout>
       {/* Full height chat container with welcome screen */}
       <div className="h-full flex flex-col relative">
+        {/* PWA Install Button - centered in the top */}
+        <div className="absolute top-20 left-0 right-0 z-50 flex justify-center">
+          <PWAInstallButton />
+        </div>
+        
         <AnimatePresence mode="wait">
           {isLoading ? (
             <motion.div 

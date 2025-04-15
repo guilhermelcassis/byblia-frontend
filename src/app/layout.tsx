@@ -48,6 +48,14 @@ export const metadata: Metadata = {
     { rel: "apple-touch-icon", url: "/biblia.png" },
     { rel: "shortcut icon", url: "/biblia.png" }
   ],
+  // PWA metadata
+  manifest: "/manifest.json",
+  themeColor: "#ffffff",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Byblia"
+  },
 };
 
 export default function RootLayout({
@@ -64,6 +72,16 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Boldonse:wght@400;700&display=swap" rel="stylesheet" />
+        {/* PWA meta tags */}
+        <meta name="application-name" content="Byblia" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Byblia" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="manifest" href="/manifest.json" />
+        {/* Register service worker */}
+        <script src="/pwa.js" defer />
       </head>
       <body className={`${montserrat.className} ${pacifico.variable} ${boldonse.variable} ${archivo.variable} antialiased m-0 p-0 overflow-hidden`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
