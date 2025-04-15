@@ -50,74 +50,181 @@ body, #__next, main, .app-container {
   gap: 1rem;
 }
 
-/* Estilos base para mensagens */
-.message {
-  max-width: 90%;
-  padding: 0.75rem 1rem;
-  border-radius: 18px;
-  font-size: 15px;
-  line-height: 1.5;
-  position: relative;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  word-break: break-word;
-  margin-bottom: 0.5rem;
+/* ==================================================================
+   NOVO ESTILO MINIMALISTA PARA MENSAGENS
+   ================================================================== */
+
+/* RESET COMPLETO para containers de mensagens */
+.message-container,
+.message-wrapper,
+.user-message,
+.assistant-message,
+div[data-message-author-role] {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  width: auto !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
-/* Mensagem do usuário */
-.user-message {
-  align-self: flex-end;
-  background-color: #1a8adb;
-  color: white;
-  border-bottom-right-radius: 4px;
-  margin-left: auto;
-  margin-right: 0.5rem;
-  text-align: right;
+/* ===== MENSAGEM DO USUÁRIO ===== */
+/* Container externo */
+.message-container:has(.user-message),
+.message-wrapper:has(.user-message) {
+  display: flex !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
+  margin: 0.25rem 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
 }
 
-/* Mensagem do assistente no modo dark */
-.dark .assistant-message {
-  background-color: #2a2a2a;
-  color: #ffffff;
-  border-bottom-left-radius: 4px;
-  margin-right: auto;
-  margin-left: 0.5rem;
+/* Nome "Você" */
+.user-message .message-author,
+div[data-message-author-role="user"] .message-author {
+  font-size: 0.8rem !important;
+  margin-bottom: 0.25rem !important;
+  margin-right: 0.5rem !important;
+  text-align: right !important;
+  width: auto !important;
+  align-self: flex-end !important;
 }
 
-/* Mensagem do assistente no modo light */
-.light .assistant-message,
-.assistant-message {
-  background-color: #f0f0f0;
-  color: #000000;
-  border-bottom-left-radius: 4px;
-  margin-right: auto;
-  margin-left: 0.5rem;
+.dark .user-message .message-author {
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
-/* Container individual da mensagem */
-.message-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+.light .user-message .message-author {
+  color: rgba(0, 0, 0, 0.6) !important;
 }
 
-/* Conteúdo da mensagem */
-.message-content {
-  display: flex;
-  flex-direction: column;
+/* Bolha de mensagem do usuário - modo dark */
+.dark .user-message > div:not(.message-author),
+.dark .user-message .message-content,
+.dark .user-message .message-text-content,
+.dark div[data-message-author-role="user"] > div:not(.message-author) {
+  background-color: #1E293B !important;
+  color: #fff !important;
+  padding: 0.6rem 0.8rem !important;
+  border-radius: 1rem 1rem 0.25rem 1rem !important;
+  margin-right: 0.5rem !important;
+  width: auto !important;
+  max-width: 60% !important;
+  align-self: flex-end !important;
+  text-align: left !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Remover margens excessivas */
-.user-message p, .assistant-message p {
-  margin: 0;
-  padding: 0;
+/* Bolha de mensagem do usuário - modo light */
+.light .user-message > div:not(.message-author),
+.light .user-message .message-content,
+.light .user-message .message-text-content,
+.light div[data-message-author-role="user"] > div:not(.message-author),
+.user-message > div:not(.message-author),
+.user-message .message-content,
+.user-message .message-text-content,
+div[data-message-author-role="user"] > div:not(.message-author) {
+  background-color: #E2E8F0 !important;
+  color: #1E293B !important;
+  padding: 0.6rem 0.8rem !important;
+  border-radius: 1rem 1rem 0.25rem 1rem !important;
+  margin-right: 0.5rem !important;
+  width: auto !important;
+  max-width: 60% !important;
+  align-self: flex-end !important;
+  text-align: left !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ===== MENSAGEM DO ASSISTENTE ===== */
+/* Container externo */
+.message-container:has(.assistant-message),
+.message-wrapper:has(.assistant-message) {
+  display: flex !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  margin: 0.25rem 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* Nome "Byblia" */
+.assistant-message .message-author,
+div[data-message-author-role="assistant"] .message-author {
+  font-size: 0.8rem !important;
+  margin-bottom: 0.25rem !important;
+  margin-left: 0.5rem !important;
+  text-align: left !important;
+  width: auto !important;
+  align-self: flex-start !important;
+}
+
+.dark .assistant-message .message-author {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.light .assistant-message .message-author {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Bolha de mensagem do assistente - modo dark */
+.dark .assistant-message > div:not(.message-author),
+.dark .assistant-message .message-content,
+.dark .assistant-message .message-text-content,
+.dark div[data-message-author-role="assistant"] > div:not(.message-author) {
+  background-color: #2D3748 !important;
+  color: #fff !important;
+  padding: 0.8rem 1rem !important;
+  border-radius: 1rem 1rem 1rem 0.25rem !important;
+  margin-left: 0.5rem !important;
+  width: auto !important;
+  max-width: 85% !important;
+  align-self: flex-start !important;
+  text-align: left !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Bolha de mensagem do assistente - modo light */
+.light .assistant-message > div:not(.message-author),
+.light .assistant-message .message-content,
+.light .assistant-message .message-text-content,
+.light div[data-message-author-role="assistant"] > div:not(.message-author),
+.assistant-message > div:not(.message-author),
+.assistant-message .message-content,
+.assistant-message .message-text-content,
+div[data-message-author-role="assistant"] > div:not(.message-author) {
+  background-color: #F1F5F9 !important;
+  color: #1E293B !important;
+  padding: 0.8rem 1rem !important;
+  border-radius: 1rem 1rem 1rem 0.25rem !important;
+  margin-left: 0.5rem !important;
+  width: auto !important;
+  max-width: 85% !important;
+  align-self: flex-start !important;
+  text-align: left !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Espaçamento de texto dentro das mensagens */
+.user-message p, 
+.assistant-message p {
+  margin: 0 0 0.7rem 0 !important;
+  padding: 0 !important;
+}
+
+.user-message p:last-child, 
+.assistant-message p:last-child {
+  margin-bottom: 0 !important;
 }
 
 /* ===== VERSÍCULOS BÍBLICOS - MODO DARK ===== */
 .dark .assistant-message em,
 .dark .assistant-message i,
 .dark .assistant-message blockquote {
-  color: #AEC6FF !important;
+  color: #BCD2FF !important;
   font-style: italic !important;
 }
 
@@ -172,28 +279,58 @@ body, #__next, main, .app-container {
   margin-top: 0 !important;
 }
 
-/* Forçar a exibição correta dos elementos de mensagem */
-.user-message, .assistant-message {
-  display: inline-block !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
 /* Garantir que o avatar fica alinhado corretamente */
 .avatar-container {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.25rem;
+  display: none !important;
 }
 
 .avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  margin-right: 0.5rem;
+  display: none !important;
 }
 
-/* Desativar transformações que possam estar afetando o layout */
-.message-container, .message, .user-message, .assistant-message {
-  transform: none !important;
-  transition: none !important;
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+  .dark .user-message > div:not(.message-author),
+  .light .user-message > div:not(.message-author),
+  .user-message > div:not(.message-author),
+  .user-message .message-content,
+  .user-message .message-text-content,
+  div[data-message-author-role="user"] > div:not(.message-author) {
+    max-width: 75% !important;
+    margin-right: 0.25rem !important;
+    padding: 0.6rem 0.8rem !important;
+  }
+  
+  .dark .assistant-message > div:not(.message-author),
+  .light .assistant-message > div:not(.message-author),
+  .assistant-message > div:not(.message-author),
+  .assistant-message .message-content,
+  .assistant-message .message-text-content,
+  div[data-message-author-role="assistant"] > div:not(.message-author) {
+    max-width: 85% !important;
+    margin-left: 0.25rem !important;
+    padding: 0.7rem 0.9rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .dark .user-message > div:not(.message-author),
+  .light .user-message > div:not(.message-author),
+  .user-message > div:not(.message-author),
+  .user-message .message-content,
+  .user-message .message-text-content,
+  div[data-message-author-role="user"] > div:not(.message-author) {
+    max-width: 80% !important;
+    margin-right: 0.15rem !important;
+  }
+  
+  .dark .assistant-message > div:not(.message-author),
+  .light .assistant-message > div:not(.message-author),
+  .assistant-message > div:not(.message-author),
+  .assistant-message .message-content,
+  .assistant-message .message-text-content,
+  div[data-message-author-role="assistant"] > div:not(.message-author) {
+    max-width: 90% !important;
+    margin-left: 0.15rem !important;
+  }
 } 
