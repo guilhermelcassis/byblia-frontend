@@ -11,10 +11,10 @@ interface BeforeInstallPromptEvent extends Event {
 
 const PWAInstallButton: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstallable, setIsInstallable] = useState<boolean>(true);
+  const [isInstallable, setIsInstallable] = useState<boolean>(false);
   const [isIOS, setIsIOS] = useState<boolean>(false);
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
-  const [showDebugButton, setShowDebugButton] = useState<boolean>(true);
+  const [showDebugButton, setShowDebugButton] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -41,14 +41,14 @@ const PWAInstallButton: React.FC = () => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
-      console.log("beforeinstallprompt event fired", e);
+      console.log("💡 beforeinstallprompt event captured!", e);
     };
 
     const handleAppInstalled = () => {
       setIsInstallable(false);
       setDeferredPrompt(null);
       setIsInstalled(true);
-      console.log("PWA has been installed");
+      console.log("✅ PWA has been installed");
     };
 
     const handleDisplayModeChange = (e: MediaQueryListEvent) => {
@@ -56,7 +56,7 @@ const PWAInstallButton: React.FC = () => {
       if (e.matches) {
         setIsInstallable(false);
       }
-      console.log("Display mode changed", e.matches);
+      console.log("📱 Display mode changed", e.matches);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -68,7 +68,8 @@ const PWAInstallButton: React.FC = () => {
       isIOS: status.isIOS,
       isInstalled: status.isInstalled,
       isStandalone: isStandalone(),
-      userAgent: navigator.userAgent
+      userAgent: navigator.userAgent,
+      hasPrompt: !!deferredPrompt
     });
 
     return () => {
@@ -80,29 +81,36 @@ const PWAInstallButton: React.FC = () => {
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
-      await deferredPrompt.prompt();
-
-      const choiceResult = await deferredPrompt.userChoice;
-      
-      if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-        setIsInstalled(true);
-      } else {
-        console.log('User dismissed the install prompt');
+      try {
+        await deferredPrompt.prompt();
+        
+        const choiceResult = await deferredPrompt.userChoice;
+        
+        if (choiceResult.outcome === 'accepted') {
+          console.log('✅ User accepted the install prompt');
+          setIsInstalled(true);
+        } else {
+          console.log('❌ User dismissed the install prompt');
+        }
+        
+        setDeferredPrompt(null);
+        setIsInstallable(false);
+      } catch (error) {
+        console.error('⚠️ Error during installation:', error);
       }
-      
-      setDeferredPrompt(null);
-      setIsInstallable(false);
     } else if (isIOS) {
-      console.log("iOS device detected, showing installation instructions");
+      console.log("📱 iOS device detected, showing installation instructions");
     } else {
-      console.log("Installation prompt not available, but button was clicked");
+      console.log("⚠️ Installation prompt not available, but button was clicked");
+      alert("Este aplicativo pode ser instalado apenas quando atender aos requisitos do navegador para aplicativos instaláveis. Tente novamente após navegar pelo site por mais tempo.");
     }
   };
 
+  const shouldShowButton = showDebugButton || (isInstallable && !!deferredPrompt);
+
   return (
     <div className="install-button-container">
-      {showDebugButton || isInstallable ? (
+      {shouldShowButton ? (
         <button
           onClick={handleInstallClick}
           className="flex items-center justify-center gap-2 bg-gradient-to-r from-gray-700 to-black dark:from-gray-300 dark:to-white text-white dark:text-gray-900 px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all"
