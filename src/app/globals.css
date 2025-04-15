@@ -226,7 +226,7 @@
   }
 
   .dark .chat-container {
-    background-color: var(--modern-bg-dark);
+    background-color: var(--modern-bg-light);
   }
 
   .messages-container {

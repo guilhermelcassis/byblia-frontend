@@ -436,7 +436,7 @@ const ChatContainer: React.FC = () => {
       
       {/* Input area at the bottom, shown during conversations or when loading messages */}
       {(state.messages.length > 0 || state.isLoading) && (
-        <div className="fixed bottom-0 left-0 right-0 p-3 z-30 bg-white dark:bg-black pt-4 border-t border-transparent dark:border-gray-800">
+        <div className="fixed bottom-0 left-0 right-0 p-3 z-30 bg-white dark:bg-black pt-4 border-t dark:border-gray-800">
           <div className="max-w-2xl mx-auto">
             <motion.div
               className={cn(

@@ -288,6 +288,63 @@ div[data-message-author-role="assistant"] > div:not(.message-author) {
   display: none !important;
 }
 
+/* ===== SEPARAÇÃO ENTRE CHAT E INPUT ===== */
+/* Estilos para garantir que a área de input seja visível em ambos os modos */
+
+/* Estilo para a área de input no modo light */
+.light .input-container,
+.input-container {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  padding: 15px 1rem 1rem 1rem !important;
+  margin-top: 1rem !important;
+  border-top: 2px solid rgba(0, 0, 0, 0.2) !important;
+  background-color: #e9eef5 !important;
+  z-index: 100 !important;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Estilo para a área de input no modo dark */
+.dark .input-container {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  padding: 15px 1rem 1rem 1rem !important;
+  margin-top: 1rem !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background-color: #111827 !important; /* Azul escuro mais sofisticado */
+  background-image: linear-gradient(to bottom, #1E293B, #0F172A) !important; /* Gradiente para maior profundidade */
+  z-index: 100 !important;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Estilos para o input dentro do container */
+.light .input-box,
+.input-box {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08) !important;
+}
+
+.dark .input-box {
+  background-color: #1E293B !important;
+  border: 1px solid #2D3748 !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ajuste para o espaço no final da lista de mensagens para evitar sobreposição com o input fixo */
+#chat-messages,
+.messages-container {
+  padding-bottom: 100px !important; /* Espaço para o input fixo */
+}
+
 /* Ajustes responsivos */
 @media (max-width: 768px) {
   .dark .user-message > div:not(.message-author),
@@ -310,6 +367,18 @@ div[data-message-author-role="assistant"] > div:not(.message-author) {
     max-width: 85% !important;
     margin-left: 0.25rem !important;
     padding: 0.7rem 0.9rem !important;
+  }
+  
+  /* Ajuste para input em telas menores */
+  .light .input-container,
+  .dark .input-container,
+  .input-container {
+    padding: 10px 0.5rem 0.5rem 0.5rem !important;
+  }
+  
+  #chat-messages,
+  .messages-container {
+    padding-bottom: 80px !important;
   }
 }
 
