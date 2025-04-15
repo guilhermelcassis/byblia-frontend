@@ -2,16 +2,1599 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 51, 51, 51;
-  --background-rgb: 255, 255, 255;
-  --bible-main-rgb: 51, 51, 51;
-  --bible-black-rgb: 51, 51, 51;
-  --accent-light: 245, 245, 245;
-  --accent-border: 229, 231, 235;
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
+    --radius: 1rem;
+    --bible-brown: 0 0% 0%;
+    --bible-gold: 0 0% 0%;
+
+    /* Bible app specific variables */
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 255, 255, 255;
+    --background-end-rgb: 255, 255, 255;
+    --primary-color: 229, 231, 235; /* Gray-200 */
+    --primary-color-dark: 75, 85, 99; /* Gray-600 */
+    --accent-color: 156, 163, 175; /* Gray-400 */
+    --accent-color-dark: 55, 65, 81; /* Gray-700 */
+    --font-color-primary: 0, 0, 0;
+    --font-color-secondary: 75, 85, 99;
+
+    /* Modern theme colors - updated for black and white theme */
+    --modern-gold: #000000;
+    --modern-gold-light: #333333;
+    --modern-dark: #151515;
+    --modern-gray: #f8f8f8;
+    --modern-gray-dark: #222222;
+    --modern-accent: #000000;
+    --modern-text-light: #151515;
+    --modern-text-dark: #f8f8f8;
+    --modern-font: 'Montserrat', sans-serif;
+    --modern-display-font: 'Playfair Display', serif;
+
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 255, 255, 255;
+    --background-end-rgb: 248, 248, 248;
+    
+    /* Modern design colors - black and white theme */
+    --modern-accent: #000000;
+    --modern-accent-light: #333333;
+    --modern-accent-dark: #000000;
+    --modern-bg-light: #ffffff;
+    --modern-bg-dark: #151515;
+    --modern-text-light: #151515;
+    --modern-text-dark: #f8f8f8;
+    --modern-gradient: linear-gradient(135deg, #000000, #333333);
+    --modern-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    --modern-shadow-dark: 0 8px 20px rgba(0, 0, 0, 0.16);
+
+    /* Bible theme colors - black and white adaptation */
+    --bible-brown: #151515;
+    --bible-darkbrown: #000000;
+    --bible-gold: #000000;
+    --bible-lightorange: #333333;
+    --bible-main: #151515;
+
+    /* Luxury theme colors */
+    --luxury-gold: #000000;
+    --luxury-gold-light: #333333;
+    --luxury-black: #151515;
+    --luxury-white: #ffffff;
+    --luxury-gray: #f0f0f0;
+    --luxury-gray-dark: #222222;
+    --luxury-accent: #000000;
+    --luxury-text-light: #151515;
+    --luxury-text-dark: #f8f8f8;
+    --luxury-bg-light: #ffffff;
+    --luxury-bg-dark: #151515;
+    --luxury-font: 'Montserrat', sans-serif;
+    --luxury-display-font: 'Playfair Display', serif;
+    --luxury-gradient: linear-gradient(135deg, #000000, #333333);
+
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 248, 250, 252;
+    --background-end-rgb: 255, 255, 255;
+    --primary-color: 0, 0, 0; /* Black instead of Amber-500 */
+    --primary-color-dark: 20, 20, 20; /* Dark gray instead of Amber-600 */
+    --secondary-color: 59, 130, 246; /* Blue-500 */
+    --secondary-color-dark: 37, 99, 235; /* Blue-600 */
+    --accent-color: 0, 0, 0; /* Black instead of Yellow-600 */
+    --text-color: 17, 24, 39; /* Gray-900 */
+    --text-color-light: 107, 114, 128; /* Gray-500 */
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --foreground-rgb: 229, 231, 235;
+      --background-start-rgb: 229, 231, 235;
+      --background-end-rgb: 209, 213, 219;
+      --text-color: 243, 244, 246; /* Gray-100 */
+      --text-color-light: 156, 163, 175; /* Gray-400 */
+      --primary-color: 156, 163, 175; /* Gray-400 */
+      --primary-color-dark: 229, 231, 235; /* Gray-200 */
+      --accent-color: 107, 114, 128; /* Gray-500 */
+      --font-color-primary: 31, 41, 55;
+      --font-color-secondary: 75, 85, 99;
+    }
+  }
+
+  .dark {
+    --foreground-rgb: 229, 231, 235;
+    --background-start-rgb: 229, 231, 235;
+    --background-end-rgb: 209, 213, 219;
+    --primary-color: 156, 163, 175; /* Gray-400 */
+    --primary-color-dark: 229, 231, 235; /* Gray-200 */
+    --accent-color: 107, 114, 128; /* Gray-500 */
+    --accent-color-dark: 209, 213, 219; /* Gray-300 */
+    --font-color-primary: 31, 41, 55;
+    --font-color-secondary: 75, 85, 99;
+    --background: 0 0% 10%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 90%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 0 0% 80%;
+    --bible-brown: 0 0% 80%;
+    --bible-gold: 0 0% 90%;
+  }
 }
 
-/* Fonte para o logotipo */
+/* Animation delay utilities */
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+  .animation-delay-6000 {
+    animation-delay: 6s;
+  }
+}
+
+@layer components {
+  /* Font styling for the Boldonse font */
+  .font-boldonse {
+    font-family: 'Boldonse', var(--font-boldonse), serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  
+  /* Custom gradients */
+  .gradient-text {
+    color: #333333;
+    background-image: none;
+    animation: none;
+  }
+
+  .dark .gradient-text {
+    color: #f0f0f0;
+  }
+
+  .gradient-blue-purple {
+    background-image: linear-gradient(to bottom right, #3B82F6, #4F46E5, #7C3AED);
+    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+  }
+
+  .gradient-purple-pink {
+    background-image: linear-gradient(to bottom right, #7C3AED, #EC4899, #F43F5E);
+    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+  }
+
+  .gradient-orange-yellow {
+    background-image: linear-gradient(to bottom right, #4B5563, #6B7280, #9CA3AF);
+    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+  }
+
+  .gradient-green-blue {
+    background-image: linear-gradient(to bottom right, #10B981, #14B8A6, #06B6D4);
+    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+  }
+  
+  /* Component styles */
+  .chat-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-y: auto;
+    padding: 1.5rem 0.75rem 7.5rem 0.75rem;
+    background-color: var(--modern-bg-light);
+    transition: background-color 0.3s ease;
+    border-radius: 1rem;
+  }
+
+  .dark .chat-container {
+    background-color: var(--modern-bg-dark);
+  }
+
+  .messages-container {
+    flex: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding: 1.5rem 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+
+  .messages-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .messages-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .messages-container::-webkit-scrollbar-thumb {
+    background: rgba(212, 169, 94, 0.3);
+    border-radius: 10px;
+  }
+
+  .messages-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 169, 94, 0.5);
+  }
+
+  /* Message styles */
+  .message {
+    position: relative;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 1.25rem;
+    border-radius: 1.25rem;
+    max-width: 92%;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+
+  .message:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .dark .message {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  .dark .message:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .user-message {
+    background: linear-gradient(to bottom right, #111827, #030712);
+    color: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    max-width: 80%;
+    align-self: flex-end;
+  }
+
+  .user-message .message-text-content {
+    color: white;
+  }
+
+  .user-message-content {
+    color: white !important; 
+  }
+
+  .user-message-inner {
+    color: white !important;
+  }
+
+  .assistant-message {
+    position: relative;
+    background: linear-gradient(to bottom right, #4b5563, #1f2937);
+    color: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    max-width: 80%;
+  }
+
+  .dark .assistant-message {
+    background: linear-gradient(to bottom right, #374151, #111827);
+    color: white;
+  }
+
+  .message .timestamp {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 0.4rem;
+    text-align: right;
+  }
+
+  /* Input styles */
+  .input-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20;
+    padding: 1.25rem 1rem;
+    background: linear-gradient(to top, 
+      rgba(255, 255, 255, 0.98) 60%, 
+      rgba(255, 255, 255, 0.9) 80%, 
+      rgba(255, 255, 255, 0) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(229, 231, 235, 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .dark .input-container {
+    background: linear-gradient(to top, 
+      rgba(26, 26, 26, 0.98) 60%, 
+      rgba(26, 26, 26, 0.9) 80%, 
+      rgba(26, 26, 26, 0) 100%);
+    border-top: 1px solid rgba(75, 85, 99, 0.2);
+  }
+
+  .input-box {
+    position: relative;
+    border: 1px solid rgba(212, 169, 94, 0.2);
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 1.5rem !important;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .dark .input-box {
+    background-color: rgba(32, 32, 32, 0.95);
+    border-color: rgba(212, 169, 94, 0.15);
+  }
+
+  .input-box:focus-within {
+    border-color: rgba(212, 169, 94, 0.5);
+    box-shadow: 0 0 15px rgba(212, 169, 94, 0.1);
+  }
+
+  .dark .input-box:focus-within {
+    border-color: rgba(212, 169, 94, 0.3);
+    box-shadow: 0 0 15px rgba(212, 169, 94, 0.05);
+  }
+
+  .input-box.focus-within {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(212, 169, 94, 0.1);
+  }
+
+  /* Enhanced input box styles */
+  .input-box textarea {
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 1rem 1.25rem;
+    padding-right: 3.5rem;
+    border: none;
+    outline: none;
+    background: transparent;
+    resize: none;
+    width: 100%;
+    overflow-y: auto;
+    color: var(--modern-text-light);
+    border-radius: 1.5rem;
+  }
+
+  .input-box textarea:focus {
+    outline: none;
+  }
+
+  .submit-button {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--modern-accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .submit-button:hover {
+    background-color: var(--modern-accent-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 169, 94, 0.25);
+  }
+
+  .dark .submit-button {
+    background-color: var(--modern-accent);
+  }
+
+  .dark .submit-button:hover {
+    background-color: var(--modern-accent-dark);
+  }
+
+  /* Share tools */
+  .share-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+
+  .share-tools:hover {
+    opacity: 1;
+  }
+
+  .share-button {
+    background: transparent;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #718096;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .share-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #2D3748;
+  }
+
+  .dark .share-button {
+    color: #A0AEC0;
+  }
+
+  .dark .share-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #E2E8F0;
+  }
+
+  /* Welcome screen */
+  .welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.5), transparent),
+                linear-gradient(135deg, var(--modern-bg-light), #f7f7f7);
+    backdrop-filter: blur(10px);
+    border-radius: 1.5rem;
+    box-shadow: var(--modern-shadow);
+  }
+
+  /* DeepSeek-inspired welcome screen styles */
+  .deepseek-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .deepseek-welcome .logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    margin-bottom: 2rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(240, 240, 240, 0.8), rgba(240, 240, 240, 0.2));
+  }
+
+  .dark .deepseek-welcome .logo-container {
+    background: radial-gradient(circle at center, rgba(80, 80, 80, 0.3), rgba(60, 60, 60, 0.1));
+  }
+
+  .deepseek-welcome .title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background-image: linear-gradient(135deg, var(--modern-accent-dark) 0%, var(--modern-accent) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    letter-spacing: -0.02em;
+  }
+
+  .dark .deepseek-welcome .title {
+    background-image: linear-gradient(135deg, var(--modern-accent) 0%, var(--modern-accent-light) 100%);
+  }
+
+  .deepseek-welcome .subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 3rem;
+    color: #4A5568;
+    max-width: 450px;
+    line-height: 1.5;
+  }
+
+  .dark .deepseek-welcome .subtitle {
+    color: #A0AEC0;
+  }
+
+  /* Enhanced centered chat input */
+  .centered-chat-input {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    transition: all 0.3s ease;
+    transform-origin: bottom center;
+  }
+
+  .centered-chat-input.with-messages {
+    max-width: 650px;
+  }
+
+  .centered-chat-input .input-box {
+    border: 1px solid rgba(209, 213, 219, 0.8);
+    background-color: white;
+    border-radius: 1.5rem !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.2s ease;
+    transform: translateY(0);
+  }
+
+  .centered-chat-input .input-box:focus-within {
+    border-color: var(--modern-accent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+    transform: translateY(-2px);
+  }
+
+  .dark .centered-chat-input .input-box {
+    background-color: rgba(38, 38, 50, 0.9) !important;
+    border-color: rgba(75, 85, 99, 0.4);
+  }
+
+  .dark .centered-chat-input .input-box:focus-within {
+    border-color: var(--modern-accent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* Refined input box for empty state */
+  .empty-state-input {
+    width: 100%;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  .empty-state-input .input-box {
+    border-radius: 1.25rem !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(209, 213, 219, 0.6) !important;
+    background-color: white !important;
+    padding: 0.25rem 0.25rem 0.25rem 1rem !important;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dark .empty-state-input .input-box {
+    background-color: rgba(38, 38, 50, 0.8) !important;
+    border-color: rgba(75, 85, 99, 0.3) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .empty-state-input .input-box:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 35px rgba(212, 169, 94, 0.12) !important;
+    border-color: rgba(212, 169, 94, 0.4) !important;
+  }
+
+  .dark .empty-state-input .input-box:focus-within {
+    box-shadow: 0 14px 35px rgba(212, 169, 94, 0.08) !important;
+    border-color: rgba(212, 169, 94, 0.3) !important;
+  }
+
+  .empty-state-input .input-box textarea {
+    padding: 0.9rem 1rem 0.9rem 0 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .empty-state-input .submit-button {
+    margin-right: 0.25rem;
+    width: 38px;
+    height: 38px;
+    background: var(--modern-accent) !important;
+    border-radius: 0.75rem !important;
+    transition: all 0.3s ease;
+  }
+
+  .empty-state-input .submit-button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+
+  /* Floating animation for elements */
+  .floating-animation {
+    animation: floating 6s ease-in-out infinite;
+  }
+
+  @keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+
+  /* Pulsing animation for logo */
+  .pulse-animation {
+    animation: pulse 3s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(90, 75, 65, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(90, 75, 65, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(90, 75, 65, 0); }
+  }
+
+  .dark .pulse-animation {
+    animation: pulse-dark 3s infinite;
+  }
+
+  @keyframes pulse-dark {
+    0% { box-shadow: 0 0 0 0 rgba(215, 195, 165, 0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(215, 195, 165, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(215, 195, 165, 0); }
+  }
+
+  /* Mobile improvements */
+  @media (max-width: 640px) {
+    .message {
+      max-width: 88%;
+    }
+    
+    .welcome-container {
+      padding: 1.5rem 1rem;
+    }
+    
+    .example-questions {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Modern glass morphism class */
+  .glass-morphism {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .glass-morphism {
+    background: #1e1e1e;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-morphism-card {
+    border-radius: 1rem;
+    background-color: white;
+    border: 1px solid rgb(243, 244, 246);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .gradient-border {
+    position: relative;
+    border-radius: inherit;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(var(--primary-color-rgb), 0.8) 0%,
+      rgba(var(--primary-color-rgb), 0.2) 50%,
+      rgba(var(--primary-color-rgb), 0.8) 100%
+    );
+    background-size: 200% 200%;
+    animation: gradient 10s ease infinite;
+    z-index: -1;
+  }
+
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
+
+  .dark .shimmer-effect::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Logo styles */
+  .byblia-logo {
+    position: relative;
+    width: auto;
+    height: 32px;
+    font-family: var(--modern-font);
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #000;
+    letter-spacing: -0.03em;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+    line-height: 1;
+  }
+  
+  .byblia-logo::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #333333, #777777, #333333);
+    border-radius: 2px;
+    transform: scaleX(0.5);
+    transform-origin: left;
+    opacity: 0.6;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+  
+  .dark .byblia-logo {
+    color: #fff;
+  }
+  
+  .dark .byblia-logo::before {
+    background: linear-gradient(90deg, #d9d9d9, #f5f5f5, #d9d9d9);
+    opacity: 0.7;
+  }
+  
+  .navbar-fixed .byblia-logo {
+    font-size: 1.2rem;
+    height: 24px;
+    color: #000;
+  }
+  
+  .dark .navbar-fixed .byblia-logo {
+    color: #fff;
+  }
+  
+  .navbar-scrolled .byblia-logo {
+    color: #000;
+  }
+  
+  .byblia-title {
+    font-family: var(--modern-font);
+    font-weight: 600;
+    color: #000;
+    letter-spacing: -0.03em;
+  }
+  
+  .dark .byblia-title {
+    color: #fff;
+  }
+
+  .byblia-title-lg {
+    font-family: 'Boldonse', var(--font-boldonse), sans-serif;
+    font-weight: 400;
+    font-size: 2.25rem;
+    letter-spacing: -0.02em;
+    color: rgb(var(--bible-main-rgb));
+  }
+
+  .byblia-title-md {
+    font-family: 'Boldonse', var(--font-boldonse), sans-serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    color: rgb(var(--bible-main-rgb));
+  }
+
+  .byblia-title-sm {
+    font-family: 'Boldonse', var(--font-boldonse), sans-serif;
+    font-weight: 400;
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+    color: rgb(var(--bible-main-rgb));
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(200, 200, 200, 0.3);
+    border-radius: 9999px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: rgba(75, 85, 99, 0.3);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 9999px;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(180, 180, 180, 0.3) transparent;
+  }
+
+  #chat-messages {
+    position: relative;
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem;
+    margin-bottom: 6rem;
+    background-color: transparent;
+    scroll-behavior: smooth;
+    transition: all 0.2s ease;
+    max-height: calc(100vh - 220px);
+  }
+
+  @media (min-width: 768px) {
+    #chat-messages {
+      padding: 1.25rem;
+      max-height: calc(100vh - 200px);
+    }
+  }
+
+  @media (max-width: 768px) {
+    #chat-messages {
+      margin-bottom: 7rem;
+    }
+  }
+
+  .input-box textarea {
+    width: 100%;
+    background-color: transparent;
+    font-size: 1rem;
+    outline: none;
+    resize: none;
+    padding: 0.5rem 0.75rem;
+    color: black;
+    min-height: 50px;
+    max-height: 150px;
+  }
+
+  .dark .input-box textarea {
+    color: white;
+  }
+
+  .input-box textarea::placeholder {
+    color: rgb(107, 114, 128);
+  }
+
+  .dark .input-box textarea::placeholder {
+    color: rgb(156, 163, 175);
+  }
+
+  /* Animations */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes validationShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .input-box {
+      padding: 0.375rem;
+    }
+
+    .submit-button {
+      padding: 0.375rem;
+    }
+  }
+
+  /* Keep existing custom classes that might be in use */
+  .input-box-3d {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    position: relative;
+    background-color: white;
+    border-radius: 1rem;
+  }
+
+  .dark .input-box-3d {
+    background-color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .spinner {
+    background-color: rgba(128, 128, 128, 0.3);
+    display: inline-block;
+    border-radius: 9999px;
+  }
+
+  .spinner-dot {
+    background-color: rgba(128, 128, 128, 0.5);
+  }
+
+  .chat-content {
+    position: relative;
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem;
+    padding-top: 1.25rem;
+    background-color: transparent;
+  }
+
+  @media (min-width: 768px) {
+    .chat-content {
+      padding: 1.25rem;
+    }
+  }
+
+  .input-field {
+    width: 100%;
+    background-color: transparent;
+    font-size: 1rem;
+    outline: none;
+    resize: none;
+    padding: 0.5rem 0.75rem;
+    color: black;
+  }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    .input-box {
+      width: 99%;
+      transition: all 0.5s ease;
+    }
+    
+    .mobile-input-container > div {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      transition: all 0.5s ease;
+    }
+    
+    /* Input type text - Mobile specific */
+    input[type="text"],
+    textarea {
+      -webkit-appearance: none;
+      font-size: 15px !important;
+      transition: all 0.5s ease;
+    }
+    
+    .input-box textarea,
+    .input-box input[type="text"] {
+      padding: 12px 45px 12px 16px;
+    }
+
+    .navbar-fixed {
+      height: 58px;
+    }
+    
+    .menu-dropdown {
+      top: 58px;
+    }
+    
+    .menu-item {
+      padding: 14px;
+      margin: 6px 12px;
+    }
+    
+    .navbar-fixed .byblia-logo {
+      font-size: 1.5rem;
+      margin-left: 0.25rem;
+      background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.95));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .navbar-content {
+      padding: 0 1rem;
+    }
+
+    .mobile-menu-button {
+      width: 38px;
+      height: 38px;
+      margin-right: 0.25rem;
+    }
+  }
+
+  /* Remove unused animations and effects */
+  .welcome-title-animation {
+    position: relative;
+    display: inline-block;
+    color: rgb(var(--bible-main-rgb));
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    margin: 0.5rem;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .welcome-title-animation {
+      padding: 0.5rem 1rem;
+      margin: 0.3rem;
+    }
+  }
+
+  /* Chat UI styles */
+  .chat-container {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    background: #fff;
+    border-bottom: 1px solid rgba(var(--accent-border), 1);
+    padding: 12px 16px;
+  }
+
+  /* Welcome screen styles */
+  .welcome-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    margin-top: 40px;
+  }
+
+  .welcome-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: rgb(var(--bible-main-rgb));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--bible-main-rgb), 0.08);
+  }
+
+  .welcome-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .welcome-text {
+    font-size: 0.9rem;
+    color: #666;
+    max-width: 400px;
+  }
+
+  /* Message styles */
+  .user-message {
+    background: linear-gradient(to bottom right, #111827, #030712);
+    color: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    max-width: 80%;
+    align-self: flex-end;
+  }
+
+  .user-message .message-text-content {
+    color: white;
+  }
+
+  .user-message-content {
+    color: white !important; 
+  }
+
+  .user-message-inner {
+    color: white !important;
+  }
+
+  .assistant-message {
+    position: relative;
+    background: linear-gradient(to bottom right, #4b5563, #1f2937);
+    color: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    max-width: 80%;
+  }
+
+  .dark .assistant-message {
+    background: linear-gradient(to bottom right, #374151, #111827);
+    color: white;
+  }
+
+  .message-text-content {
+    width: 100%;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
+    hyphens: auto;
+  }
+
+  .message-text-content pre,
+  .message-text-content code {
+    max-width: 100%;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    padding: 0.2em 0.4em;
+    font-family: monospace;
+  }
+
+  .dark .message-text-content pre,
+  .dark .message-text-content code {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .message-text-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 8px 0;
+  }
+
+  .message-text-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .message-text-content th,
+  .message-text-content td {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    text-align: left;
+  }
+
+  .dark .message-text-content th,
+  .dark .message-text-content td {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  div.user-message, 
+  div.user-message-container,
+  div.rounded-user-message {
+    border-radius: 20px !important;
+  }
+
+  /* Message list */
+  .message-list {
+    position: relative;
+    padding-top: 10px;
+  }
+
+  .message-item {
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+  }
+
+  /* Feedback buttons */
+  .feedback-buttons {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 2px 8px !important;
+    margin: 4px auto !important;
+    max-width: fit-content !important;
+    background-color: rgba(249, 250, 251, 0.7) !important;
+    border-radius: 12px !important;
+    font-size: 12px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  }
+
+  .feedback-buttons > div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+
+  .feedback-buttons button {
+    min-height: auto !important;
+    min-width: auto !important;
+    padding: 4px !important;
+  }
+
+  /* Share buttons */
+  .share-buttons-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 8px auto !important;
+    padding: 2px 6px !important;
+    max-width: fit-content !important;
+    border-radius: 12px !important;
+    background: rgba(249, 250, 251, 0.8) !important;
+  }
+
+  .share-button {
+    font-size: 11px !important;
+    padding: 3px 6px !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 24px !important;
+  }
+
+  .share-button:hover {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+  }
+
+  .share-button:active {
+    transform: scale(0.95);
+  }
+
+  /* Clean, light navbar */
+  .navbar-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    z-index: 9999;
+    background: white;
+    border-bottom: 1px solid #eaeaea;
+    transition: all 0.3s ease;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .navbar-fixed {
+    background: #1a1a1a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  .navbar-scrolled {
+    height: 60px;
+    background: white;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .navbar-scrolled {
+    background: #1a1a1a;
+  }
+
+  /* Remove background blob effects */
+  .fixed.inset-0.-z-10 {
+    display: none;
+  }
+
+  /* Mobile menu button - Minimalist */
+  .mobile-menu-button {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .mobile-menu-button:hover {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .mobile-menu-button:active {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.1));
+    transform: scale(0.97);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  /* Disable backdrop blur on Firefox as it's sometimes buggy */
+  @-moz-document url-prefix() {
+    .navbar-fixed {
+      background: linear-gradient(to bottom, rgba(38, 38, 42, 0.98), rgba(45, 45, 48, 0.96));
+    }
+    
+    .menu-backdrop {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  /* Prevent scrolling when menu is open */
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  /* Ensure smooth transitions when opening/closing menu */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideDown {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Additional utility classes */
+  .min-h-\[120px\] {
+    min-height: 120px;
+  }
+
+  .backdrop-blur-md, .backdrop-blur-sm {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .rounded-2xl {
+    border-radius: 1rem;
+  }
+
+  /* Transition utilities */
+  .transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.15s;
+  }
+
+  .duration-300 {
+    transition-duration: 0.3s;
+  }
+
+  /* Add ripple animation for menu button */
+  @keyframes ripple {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(3);
+      opacity: 0;
+    }
+  }
+
+  /* Ensure smooth transitions when opening/closing menu */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideDown {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Desktop navigation - Minimalist Modern */
+  .desktop-nav-item {
+    position: relative;
+    border-radius: 6px;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgba(255, 255, 255, 0.85);
+    transition: all 0.2s ease;
+  }
+
+  .desktop-nav-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 1);
+  }
+
+  .desktop-nav-item.active-nav-item {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  .nav-indicator {
+    position: absolute;
+    bottom: -1px;
+    left: 8px;
+    right: 8px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 1px;
+  }
+
+  /* Menu dropdown - Minimalist */
+  .menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 15, 20, 0.4);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 9980;
+  }
+
+  .menu-dropdown {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    width: 100%;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    background: linear-gradient(to bottom, rgba(28, 28, 32, 0.98), rgba(30, 30, 33, 0.97));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    z-index: 9990;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    margin: 8px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.9) !important;
+    letter-spacing: 0.01em;
+  }
+
+  .menu-item:hover,
+  .menu-item:focus {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.05));
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  .menu-item:active {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.08));
+    transform: scale(0.99);
+  }
+
+  .menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-right: 12px;
+    opacity: 0.85;
+  }
+
+  .active-menu-item {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.07));
+    font-weight: 600;
+    color: white !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .active-menu-item .menu-icon {
+    opacity: 1;
+  }
+
+  @media (min-width: 1024px) {
+    /* Desktop styles */
+    .navbar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    
+    .menu-dropdown {
+      border-radius: 0 0 12px 12px;
+      width: 300px;
+      left: auto;
+      right: 24px;
+      top: 70px;
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18), 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  /* Remove outline for mouse users but keep it for keyboard navigation */
+  button:focus:not(:focus-visible),
+  a:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+  }
+
+  /* Add smooth indicator for active links in desktop navigation */
+  @media (min-width: 768px) {
+    .navbar-fixed a:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+}
+
+/* Font for logo */
 @font-face {
   font-family: 'Boldonse';
   font-style: normal;
@@ -20,76 +1603,129 @@
   src: url('https://fonts.googleapis.com/css2?family=Boldonse:wght@400;700&display=swap');
 }
 
-/* Classe principal para o logotipo */
-.byblia-logo {
-  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
-  font-weight: 400;
-  font-size: 1.5rem;
-  letter-spacing: -0.01em;
-  color: rgb(var(--bible-main-rgb));
-  display: inline-block;
-  white-space: nowrap;
-  overflow: visible;
-  word-spacing: -0.05em;
-  padding-right: 2px;
-}
-
-/* Classes utilitárias para diferentes tipos de títulos com a fonte do logo */
-.byblia-title {
-  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
-  font-weight: 400; 
-  color: rgb(var(--bible-main-rgb));
-}
-
-.byblia-title-lg {
-  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
-  font-weight: 400;
-  font-size: 2.25rem;
-  letter-spacing: -0.02em;
-  color: rgb(var(--bible-main-rgb));
-}
-
-.byblia-title-md {
-  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
-  font-weight: 400;
-  font-size: 1.5rem;
-  letter-spacing: -0.02em;
-  color: rgb(var(--bible-main-rgb));
-}
-
-.byblia-title-sm {
-  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
-  font-weight: 400;
-  font-size: 1.25rem;
-  letter-spacing: -0.01em;
-  color: rgb(var(--bible-main-rgb));
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-rgb: 0, 0, 0;
-  }
+/* Base styles */
+html {
+  height: 100%;
+  box-sizing: border-box;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
-  -webkit-tap-highlight-color: rgba(0,0,0,0); /* Remove tap highlight on mobile */
-  touch-action: manipulation; /* Optimize touch actions */
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100%;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  color: rgb(var(--foreground-rgb));
+  background: 
+    linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  overflow-x: hidden;
 }
 
-html {
-  height: 100%;
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: 
+    radial-gradient(circle at top left, rgba(229, 231, 235, 0.1) 0%, transparent 20%),
+    radial-gradient(circle at bottom right, rgba(156, 163, 175, 0.1) 0%, transparent 30%);
 }
 
-/* Custom scrollbar for webkit browsers */
+.dark body::before {
+  background-image: 
+    radial-gradient(circle at top left, rgba(229, 231, 235, 0.1) 0%, transparent 25%),
+    radial-gradient(circle at bottom right, rgba(209, 213, 219, 0.1) 0%, transparent 35%);
+}
+
+/* Gradient text for special elements */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-yellow-600;
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.dark {
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
+/* Enhanced button styles with ripple effect */
+.button-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.button-primary::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #808080, transparent);
+  transform: translateX(-100%);
+}
+
+.button-primary:hover::after {
+  transform: translateX(100%);
+  transition: transform 0.8s ease;
+}
+
+.button-primary:active::after {
+  transform: translateX(0%);
+  background: linear-gradient(90deg, #606060, #a0a0a0, #606060);
+}
+
+.dark .button-primary::after {
+  background: linear-gradient(90deg, transparent, #c0c0c0, transparent);
+}
+
+.dark .button-primary:active::after {
+  background: linear-gradient(90deg, #a0a0a0, #e0e0e0, #a0a0a0);
+}
+
+.bible-citation {
+  background-color: rgba(100, 100, 100, 0.1);
+  border-left: 3px solid #606060;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+}
+
+.dark .bible-citation {
+  background-color: rgba(200, 200, 200, 0.1);
+  border-left: 3px solid #a0a0a0;
+}
+
+/* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 3px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -97,3049 +1733,56 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(180, 180, 180, 0.3);
-  border-radius: 3px;
+  background-color: rgba(var(--primary-color), 0.3);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(150, 150, 150, 0.5);
+  background-color: rgba(var(--primary-color), 0.5);
 }
 
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(180, 180, 180, 0.3) transparent;
-}
-
-/* Remove the flickering animations */
-/* Estilo para o conteúdo em streaming - without transitions */
-.streaming-content {
-  position: relative;
-  /* removed transition and animation that cause flickering */
-}
-
-/* Estilos para o componente MessageText - without transitions */
-.message-text-content {
-  /* removed color transition */
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.message-text-content.streaming-content {
-  position: relative;
-}
-
-/* Estilos fortemente específicos para mensagens do usuário */
-.user-message-container,
-.user-message-text,
-.user-message-content,
-.user-message-inner {
-  color: white !important;
-  font-weight: 500 !important;
-}
-
-/* Forçar o texto branco com alta especificidade */
-[data-user-message="true"] * {
-  color: white !important;
-}
-
-/* Estilos para mensagens do usuário (texto branco em fundo cinza escuro) - Com alta prioridade */
-.bg-bible-brown {
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
-}
-
-/* Forçar texto branco para todas as mensagens do usuário, sobrepondo qualquer outra regra */
-.bg-bible-brown .message-text,
-.bg-bible-brown .prose,
-.bg-bible-brown .prose-sm,
-.bg-bible-brown .message-text-content,
-.bg-bible-brown .prose-invert,
-.bg-bible-brown * {
-  color: white !important;
-}
-
-.bg-bible-brown .message-text strong {
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: white !important;
-}
-
-.prose-invert strong {
-  color: white !important;
-  font-weight: 700;
-}
-
-/* Corrigir a coloração de texto em mensagens do usuário */
-.prose .user-message-inner,
-.prose-sm .user-message-inner,
-.prose-sm.user-message-text,
-.prose.user-message-text {
-  color: white !important;
-}
-
-/* Make sure message content wraps correctly */
-.prose p, .prose-sm p {
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  line-height: 1.65;
-  margin-bottom: 0.75em;
-  transition: none !important; /* Ensure no transition on paragraphs */
-}
-
-/* Melhorar espaçamento dos parágrafos finais */
-.prose p:last-child, .prose-sm p:last-child {
-  margin-bottom: 0;
-}
-
-/* Estilos críticos para o scroll automático durante streaming */
-.streaming-scroll {
-  scroll-behavior: auto !important;
-  overflow-anchor: none !important;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Esconder scrollbar no Firefox */
-  scroll-padding: 0 !important;
-  scroll-snap-type: none !important;
-}
-
-.streaming-scroll::-webkit-scrollbar {
-  display: none; /* Esconder scrollbar no Chrome/Safari */
-}
-
-.is-streaming .message-text-content {
-  overflow-anchor: auto !important;
-}
-
-.streaming-message {
-  scroll-margin: 0 !important;
-  scroll-snap-align: end !important;
-  overflow-anchor: auto !important;
-}
-
-/* Estilos base para o contêiner de mensagens */
-#chat-messages {
-  scroll-behavior: auto !important; 
-  -webkit-overflow-scrolling: touch;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overflow-anchor: none !important;
-  scroll-padding: 0 !important;
-  overscroll-behavior-y: contain;
-  scroll-snap-type: none !important;
-  scrollbar-width: none;
-  padding-bottom: 70px !important;
-}
-
-#chat-messages::-webkit-scrollbar {
-  display: none;
-}
-
-/* Estilo para garantir que o container do input seja visível */
-.mobile-input-container {
-  position: relative;
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.mobile-input-container form {
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.mobile-input-container form:focus-within {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
-}
-
-/* Estilização moderna similar ao DeepSeek */
-.chat-container {
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-}
-
-.chat-header {
-  background: #fff;
-  border-bottom: 1px solid rgba(var(--accent-border), 1);
-  padding: 12px 16px;
-}
-
-.welcome-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 24px;
-  margin-top: 40px;
-}
-
-/* Ajustado para reduzir espaço em mobile */
-@media (max-width: 768px) {
-  .welcome-container {
-    padding: 16px;
-    margin-top: 20px;
-  }
-}
-
-.welcome-icon {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 16px;
-  color: rgb(var(--bible-main-rgb));
+/* Ambient elements - decorative shapes */
+.ambient-shape {
+  position: absolute;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(var(--bible-main-rgb), 0.08);
-}
-
-.welcome-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-/* Ajustado para mobile */
-@media (max-width: 768px) {
-  .welcome-title {
-    font-size: 1.3rem;
-    margin-bottom: 6px;
-  }
-}
-
-.welcome-text {
-  font-size: 0.9rem;
-  color: #666;
-  max-width: 400px;
-}
-
-/* Ajustado para mobile */
-@media (max-width: 768px) {
-  .welcome-text {
-    font-size: 0.85rem;
-    max-width: 300px;
-  }
-}
-
-/* Estilos base para as mensagens - aplicados em todos os dispositivos */
-.user-message {
-  background-color: rgb(var(--bible-main-rgb));
-  color: white;
-  border-radius: 20px !important;
-}
-
-.rounded-user-message {
-  border-radius: 20px !important;
-}
-
-.assistant-message {
-  background-color: rgb(var(--accent-light));
-  border-radius: 20px !important;
-  color: #333;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-/* Redefine o seletor para garantir maior especificidade */
-div.user-message, 
-div.user-message-container,
-div.rounded-user-message {
-  border-radius: 20px !important;
-}
-
-/* Garante que as mensagens em landscape e desktop também tenham bordas arredondadas */
-@media (min-width: 769px) {
-  .user-message, .user-message-container, .message-item .user-message {
-    border-radius: 20px !important;
-  }
-}
-
-/* Regras específicas para o modo landscape */
-@media (orientation: landscape) {
-  .user-message, .user-message-container, div.user-message, div.user-message-container {
-    border-radius: 20px !important;
-  }
-  
-  div[class*="user-message"] {
-    border-radius: 20px !important;
-  }
-  
-  /* Para desktop */
-  @media (min-width: 1024px) {
-    .user-message, .user-message-container, .rounded-user-message, div.bg-bible-brown {
-      border-radius: 20px !important;
-    }
-  }
-}
-
-/* Mobile-specific improvements */
-@media (max-width: 768px) {
-  /* Reduzir espaçamento geral no mobile */
-  .message-list {
-    padding-bottom: 4px;
-    margin-bottom: 0;
-  }
-  
-  /* Otimizar botões de feedback para mobile */
-  .feedback-buttons {
-    margin-top: 3px !important;
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-    padding-top: 0 !important;
-  }
-  
-  /* Reduzir espaçamento entre mensagens */
-  .message-item + .message-item {
-    margin-top: 8px;
-  }
-  
-  /* Aumentar a área tocável dos botões */
-  button {
-    min-height: 36px;
-  }
-  
-  /* Reduzir padding da última mensagem no streaming */
-  .streaming-message {
-    padding-bottom: 8px;
-  }
-  
-  /* Garantir que o indicador de streaming fique bem visível */
-  .p-2.fixed.bottom-0 {
-    padding-top: 6px !important;
-    padding-bottom: 6px !important;
-  }
-  
-  /* Remover qualquer espaço entre feedback e input */
-  .mt-1.mb-0 {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-  }
-  
-  /* Remover bordas e margens da caixa de input fixa */
-  .fixed.bottom-0 {
-    border-top: none !important;
-    margin-top: 0 !important;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
-  }
-  
-  /* Ajustar padding para compensar o espaço removido */
-  #chat-messages {
-    padding-bottom: 70px !important;
-    scroll-behavior: auto !important; /* Use 'auto' em vez de 'smooth' para evitar atrasos */
-    overflow-anchor: auto !important; /* Permite que o navegador ajuste automaticamente o scroll */
-    overscroll-behavior-y: contain !important; /* Contém o comportamento de scroll */
-  }
-  
-  /* Improve button tap targets */
-  button, a {
-    min-height: 36px; /* Ajustado para ficar com tamanho do DeepSeek */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Fix iOS form elements */
-  input, textarea, select {
-    font-size: 16px !important; /* Prevent zoom on focus in iOS */
-    display: block;
-    -webkit-appearance: none;
-    appearance: none;
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
-
-  /* Better text selection on mobile */
-  .message-text-content {
-    user-select: text; /* Improve text selection */
-  }
-
-  /* Fix mobile scrolling issues */
-  #chat-messages, .manual-scroll {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-    scroll-padding-bottom: 80px; /* Aumentado para dar espaço ao input fixo */
-    padding-bottom: 80px; /* Espaço extra no final para não esconder conteúdo */
-  }
-  
-  /* Estilo moderno para o input field */
-  .mobile-input-container > div {
-    border-radius: 24px !important;
-    background-color: #f5f5f7 !important; /* Cor de fundo cinza clara similar ao DeepSeek */
-    border: 1px solid rgb(var(--accent-border)) !important;
-    min-height: 90px !important; /* Aumentado para acomodar o texto em múltiplas linhas */
-    width: 99% !important;
-    max-width: 900px !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
-    margin: 0 auto !important;
-  }
-  
-  /* Melhorias visuais para o input box quando em foco */
-  .mobile-input-container > div:focus-within {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
-    border-color: #c0c0c0 !important;
-    background-color: #f0f0f3 !important; /* Cor de fundo mais clara quando em foco */
-  }
-  
-  /* Input field com aparência moderna */
-  input[type="text"] {
-    background-color: transparent !important;
-    -webkit-appearance: none;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    font-size: 15px !important;
-    color: #374151 !important;
-    padding: 12px 16px 42px 8px !important; /* Ajustado para dar espaço ao placeholder em múltiplas linhas */
-    width: 100% !important;
-    min-height: 90px !important;
-    height: auto !important;
-    vertical-align: top !important; /* Mudado para 'top' para melhor alinhamento com placeholder em múltiplas linhas */
-    border-radius: 24px !important; /* Adicionando raio de borda para consistência */
-  }
-  
-  /* Estilos específicos para o placeholder no input */
-  input::placeholder {
-    color: #6b7280 !important;
-    opacity: 0.9 !important;
-    font-size: 14px !important;
-    white-space: normal !important;
-    text-overflow: visible !important;
-    overflow: visible !important;
-    display: block !important;
-    word-wrap: break-word !important;
-    line-height: 1.4 !important;
-    max-width: 95% !important; /* Garantir que o texto do placeholder não seja cortado */
-  }
-  
-  /* Input fixo na parte inferior */
-  .fixed.bottom-0 .mobile-input-container > div {
-    margin: 0 auto !important;
-    width: 99% !important;
-    max-width: 900px !important;
-    min-height: 90px !important;
-    margin-bottom: 8px !important;
-  }
-  
-  /* Ajuste para o botão de enviar */
-  button[type="submit"] {
-    position: absolute !important;
-    right: 12px !important; /* Aumentado de 8px para compensar o border-radius maior */
-    bottom: 12px !important; /* Aumentado de 8px para compensar o border-radius maior */
-    top: auto !important;
-    transform: none !important;
-    width: 40px !important; /* Aumentado ligeiramente */
-    height: 40px !important; /* Aumentado ligeiramente */
-    padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 50% !important;
-    z-index: 5 !important;
-  }
-  
-  /* Estilo específico para botão desabilitado */
-  button[type="submit"]:disabled {
-    background-color: #e5e7eb !important; /* Cinza claro */
-    color: #9ca3af !important; /* Cinza médio */
-    cursor: not-allowed !important;
-  }
-  
-  /* Estilo específico para botão habilitado */
-  button[type="submit"]:not(:disabled) {
-    background-color: rgb(var(--bible-main-rgb)) !important;
-    color: white !important;
-  }
-  
-  /* Garantir que o footer não sobreponha o input */
-  footer {
-    z-index: 1 !important;
-    height: 30px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 11px !important;
-    color: #888 !important;
-  }
-  
-  footer > div {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-  }
-  
-  /* Ajustar espaçamento para o footer mais compacto */
-  main {
-    padding-bottom: 32px !important;
-  }
-  
-  /* Ajustar área útil para compensar o footer menor */
-  .h-\[calc\(100vh-180px\)\] {
-    height: calc(100vh - 160px) !important;
-  }
-  
-  /* Destacar ainda mais o container de input em dispositivos móveis */
-  .mobile-input-container {
-    display: block !important;
-    visibility: visible !important;
-  }
-  
-  /* Melhorias para mensagens */
-  .message-item {
-    border-radius: 16px;
-    padding: 12px 16px;
-    margin-bottom: 12px;
-  }
-  
-  /* Adicionar espaçamento quando a caixa de mensagens estiver fixada no topo */
-  .message-list {
-    position: relative;
-    padding-top: 10px; /* Espaçamento entre a navbar e a pergunta */
-  }
-  
-  /* Espaçamento adicional para a primeira mensagem (pergunta do usuário) */
-  .message-list > div:first-child {
-    margin-top: 70px !important; /* Reduzido de 150px para 70px */
-    padding-top: 15px !important; /* Reduzido de 25px para 15px */
-    position: relative !important;
-    z-index: 2 !important;
-    visibility: visible !important;
-  }
-
-  /* Melhorar a experiência de toque nos botões de compartilhamento em dispositivos móveis */
-  .share-buttons-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(229, 231, 235, 0.8);
-  }
-
-  .share-button {
-    min-height: 32px;
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 16px;
-  }
-
-  /* Media query for mobile */
-  .byblia-logo {
-    font-size: 1.2rem;
-    letter-spacing: -0.01em;
-    word-spacing: -0.02em;
-    padding-right: 3px;
-    padding-left: 1px;
-  }
-}
-
-/* Estilos específicos para iOS */
-@supports (-webkit-touch-callout: none) {
-  input[type="text"] {
-    display: block;
-  }
-  
-  /* Garantir bordas arredondadas também no iOS */
-  .user-message, .user-message-container {
-    border-radius: 20px !important;
-  }
-}
-
-/* Estilo específico para fixar espaçamento entre a navbar e a caixa de pergunta */
-header + section .message-list {
-  padding-top: 60px !important; /* Reduzido de 150px para 60px */
-  margin-top: 15px !important; /* Reduzido de 40px para 15px */
-}
-
-/* Estilos específicos para botões de compartilhamento */
-.share-button {
-  transition: all 0.2s ease;
-  touch-action: manipulation;
-  background-color: #f5f5f7 !important;
-  border: 1px solid rgba(229, 231, 235, 0.8) !important;
-}
-
-.share-button:active {
-  transform: scale(0.95);
-}
-
-/* Estilo para o indicador de streaming durante a geração de resposta */
-.streaming-indicator {
-  position: absolute;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(100, 100, 100, 0.1), transparent);
-  z-index: 1;
-}
-
-.streaming-indicator-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-  font-size: 14px;
-  line-height: 1.4;
-  pointer-events: auto; /* Reativar interação apenas para o texto e botão */
-}
-
-.streaming-indicator-icon {
-  margin-right: 8px;
-  color: rgb(var(--bible-main-rgb));
-}
-
-@media (max-width: 768px) {
-  .streaming-indicator {
-    min-height: 44px;
-    padding: 8px 12px;
-    border-radius: 20px;
-    border: none;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
-    width: 100%;
-    margin: 0;
-  }
-  
-  .streaming-indicator-text {
-    font-size: 13px;
-  }
-}
-
-/* Estilos para o menu hamburger - versão simplificada */
-.mobile-menu-button {
-  z-index: 9995 !important; /* Aumentado para ficar acima do menu dropdown */
-  cursor: pointer !important;
-  touch-action: manipulation !important;
-  -webkit-tap-highlight-color: transparent !important;
-  padding: 0 !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  color: white !important;
-}
-
-/* Estilos para o hover e active do botão de menu */
-.mobile-menu-button:hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
-}
-
-.mobile-menu-button:active {
-  background-color: rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-  transform: scale(0.95) !important;
-}
-
-/* Overlay do menu (backdrop) */
-.menu-backdrop {
-  position: fixed !important;
-  inset: 0 !important;
-  background-color: rgba(0, 0, 0, 0.2) !important;
-  z-index: 9980 !important; /* Aumentado para ficar acima de outros elementos, mas abaixo do menu */
-  backdrop-filter: blur(1px) !important;
-  -webkit-backdrop-filter: blur(1px) !important;
-}
-
-/* Estilos para o menu dropdown que funcionam em todas as visualizações */
-.menu-dropdown {
-  position: fixed !important;
-  top: 56px !important; /* Corresponde à altura do navbar */
-  left: 0 !important;
-  right: 0 !important;
-  background-color: #333333 !important;
-  z-index: 9990 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  border-top: 1px solid #444444 !important;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  color: white !important;
-}
-
-.menu-item:hover,
-.menu-item:focus {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white !important;
-}
-
-/* Classe para garantir que os itens do menu tenham um z-index adequado */
-.menu-item {
-  position: relative;
-  z-index: 9992 !important; /* Garantir que fique acima do backdrop */
-}
-
-/* Garantir que o chat input não apareça durante a transição do menu */
-.mobile-input-container {
-  transition: opacity 0.3s ease, visibility 0.3s ease !important;
-}
-
-/* Navbar fixa revisada para garantir visibilidade */
-.navbar-fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
-  padding: 0 16px;
-  z-index: 9999;
-  background-color: #333333 !important; /* Cor cinza escuro do tema */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid transparent;
-  transition: box-shadow 0.3s ease,
-              background-color 0.3s ease,
-              border-color 0.3s ease;
-  color: white !important;
-}
-
-/* Adicionar padding-top no main para compensar o navbar fixo */
-main {
-  padding-top: 56px !important;
-}
-
-/* Efeito de elevação quando há scroll na página */
-html:not([data-scroll='0']) .navbar-fixed {
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.05),
-    0 6px 20px rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Quando o menu está aberto, a sombra fica mais suave para não competir com o menu */
-body.menu-open .navbar-fixed {
-  box-shadow: 
-    0 1px 2px rgba(0, 0, 0, 0.02),
-    0 2px 8px rgba(0, 0, 0, 0.02) !important;
-  z-index: 9995 !important; /* Mesmo nível do botão de menu para garantir que fique acima do dropdown */
-}
-
-/* Em dispositivos de toque, a sombra é um pouco mais pronunciada para melhor separação visual */
-.touch-device .navbar-fixed {
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 5px 16px rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Ajustes para o menu dropdown quando o navbar é fixo */
-.menu-dropdown {
-  position: fixed !important;
-  top: 56px !important; /* Corresponde à altura do navbar */
-  left: 0 !important;
-  right: 0 !important;
-  background-color: #333333 !important;
-  z-index: 9990 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  border-top: 1px solid #444444 !important;
-}
-
-@media (max-width: 768px) {
-  header {
-    box-shadow: 
-      0 1px 3px rgba(0, 0, 0, 0.05),
-      0 4px 16px rgba(0, 0, 0, 0.06) !important;
-    background-color: #333333 !important;
-    color: white !important;
-  }
-  
-  /* Ajuste sutil para dispositivos mobile em modo claro */
-  @media (prefers-color-scheme: light) {
-    header {
-      background-color: #333333 !important;
-      color: white !important;
-    }
-  }
-}
-
-/* Byblia logo ajustes específicos para o navbar */
-.navbar-fixed .byblia-logo {
-  font-size: 1.4rem !important;
-  letter-spacing: -0.01em !important;
-  color: white !important;
-}
-
-/* Estilo para garantir que o título "Seu conselheiro bíblico" tenha o mesmo estilo em todos os dispositivos */
-.navbar-fixed h2 {
-  font-family: 'Boldonse', var(--font-boldonse), sans-serif !important;
-  letter-spacing: 0.02em !important;
-  color: white !important;
-  font-size: 0.9rem !important;
-}
-
-@media (max-width: 768px) {
-  .navbar-fixed h2 {
-    font-size: 0.8rem !important;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  .navbar-fixed {
-    background-color: #333333 !important;
-    color: white !important;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .navbar-fixed {
-    background-color: #333333 !important;
-    border-bottom: 1px solid rgba(50, 50, 50, 0.8) !important;
-    color: white !important;
-  }
-  
-  .navbar-fixed h2 {
-    color: white !important;
-  }
-}
-
-/* Ajustes para o layout com navbar fixa */
-.app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  position: relative;
-  background-color: white;
-}
-
-.page-content {
-  flex: 1;
-  padding-top: 56px; /* Mesma altura do navbar */
-  position: relative;
-  width: 100%;
-}
-
-/* Ajuste para mobile para garantir que a rolagem funcione adequadamente */
-@media (max-width: 768px) {
-  .page-content {
-    -webkit-overflow-scrolling: touch; /* Melhor suporte para scroll em iOS */
-  }
-}
-
-/* Para dispositivos com tela pequena em modo paisagem */
-@media (max-width: 768px) and (orientation: landscape) {
-  .page-content {
-    /* Removendo height fixa */
-  }
-}
-
-/* Menu */
-.menu-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  z-index: 40;
-}
-
-.menu-backdrop.visible {
-  opacity: 1;
-  visibility: visible;
-  z-index: 9980 !important;
-}
-
-.menu-dropdown {
-  position: fixed;
-  top: 56px; /* Altura do navbar */
-  left: 0;
-  width: 100%;
-  background-color: white;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 
-              0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: opacity 0.3s ease, 
-              visibility 0.3s ease, 
-              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 9990; /* Aumentar z-index para garantir que fique acima de outros elementos */
-}
-
-.menu-dropdown.visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  z-index: 9990 !important;
-}
-
-/* Classe para links do menu */
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  transition: background-color 0.2s ease, color 0.2s ease;
-  color: white !important;
-}
-
-.menu-item:hover,
-.menu-item:focus {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white !important;
-}
-
-/* Navbar fixa revisada para garantir visibilidade */
-.navbar-fixed {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 56px;
-  padding: 0 16px;
-  z-index: 9999;
-  background-color: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid transparent;
-  transition: box-shadow 0.3s ease,
-              background-color 0.3s ease,
-              border-color 0.3s ease;
-}
-
-/* Ensure navbar is fixed on mobile in portrait orientation */
-@media (max-width: 768px) and (orientation: portrait) {
-  .navbar-fixed {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    z-index: 9999 !important;
-  }
-  
-  /* Add proper spacing to content to prevent navbar overlap */
-  main {
-    padding-top: 56px !important;
-  }
-  
-  /* Garantir que a rolagem afete apenas o conteúdo da página */
-  .page-content {
-    position: relative;
-    width: 100%;
-  }
-}
-
-/* Estilo do logo */
-.byblia-logo {
-  font-size: 18px;
-  letter-spacing: -0.3px;
-}
-
-/* Estilos para o título */
-h2 {
-  font-family: var(--font-inter), system-ui, sans-serif;
-  color: #666;
-  font-size: 14px;
-}
-
-@media (max-width: 768px) {
-  h2 {
-    font-size: 12px;
-  }
-}
-
-/* Efeito de sombra no scroll */
-html[data-scroll="true"] .navbar-fixed {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 
-              0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  background-color: rgba(255, 255, 255, 0.98);
-  border-bottom-color: rgba(0, 0, 0, 0.05);
-}
-
-/* Ajustes para menu aberto */
-body.menu-open {
-  overflow: hidden;
-}
-
-/* Quando o menu estiver aberto, evitar rolagem na área de conteúdo também */
-body.menu-open .page-content {
-  overflow: hidden !important;
-}
-
-/* Ajustes para dispositivos touch */
-.touch-area {
-  position: relative;
-}
-
-.touch-area::before {
-  content: '';
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  bottom: -8px;
-  left: -8px;
+  filter: blur(60px);
   z-index: -1;
+  opacity: 0.15;
+  animation: float 20s ease-in-out infinite;
 }
 
-/* Ajustes para temas claro/escuro */
-@media (prefers-color-scheme: dark) {
-  .navbar-fixed {
-    background-color: #333333 !important;
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-    color: white !important;
-  }
-  
-  html[data-scroll="true"] .navbar-fixed {
-    background-color: #333333 !important;
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .menu-dropdown {
-    background-color: rgb(20, 20, 22);
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .menu-item:hover,
-  .menu-item:focus {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
+.ambient-shape-1 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.6) 0%, rgba(251, 191, 36, 0) 70%);
+  top: 10%;
+  right: -100px;
+  animation-delay: 0s;
 }
 
-/* Efeito de relevo 3D e animação para a mensagem de boas-vindas */
-.welcome-title-animation {
-  position: relative;
-  display: inline-block;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, rgb(var(--bible-main-rgb)), rgba(var(--bible-main-rgb), 0.8));
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  animation: textShimmer 3s ease-in-out infinite alternate;
-  transform-style: preserve-3d;
-  perspective: 500px;
-  padding: 1rem 1.5rem;
-  margin: 0.5rem;
-  border-radius: 12px;
+.ambient-shape-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.5) 0%, rgba(59, 130, 246, 0) 70%);
+  bottom: 5%;
+  left: -150px;
+  animation-delay: -5s;
 }
 
-/* Ajustado para mobile - reduzir padding e margens */
-@media (max-width: 768px) {
-  .welcome-title-animation {
-    padding: 0.5rem 1rem;
-    margin: 0.3rem;
-  }
-}
-
-.welcome-title-animation::after {
-  content: "";
-  position: absolute;
-  inset: -10px;
-  z-index: -1;
-  background: radial-gradient(
-    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 255, 255, 0.8) 0%,
-    rgba(255, 255, 255, 0) 60%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  border-radius: inherit;
-}
-
-.welcome-title-animation:hover::after {
-  opacity: 0.3;
-}
-
-@keyframes textShimmer {
+@keyframes float {
   0% {
-    background-position: 0% 50%;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translate(0px, 0px) scale(1);
   }
   50% {
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
+    transform: translate(20px, 10px) scale(1.05);
   }
   100% {
-    background-position: 100% 50%;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translate(0px, 0px) scale(1);
   }
 }
 
-/* Efeito de animação e relevo para o input - VERSÃO MELHORADA E RESPONSIVA */
-.input-box-3d {
-  position: relative;
-  transform-style: preserve-3d;
-  transition: all 0.3s ease;
-  border-radius: 24px;
-  background-color: #f2f3f5; /* Tom de cinza claro com leve tom azulado */
-  box-shadow: none !important;
-  border: 1px solid #333333 !important;
-  background: transparent !important;
-  overflow: hidden;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0;
-}
-
-.input-box-3d::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: 24px;
-  background: linear-gradient(
-    135deg,
-    rgba(var(--bible-main-rgb), 0.12),
-    rgba(var(--bible-main-rgb), 0.06),
-    rgba(255, 255, 255, 0.8),
-    rgba(var(--bible-main-rgb), 0.06),
-    rgba(var(--bible-main-rgb), 0.12)
-  );
-  background-size: 300% 300%;
-  animation: gradientInput 8s ease infinite;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  display: none !important;
-}
-
-.input-box-3d:hover::before,
-.input-box-3d:focus-within::before {
-  opacity: 0.9;
-}
-
-.input-box-3d:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(51, 51, 51, 0.15), 0 0 0 1px #333333;
-}
-
-.input-box-3d:focus-within {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(51, 51, 51, 0.18), 0 0 0 1px #333333;
-  background-color: #f8f9fa; /* Cor um pouco mais clara quando em foco */
-}
-
-/* Corrigindo aninhamento excessivo e sobreposições */
-.input-box-3d > div,
-.input-box-3d div.mobile-input-container,
-.input-box-3d div.relative {
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  width: 100% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-.input-box-3d form {
-  width: 100% !important;
-  background: transparent !important;
-}
-
-.input-box-3d textarea {
-  background: transparent !important;
-  width: 100% !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* Ajustes responsivos específicos */
-@media (max-width: 768px) {
-  .input-box-3d {
-    max-width: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    border: 1px solid #333333 !important;
-  }
-  
-  .input-box-3d textarea {
-    font-size: 15px !important;
-    padding: 12px 60px 12px 16px !important;
-  }
-  
-  /* Fix para sobreposição em mobile */
-  div.mobile-input-container {
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  /* Contêiner para o input em mobile */
-  div.max-w-2xl.mx-auto {
-    width: 100%;
-    padding: 0;
-    margin: 0 auto;
-  }
-  
-  /* Ajustes para dispositivos em portrait */
-  @media (orientation: portrait) {
-    .input-box-3d {
-      border-radius: 20px;
-    }
-  }
-}
-
-/* Fix para placeholder no input */
-.input-box-3d textarea::placeholder {
-  color: #6b7280 !important;
-  opacity: 0.9 !important;
-}
-
-@keyframes gradientInput {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Ajustes para contêineres */
-.input-box-3d .mobile-input-container {
-  width: 100%;
-  padding: 0;
-  margin: 0;
-}
-
-/* Garantindo que os formulários dentro do input-box-3d tenham largura adequada */
-.input-box-3d form {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-/* Ajustes finais de posicionamento */
-.max-w-2xl .input-box-3d,
-div[class*="max-w-"] .input-box-3d {
-  width: 100%;
-  max-width: 100%;
-}
-
-/* Improve user message styles in mobile view */
-@media (max-width: 768px) {
-  .user-message-item {
-    margin-bottom: 0.75rem;
-    position: relative;
-  }
-  
-  /* Add subtle shadow to user messages for better visibility */
-  .user-message-container {
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-}
-
-/* Media queries specific for portrait mode in mobile */
-@media (max-width: 768px) and (orientation: portrait) {
-  /* Ensure navbar is visible and fixed at top - enhanced styles */
-  .navbar-fixed {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 100 !important;
-    background-color: rgba(255, 255, 255, 0.98) !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-    padding: 0.5rem 1rem !important;
-    height: 60px !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    transition: all 0.2s ease-in-out !important;
-  }
-
-  /* Adjust main content to account for fixed navbar */
-  main {
-    padding-top: 60px !important;
-    min-height: 100vh !important;
-    position: relative !important;
-  }
-
-  /* Ajustar página inicial para melhor visualização em mobile */
-  #chat-messages div[class*="justify-center"] {
-    padding-top: 10px !important;
-    height: auto !important;
-    justify-content: flex-start !important;
-  }
-  
-  /* Reduzir o tamanho do título em boas-vindas em mobile */
-  .byblia-title-md {
-    font-size: 1.25rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-
-  /* Reduzir espaçamento do container principal em mobile */
-  .app-container main {
-    min-height: calc(100vh - 60px);
-  }
-
-  /* Ajustar altura do container principal para evitar scroll desnecessário */
-  .h-\[calc\(100vh-80px\)\] {
-    min-height: calc(100vh - 90px) !important;
-    height: auto !important;
-  }
-  
-  /* Melhoria na visualização vertical para evitar espaços em branco */
-  .flex.flex-col.items-center.justify-center {
-    margin-top: 0 !important;
-    padding-top: 10px !important;
-  }
-  
-  /* Input mais compacto na tela inicial */
-  .state-messages-length-0 .input-box-3d {
-    margin-top: 10px;
-    max-height: 120px;
-  }
-  
-  /* Reduzir margens e padding no contêiner principal */
-  div[class*="flex-grow flex flex-col rounded-2xl"] {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  /* Reduzir altura do chat container para evitar scroll desnecessário */
-  .message-list {
-    padding-bottom: 0 !important;
-    margin-bottom: 0 !important;
-  }
-  
-  /* Ajustar espaço vertical quando não há mensagens */
-  #chat-messages:not(:has(.message-list)) {
-    height: auto !important;
-    min-height: auto !important;
-  }
-}
-
-/* Estilos específicos para o input na tela inicial em mobile */
-@media (max-width: 768px) {
-  /* Input mais compacto na tela inicial */
-  #chat-messages div:first-child .input-box-3d textarea {
-    min-height: 40px !important;
-    font-size: 14px !important;
-  }
-  
-  /* Reduzir espaço acima e abaixo do input na tela inicial */
-  #chat-messages div:first-child .input-box-3d {
-    margin-top: 10px !important;
-    margin-bottom: 0 !important;
-  }
-  
-  /* Reduzir altura do container */
-  .min-h-\[calc\(100vh-90px\)\] {
-    min-height: fit-content !important;
-  }
-}
-
-/* Otimizar botões de feedback para mobile */
-.feedback-buttons {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  padding: 2px 8px !important;
-  margin: 4px auto !important;
-  max-width: fit-content !important;
-  background-color: rgba(249, 250, 251, 0.7) !important;
-  border-radius: 12px !important;
-  font-size: 12px !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
-}
-
-.feedback-buttons > div {
-  display: flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-}
-
-.feedback-buttons button {
-  min-height: auto !important;
-  min-width: auto !important;
-  padding: 4px !important;
-}
-
-/* Ajustar comportamento de scroll para funcionar bem durante streaming */
-#chat-messages {
-  scroll-behavior: auto !important; /* Garantir scroll imediato */
-  -webkit-overflow-scrolling: touch;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scroll-padding-bottom: 80px;
-  overscroll-behavior-y: contain;
-  scrollbar-width: none; /* Esconder scrollbar no Firefox */
-}
-
-#chat-messages::-webkit-scrollbar {
-  display: none; /* Esconder scrollbar no Chrome/Safari */
-}
-
-/* Evitar problemas com scroll em elementos internos */
-.message-list {
-  position: relative;
-  scrollbar-width: none; /* Esconder scrollbar no Firefox */
-  scroll-behavior: auto !important;
-}
-
-/* Melhorar a consistência visual dos botões de compartilhamento - centralizado como feedback */
-.share-buttons-container {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 2px !important;
-  margin: 8px auto !important;
-  padding: 2px 6px !important;
-  border-radius: 12px !important;
-  background-color: rgba(249, 250, 251, 0.7) !important;
-  max-width: fit-content !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
-}
-
-@media (max-width: 768px) {
-  /* Melhorar container de mensagens para auto-scroll */
-  #chat-messages {
-    scroll-behavior: auto !important;
-    -webkit-overflow-scrolling: touch;
-    scroll-padding-bottom: 120px;
-  }
-  
-  .share-buttons-container {
-    padding: 2px 4px !important;
-    gap: 0px !important;
-    margin: 6px auto !important;
-  }
-}
-
-/* Garantir que o conteúdo de streaming seja sempre visível */
-.streaming-message {
-  overflow-anchor: auto !important;
-}
-
-.message-text-content {
-  overflow-anchor: auto !important;
-}
-
-/* Estilos específicos para inputs para evitar zoom */
-input, textarea, select {
-  font-size: 16px !important;
-  -webkit-appearance: none;
-  appearance: none;
-  max-height: 100%;
-  border-radius: 0;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-/* Impedir zoom em inputs em foco */
-input:focus, textarea:focus {
-  font-size: 16px !important;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-@media (max-width: 768px) {
-  /* Melhorar container de mensagens para auto-scroll */
-  #chat-messages {
-    scroll-behavior: auto !important;
-    -webkit-overflow-scrolling: touch;
-    scroll-padding-bottom: 120px;
-  }
-  
-  /* Evitar zoom em dispositivos móveis */
-  input, textarea, select, button {
-    font-size: 16px !important;
-    -webkit-text-size-adjust: 100% !important;
-    text-size-adjust: 100% !important;
-    transform: translateZ(0);
-  }
-}
-
-/* Garantir que os botões de feedback sejam compactos em mobile */
-@media (max-width: 768px) {
-  .feedback-buttons {
-    padding: 2px 6px !important;
-    font-size: 11px !important;
-  }
-  
-  .feedback-buttons span {
-    font-size: 0.7rem !important;
-  }
-  
-  .feedback-buttons button {
-    padding: 3px !important;
-  }
-  
-  .share-button {
-    font-size: 10px !important;
-    padding: 2px 4px !important;
-    min-height: 22px !important;
-  }
-}
-
-/* Estilo para botões de compartilhamento */
-.share-button {
-  font-size: 11px !important;
-  padding: 3px 6px !important;
-  border-radius: 8px !important;
-  background: transparent !important;
-  transition: all 0.2s ease !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-height: 24px !important;
-}
-
-.share-button:hover {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-}
-
-/* Estilos específicos para quando o streaming está ativo */
-.streaming-scroll {
-  scroll-behavior: auto !important;
-  overflow-anchor: none !important;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Esconder scrollbar no Firefox */
-  scroll-padding: 0 !important;
-  scroll-snap-type: none !important;
-}
-
-.is-streaming .message-text-content {
-  overflow-anchor: auto !important;
-}
-
-/* Garantir que o último elemento em streaming receba foco de scroll */
-.streaming-message:last-child {
-  scroll-snap-align: end;
-}
-
-/* Garantir que a navbar esteja sempre visível, mesmo durante o streaming */
-body.is-streaming .navbar-fixed {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 9999 !important;
-  visibility: visible !important;
-  display: flex !important;
-  opacity: 1 !important;
-}
-
-/* Corrigir problemas com a posição do chat-container */
-body.is-streaming .chat-container {
-  padding-top: 56px;
-}
-
-/* Garantir que o container de streaming não esconda a navbar */
-body.is-streaming .app-container {
-  padding-top: 0; /* Removido para evitar duplo padding, já que main já tem padding-top */
-}
-
-/* Garantir que o contêiner de mensagens tenha rolagem apropriada */
-body.is-streaming .message-list {
-  max-height: none !important;
-  overflow-y: visible !important;
-  padding-bottom: 150px;
-  padding-top: 120px !important; /* Aumentado consideravelmente para garantir que a pergunta seja totalmente visível */
-  margin-top: 20px !important;
-}
-
-/* Scroll automático - estilo de máxima prioridade */
-body .streaming-scroll {
-  scroll-behavior: auto !important;
-  overflow-anchor: auto !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-}
-
-body .streaming-message {
-  scroll-snap-align: end !important;
-  overflow-anchor: auto !important;
-  position: relative !important;
-}
-
-body .is-streaming .message-list {
-  overflow-anchor: auto !important;
-}
-
-/* Botões de compartilhamento perfeitamente centralizados */
-body .share-buttons-container {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  text-align: center !important;
-  width: fit-content !important;
-}
-
-/* Garantir que durante streaming, sempre fazemos scroll para o final */
-body.is-streaming #chat-messages {
-  scroll-snap-type: y proximity !important;
-  padding-bottom: 150px !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-}
-
-/* Centralização completa dos botões de compartilhamento */
-.share-buttons-container {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 8px auto !important;
-  padding: 2px 6px !important;
-  max-width: fit-content !important;
-  border-radius: 12px !important;
-  background: rgba(249, 250, 251, 0.8) !important;
-}
-
-/* Garantir que o texto nos botões de compartilhamento tenha o mesmo tamanho */
-.share-button span {
-  font-size: 0.75rem !important;
-  line-height: 1 !important;
-}
-
-/* Ajuste para scroll automático mais confiável */
-@media (max-width: 768px) {
-  .streaming-scroll {
-    scroll-snap-type: y proximity;
-  }
-  
-  .streaming-message:last-child {
-    scroll-margin-bottom: 120px;
-  }
-  
-  /* Garantir que a navbar esteja visível em dispositivos móveis durante o streaming */
-  body.is-streaming .navbar-fixed {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 9999 !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.1) !important;
-  }
-}
-
-/* Garantir que a primeira mensagem (pergunta do usuário) tenha espaço extra durante o streaming */
-body.is-streaming .message-list > div:first-child {
-  margin-top: 40px !important;
-  padding-top: 20px !important;
-}
-
-/* Garantir espaçamento adequado para a seção após o header (contém as mensagens) */
-header + section {
-  padding-top: 60px !important; /* Reduzido de 150px para 60px */
-  margin-top: 15px !important; /* Reduzido de 40px para 15px */
-}
-
-/* Ajuste para o chat-messages para garantir espaçamento adequado */
-section #chat-messages {
-  padding-top: 10px !important; /* Reduzido de 30px para 10px */
-}
-
-/* Garantir que qualquer div dentro da seção após o header tenha espaçamento adequado */
-header + section > div {
-  padding-top: 0 !important; /* Reduzido de 20px para 0 */
-}
-
-/* Ajustes específicos para dispositivos móveis */
-@media (max-width: 768px) {
-  /* Garantir espaçamento extra no mobile para evitar sobreposição */
-  header + section .message-list {
-    padding-top: 160px !important; /* Aumentado de 120px para 160px */
-  }
-  
-  /* Ajustar primeira mensagem em mobile */
-  .message-list > div:first-child {
-    margin-top: 170px !important; /* Aumentado de 35px para 170px */
-    padding-top: 30px !important; /* Aumentado de 20px para 30px */
-  }
-}
-
-/* Auto-scroll ativado APENAS durante streaming */
-body.is-streaming .streaming-scroll {
-  overflow-anchor: auto !important;
-}
-
-/* Desabilitar auto-scroll para mensagens antes do streaming começar */
-.message-list {
-  overflow-anchor: none !important;
-}
-
-/* Desabilitar scroll-snap até que o streaming comece */
-#chat-messages {
-  scroll-snap-type: none !important;
-  overflow-anchor: none !important;
-}
-
-/* Reativar scroll automático durante streaming */
-body.is-streaming #chat-messages {
-  scroll-snap-type: y proximity !important;
-  overflow-anchor: auto !important;
-}
-
-/* Estilo para a mensagem do usuário recém-enviada, mantendo-a no campo de visão */
-.message-list > div:first-child {
-  scroll-margin-top: 120px !important; /* Margem de rolagem para manter a pergunta visível */
-}
-
-/* Posicionamento específico para a primeira mensagem antes do streaming */
-.message-list:not(.is-streaming) > div:first-child {
-  position: relative !important;
-  z-index: 2 !important; /* Garantir que esteja acima de outros elementos */
-  visibility: visible !important;
-}
-
-/* Botão de scroll manual para voltar à pergunta */
-.scroll-to-question-btn {
-  position: fixed;
-  bottom: 100px;
-  right: 20px;
-  z-index: 1000;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: rgba(240, 240, 240, 0.9);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border: 1px solid rgba(200, 200, 200, 0.8);
-  transition: all 0.2s ease;
-}
-
-.scroll-to-question-btn:hover {
-  background-color: rgba(230, 230, 230, 1);
-  transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-  .scroll-to-question-btn {
-    bottom: 80px;
-    right: 15px;
-  }
-}
-
-/* Estilos de transição para streaming */
-body:not(.is-streaming) #chat-messages {
-  scroll-behavior: smooth !important; /* Scroll suave antes do streaming começar */
-}
-
-body.is-streaming #chat-messages {
-  scroll-behavior: auto !important; /* Scroll instantâneo durante streaming */
-}
-
-/* Comportamento de scroll específico para respostas */
-.message-response {
-  scroll-margin-top: 20px;
-}
-
-/* Regras específicas para garantir que a pergunta permaneça visível */
-body:not(.is-streaming) .message-list > div:first-child {
-  scroll-snap-align: start !important;
-  scroll-margin-top: 60px !important; /* Reduzido de 160px para 60px */
-}
-
-/* Regras para quando o streaming está ocorrendo */
-body.is-streaming .message-list > div:last-child {
-  scroll-snap-align: end !important;
-  scroll-margin-bottom: 120px !important;
-}
-
-/* Controle específico de scroll para evitar rolagem automática inicial */
-.scroll-lock {
-  overflow: hidden !important;
-  max-height: 100vh !important;
-}
-
-/* Ajuste específico para o container de mensagens */
-#chat-messages {
-  /* Garantir que a vista inicial fique na pergunta */
-  scroll-padding-top: 20px !important; /* Reduzido de 200px para 20px */
-  scroll-padding-bottom: 150px !important;
-}
-
-/* Para garantir scroll manual até iniciar o streaming */
-body:not(.is-streaming) #chat-messages {
-  overscroll-behavior: contain !important;
-}
-
-/* Transição suave para início de streaming */
-body.streaming-transition {
-  transition: all 0.3s ease-out;
-}
-
-/* Garantir que mensagens novas apareçam com transição suave */
-.message-item {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.message-item.new-message {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-/* Manter a mensagem do usuário visível */
-.user-message-container {
-  position: relative !important;
-  z-index: 1;
-  scroll-margin-top: 100px !important;
-}
-
-/* Comportamento específico antes do streaming começar */
-html:not(.is-streaming) .message-list {
-  initial-scroll-position: top !important; /* Custom property para controlar comportamento inicial */
-}
-
-/* Reset de scroll ao enviar nova pergunta */
-.chat-reset-scroll {
-  scroll-behavior: auto;
-  overflow-anchor: none;
-}
-
-/* Força que a primeira visualização seja na pergunta do usuário */
-.focus-on-question {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}
-
-/* Forçar posicionamento inicial no topo da pergunta */
-#chat-messages {
-  padding-top: 20px !important; /* Reduzido de 50px para 20px */
-  scroll-padding-top: 80px !important; /* Reduzido de 200px para 80px */
-}
-
-/* Garantir que o topo da pergunta tenha um espaço seguro da navbar */
-body:not(.is-streaming) .message-list > div:first-child {
-  scroll-margin-top: 60px !important; /* Reduzido de 160px para 60px */
-}
-
-/* Ajustes específicos para Safari e iOS */
-@supports (-webkit-touch-callout: none) {
-  .message-list > div:first-child,
-  html body .message-list > div:first-child,
-  body .message-list > div:first-child,
-  .message-list > .bg-bible-brown {
-    margin-top: 40px !important; /* Reduzido de 80px para 40px */
-    padding-top: 10px !important; /* Reduzido de 20px para 10px */
-    margin-bottom: 10px !important;
-  }
-  
-  header + section .message-list,
-  html body header + section .message-list,
-  section .message-list {
-    padding-top: 40px !important; /* Reduzido de 80px para 40px */
-    margin-top: 10px !important;
-  }
-  
-  /* Forçar distanciamento da navbar */
-  html body header + section {
-    padding-top: 5px !important; /* Reduzido de 10px para 5px */
-    margin-top: 0 !important;
-  }
-  
-  /* Espaço extra no container principal */
-  #chat-messages {
-    padding-top: 40px !important; /* Reduzido de 100px para 40px */
-  }
-}
-
-/* Estilizando especificamente a caixa da mensagem do usuário para melhor visibilidade */
-.user-message-container, 
-div.bg-bible-brown {
-  margin-top: 10px !important;
-  position: relative !important;
-  z-index: 5 !important; /* Garantir que esteja sobre outros elementos */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Adicionar um pseudo-elemento invisível para garantir espaço acima da pergunta */
-.message-list > div:first-child::before {
-  content: '';
-  display: block;
-  height: 50px; /* Reduzido de 100px para 50px */
-  width: 100%;
-  position: absolute;
-  top: -50px; /* Reduzido de -100px para -50px */
-  left: 0;
-}
-
-/* Forçar posição inicial da visualização */
-.initial-view {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-  position: relative;
-  z-index: 3;
-}
-
-/* Estilos específicos para fixar espaçamento entre a navbar e a caixa de pergunta - valor mínimo */
-header + section .message-list {
-  padding-top: 20px !important;
-  margin-top: 5px !important;
-}
-
-/* Ajuste extremo para dispositivos iOS */
-@supports (-webkit-touch-callout: none) {
-  .message-list > div:first-child {
-    margin-top: 20px !important;
-    padding-top: 10px !important;
-  }
-  
-  header + section .message-list {
-    padding-top: 20px !important;
-    margin-top: 5px !important;
-  }
-  
-  /* Remover qualquer extra space in iOS/Safari */
-  body:not(.is-streaming) .message-list > div:first-child {
-    margin-top: 20px !important;
-  }
-}
-
-/* Ajuste fino para a visualização da pergunta - espaço mínimo, mas suficiente */
-header {
-  height: 56px !important; /* Fixar altura do header */
-}
-
-/* Reduzir qualquer espaço em branco desnecessário */
-header + section {
-  padding-top: 10px !important;
-  margin-top: 0 !important;
-}
-
-/* Ajuste para garantir que a primeira mensagem fique logo após a navbar com mínimo espaço */
-.message-list > div:first-child {
-  margin-top: 20px !important; /* Valor mínimo para garantir visibilidade abaixo da navbar */
-  padding-top: 10px !important;
-}
-
-/* Estilo específico para fixar espaçamento entre a navbar e a caixa de pergunta - valor mínimo */
-header + section .message-list {
-  padding-top: 20px !important;
-  margin-top: 5px !important;
-}
-
-/* Ajuste mais radical para dispositivos iOS */
-@supports (-webkit-touch-callout: none) {
-  .message-list > div:first-child {
-    margin-top: 20px !important;
-    padding-top: 10px !important;
-  }
-  
-  header + section .message-list {
-    padding-top: 20px !important;
-    margin-top: 5px !important;
-  }
-  
-  /* Remover qualquer espaço não essencial na thread de mensagens */
-  .message-list {
-    padding-top: 10px !important;
-  }
-}
-
-/* Ajuste extremo para iPhone */
-@media screen and (max-width: 428px) {
-  .message-list > div:first-child {
-    margin-top: 10px !important; /* Valor mínimo possível */
-  }
-  
-  header + section .message-list {
-    padding-top: 15px !important;
-    margin-top: 0 !important;
-  }
-  
-  /* Assegurar que o container principal não tenha padding extra */
-  #chat-messages {
-    padding-top: 10px !important;
-  }
-}
-
-/* Remover qualquer espaço não essencial na thread de mensagens */
-.message-list {
-  padding-top: 10px !important;
-}
-
-/* RESET DE ESPAÇOS EM BRANCO - ABORDAGEM PRÁTICA */
-
-/* Reset completo para espaços em branco em containers */
-#chat-messages, 
-.message-list, 
-header + section,
-header + section .message-list {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-
-/* Configurar o chat-messages para começar logo após o header */
-#chat-messages {
-  margin-top: 56px !important; /* Exatamente a altura do header */
-  padding-top: 0 !important;
-  overflow-anchor: none !important;
-}
-
-/* Remover margens extras da pergunta do usuário */
-.message-list > div:first-child,
-.user-message-item,
-.user-message-container {
-  margin-top: 0 !important;
-  padding-top: 5px !important;
-}
-
-/* Posicionamento específico para iOS */
-@supports (-webkit-touch-callout: none) {
-  /* Garantir que o conteúdo comece logo após o header */
-  #chat-messages {
-    margin-top: 56px !important;
-    padding-top: 0 !important;
-  }
-  
-  /* Remover margens da primeira mensagem */
-  .message-list > div:first-child,
-  html body .message-list > div:first-child,
-  .user-message-item {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-}
-
-/* Estilos específicos para iPhone */
-@media screen and (max-width: 428px) {
-  /* Remover margens e paddings */
-  .message-list > div:first-child,
-  .user-message-item {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-  
-  /* Messages container começa logo após o header */
-  #chat-messages {
-    margin-top: 56px !important;
-    padding-top: 0 !important;
-  }
-}
-
-/* Estilo para o indicador de pré-streaming */
-.pre-streaming-indicator {
-  position: relative;
-  width: 100%;
-  border-radius: 24px;
-  background-color: rgba(248, 245, 242, 0.95);
-  min-height: 48px;
-  max-width: 900px;
-  box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  pointer-events: none;
-  border: 1px solid rgba(139, 93, 51, 0.15);
-  color: #8B5D33;
-  animation: pulse-loading 2s infinite ease-in-out;
-  /* Remover qualquer transformação ou transição que possa causar saltos */
-  transform: none !important;
-  transition: opacity 0.2s ease-in-out !important;
-}
-
-/* Contenedor fixo para o indicador de pré-streaming */
-.pre-streaming-container {
-  position: fixed;
-  bottom: 12px; /* Reduced from 16px */
-  left: 0;
-  right: 0;
-  z-index: 90;
-  pointer-events: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 12px; /* Reduced from 16px */
-  /* Garantir que não haja transições de posição */
-  transform: none !important;
-  transition: opacity 0.2s ease-in-out !important;
-}
-
-.pre-streaming-indicator .streaming-indicator-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px; /* Reduced from 14px */
-  font-weight: 500;
-  line-height: 1.2; /* Reduced from 1.4 */
-  pointer-events: auto;
-  padding: 0 8px; /* Reduced from 12px */
-}
-
-.pre-streaming-indicator .streaming-indicator-icon {
-  margin-right: 6px; /* Reduced from 8px */
-  color: #8B5D33;
-}
-
-@media (max-width: 768px) {
-  .pre-streaming-container {
-    bottom: 65px; /* Reduced from 80px */
-    padding: 0 6px; /* Reduced from 8px */
-  }
-  
-  .pre-streaming-indicator {
-    min-height: 36px; /* Reduced from 44px */
-    padding: 6px 10px; /* Reduced from 8px 12px */
-    border-radius: 18px; /* Reduced from 20px */
-    box-shadow: 0 1px 4px rgba(139, 93, 51, 0.08);
-    width: auto; /* Changed from 100% to auto */
-    max-width: 280px; /* Added max-width */
-    margin: 0 auto; /* Added auto horizontal margin */
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-  }
-  
-  .pre-streaming-indicator .streaming-indicator-text {
-    font-size: 12px; /* Reduced from 13px */
-  }
-}
-
-/* Animação de pulso para o indicador de pré-streaming */
-@keyframes pulse-loading {
-  0% {
-    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
-    border: 1px solid rgba(139, 93, 51, 0.15);
-  }
-  50% {
-    box-shadow: 0 2px 12px rgba(139, 93, 51, 0.15);
-    border: 1px solid rgba(139, 93, 51, 0.25);
-  }
-  100% {
-    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
-    border: 1px solid rgba(139, 93, 51, 0.15);
-  }
-}
-
-/* ESTILOS ESPECIFICOS PARA IPHONE 15 E SAFARI MAIS RECENTES - CORRIGIDOS */
-@media screen and (min-width: 390px) and (max-width: 430px) and (min-height: 800px) {
-  @supports (-webkit-touch-callout: none) {
-    /* Fixar posição da navbar com configurações simples e estáveis */
-    .navbar-fixed {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      z-index: 9999 !important;
-      /* Removidos transformações que causam o efeito de piscar */
-      box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important;
-      /* Usar uma cor sólida em vez de transparência/blur para melhor desempenho */
-      background-color: rgba(255, 255, 255, 0.98) !important;
-    }
-    
-    /* Garantir espaço adequado após a navbar */
-    #chat-messages, 
-    .message-list {
-      margin-top: 56px !important;
-      padding-top: 10px !important;
-    }
-    
-    /* Regras específicas para streaming */
-    body.is-streaming .navbar-fixed {
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15) !important;
-      background-color: white !important;
-    }
-    
-    /* Ajustar posição da primeira mensagem para não ficar sob a navbar */
-    .message-list > div:first-child {
-      margin-top: 10px !important;
-      padding-top: 10px !important;
-    }
-    
-    /* Garantir espaçamento para a seção após o header */
-    header + section {
-      padding-top: 56px !important;
-    }
-  }
-}
-
-/* Estilos para dispositivos iOS */
-body.ios-device .navbar-fixed {
-  position: fixed !important;
-  top: env(safe-area-inset-top, 0) !important;
-  padding-top: env(safe-area-inset-top, 0) !important;
-  height: calc(56px + env(safe-area-inset-top, 0)) !important;
-  background-color: #333333 !important;
-  color: white !important;
-}
-
-body.ios-newer .navbar-fixed {
-  padding-top: env(safe-area-inset-top, 0) !important;
-  height: calc(56px + env(safe-area-inset-top, 0)) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-  background-color: #333333 !important;
-  color: white !important;
-}
-
-body.is-streaming .navbar-fixed {
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  background-color: #333333 !important;
-  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-  box-shadow: none !important;
-  color: white !important;
-}
-
-/* Esconder botões de compartilhamento e input de chat durante o carregamento */
-body.is-loading .share-buttons-container,
-body.is-streaming .share-buttons-container,
-body.is-loading .input-box-3d:not(.welcome-input) {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
-/* Garantir que os botões de compartilhamento fiquem escondidos durante o carregamento em dispositivos móveis */
-@media (max-width: 768px) {
-  body.is-loading .share-buttons-container,
-  body.is-streaming .share-buttons-container {
-    display: none !important;
-  }
-}
-
-/* Corrigir problemas de espaçamento em dispositivos iOS mais novos */
-body.ios-newer #chat-messages {
-  padding-top: 56px !important;
-  margin-top: 5px !important;
-}
-
-/* Reduzir a margem para a primeira mensagem em dispositivos iOS mais novos */
-body.ios-newer .message-list > div:first-child {
-  margin-top: 10px !important;
-  padding-top: 5px !important;
-}
-
-/* Regras para melhorar o comportamento de scroll no Safari */
-@supports (-webkit-touch-callout: none) {
-  /* Configurações para melhorar desempenho de scroll */
-  html, body {
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Transição suave para a navbar */
-  .navbar-fixed {
-    transition: background-color 0.4s ease, box-shadow 0.4s ease;
-    background-color: #333333 !important;
-    color: white !important;
-  }
-  
-  /* Desativar backdrop-filter que pode causar problemas de renderização */
-  body.is-scrolled .navbar-fixed {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-    background-color: #333333 !important;
-    color: white !important;
-  }
-  
-  /* Garantir que o conteúdo da página tenha margem adequada */
-  main {
-    padding-top: 56px !important;
-  }
-}
-
-/* Regras para melhorar a transição da navbar durante o scroll */
-.navbar-fixed {
-  transition: box-shadow 0.3s ease, background-color 0.3s ease;
-  /* Usar uma cor sólida melhora o desempenho de renderização */
-  background-color: #333333 !important;
-  color: white !important;
-}
-
-/* Estado scrollado com propriedades simplificadas para melhor desempenho */
-html[data-scroll="true"] .navbar-fixed {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  background-color: #333333 !important;
-  color: white !important;
-  /* Remover backdrop-filter para evitar problemas no Safari */
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-/* Desativar backdrop-filter em iOS para melhor desempenho */
-@supports (-webkit-touch-callout: none) {
-  .navbar-fixed,
-  html[data-scroll="true"] .navbar-fixed,
-  body.is-scrolled .navbar-fixed,
-  .pre-streaming-indicator,
-  .streaming-indicator {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background-color: #333333 !important;
-    color: white !important;
-  }
-  
-  /* Substituir backdrop-filter por background-color sólido */
-  .streaming-indicator,
-  .pre-streaming-indicator {
-    background-color: #333333 !important;
-    color: white !important;
-  }
-  
-  @media (max-width: 768px) {
-    .pre-streaming-indicator,
-    .streaming-indicator {
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      background-color: #333333 !important;
-      color: white !important;
-    }
-  }
-}
-
-/* Estilos para o indicador de pré-streaming removidos */
-.pre-streaming-indicator {
-  display: flex; /* Garantir que esteja sempre visível */
-}
-
-.pre-streaming-container {
-  display: flex; /* Garantir que esteja sempre visível */
-}
-
-.streaming-indicator {
-  display: flex; /* Garantir que esteja sempre visível */
-}
-
-.streaming-indicator-text {
-  display: flex; /* Garantir que esteja sempre visível */
-}
-
-.streaming-indicator-icon {
-  display: none;
-}
-
-/* Garantir que o indicador esteja oculto em todos os dispositivos */
-@media (max-width: 768px) {
-  .pre-streaming-container,
-  .pre-streaming-indicator,
-  .streaming-indicator {
-    display: flex; /* Alterado para flex para garantir que seja exibido */
-  }
-}
-
-/* Animação de pulso para o indicador de loading */
-@keyframes pulse-loading {
-  0% {
-    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
-    border: 1px solid rgba(139, 93, 51, 0.15);
-  }
-  50% {
-    box-shadow: 0 2px 12px rgba(139, 93, 51, 0.15);
-    border: 1px solid rgba(139, 93, 51, 0.25);
-  }
-  100% {
-    box-shadow: 0 2px 8px rgba(139, 93, 51, 0.08);
-    border: 1px solid rgba(139, 93, 51, 0.15);
-  }
-}
-
-/* Animação mais compacta para o indicador de pré-streaming */
-@keyframes compact-pulse-loading {
-  0% {
-    opacity: 0.85;
-    transform: scale(0.98);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.85;
-    transform: scale(0.98);
-  }
-}
-
-/* Estilos para o indicador de loading mais compacto */
-.pre-streaming-indicator {
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(139, 93, 51, 0.15);
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  animation: compact-pulse-loading 1.5s infinite ease-in-out;
-  max-width: 280px;
-  margin: 0 auto;
-  padding: 4px 12px;
-  min-height: auto;
-}
-
-.streaming-indicator-text span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #8B5D33;
-}
-
-@media (max-width: 768px) {
-  .pre-streaming-container {
-    bottom: 62px;
-  }
-  
-  .pre-streaming-indicator {
-    min-height: auto;
-    max-width: 250px;
-  }
-}
-
-/* Desktop Improvements - DeepSeek Style */
-@media (min-width: 769px) {
-  /* Better typography for desktop */
-  body {
-    font-size: 16px;
-    line-height: 1.6;
-  }
-
-  /* Improve chat message container */
-  .message-item {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 12px 0;
-  }
-
-  /* Enhance assistant message styling */
-  .assistant-message {
-    padding: 20px 24px !important;
-    font-size: 17px !important;
-    line-height: 1.7 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-  }
-
-  /* Improve message texts */
-  .message-text-content, 
-  .prose p, 
-  .prose-sm p {
-    font-size: 17px !important;
-    line-height: 1.7 !important;
-    letter-spacing: 0.01em;
-  }
-
-  /* Improve Scripture references */
-  .message-text-content strong, 
-  .prose strong {
-    font-weight: 600;
-    color: rgb(var(--bible-main-rgb));
-  }
-
-  /* Bible verse styling */
-  .prose blockquote, 
-  .prose-sm blockquote {
-    border-left-color: rgb(var(--bible-main-rgb), 0.5);
-    font-style: italic;
-    padding-left: 1.2em;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  /* Center the main container */
-  .page-content,
-  .chat-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-  }
-
-  /* Header styling */
-  .navbar-fixed {
-    backdrop-filter: blur(10px);
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 1rem 0;
-  }
-
-  /* Input area styling */
-  .input-box-3d {
-    max-width: 900px;
-    margin: 0 auto;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: 12px;
-  }
-
-  /* Message container spacing */
-  #chat-messages {
-    padding: 1rem 0;
-    margin-bottom: 7rem;
-  }
-
-  /* Improve headings */
-  h1, h2, h3, h4, h5, h6 {
-    font-weight: 600;
-    margin-top: 1.5em;
-    margin-bottom: 0.75em;
-  }
-
-  .prose h1, .prose-sm h1 { font-size: 1.8rem; line-height: 1.3; }
-  .prose h2, .prose-sm h2 { font-size: 1.5rem; line-height: 1.35; }
-  .prose h3, .prose-sm h3 { font-size: 1.3rem; line-height: 1.4; }
-  
-  /* Improve lists */
-  .prose ul, .prose-sm ul,
-  .prose ol, .prose-sm ol {
-    margin-top: 0.75em;
-    margin-bottom: 0.75em;
-    padding-left: 1.5em;
-  }
-  
-  .prose li, .prose-sm li {
-    margin-top: 0.375em;
-    margin-bottom: 0.375em;
-    padding-left: 0.25em;
-  }
-
-  /* Improve the logo display */
-  .byblia-logo {
-    font-size: 1.8rem;
-  }
-
-  /* Better feedback buttons */
-  .feedback-buttons {
-    margin-top: 0.5rem;
-    opacity: 0.9;
-  }
-
-  .feedback-buttons button {
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    transition: all 0.2s;
-  }
-
-  .feedback-buttons button:hover {
-    transform: translateY(-1px);
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-}
-
-/* Additional Desktop Enhancements - DeepSeek Style */
-@media (min-width: 769px) {
-  body {
-    background-color: white;
-  }
-  
-  /* Improve chat container styling */
-  .chat-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
-  
-  /* Criar um layout mais fluido e menos encaixotado */
-  #chat-messages {
-    background-color: transparent;
-    border-radius: 0;
-    padding: 1.5rem 0;
-    box-shadow: none;
-    margin-bottom: 2rem;
-  }
-  
-  /* Improve message styling */
-  .message-item {
-    padding: 12px 0;
-  }
-  
-  /* Ajustar estilo da mensagem do assistente - sem caixa */
-  .assistant-message {
-    background-color: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-  }
-  
-  /* Better spacing between messages */
-  .message-item + .message-item {
-    margin-top: 1.5rem;
-  }
-  
-  /* Improve user message styling */
-  .user-message {
-    padding: 12px 16px !important;
-    max-width: 85% !important;
-  }
-  
-  /* Improve footer spacing */
-  footer {
-    margin-top: 2rem;
-  }
-
-  /* Fix spacing for links and buttons */
-  .prose a, .prose-sm a {
-    text-decoration: none;
-    color: #4285f4;
-    font-weight: 500;
-  }
-  
-  .prose a:hover, .prose-sm a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Improve list spacing and bullets */
-  .prose ul li, .prose-sm ul li {
-    margin-bottom: 0.5em;
-    position: relative;
-  }
-  
-  .prose ul li::before, .prose-sm ul li::before {
-    content: "•";
-    color: rgb(var(--bible-main-rgb));
-    font-weight: bold;
-    display: inline-block;
-    margin-left: -1em;
-    margin-right: 0.5em;
-  }
-}
-
-/* Remover efeitos de "caixa" para design mais fluido */
-.input-box-3d {
-  box-shadow: none !important;
-  border: none !important;
-  background: transparent !important;
-}
-
-.input-box-3d::before {
-  display: none !important;
-}
-
-/* Melhorar a visualização de conteúdo no desktop */
-@media (min-width: 769px) {
-  /* Melhorar espaçamento do texto nas mensagens */
-  .prose p, .prose-sm p {
-    margin-bottom: 1.2em;
-  }
-  
-  /* Ajustar visualização de listas */
-  .prose ul, .prose ol,
-  .prose-sm ul, .prose-sm ol {
-    margin-left: 0;
-    padding-left: 1.5em;
-  }
-  
-  /* Melhorar espaçamento de elementos no chat */
-  .message-list > div {
-    margin-bottom: 1.5rem;
-  }
-  
-  /* Remover bordas de mensagens */
-  .message-item .message-text-content {
-    border: none;
-    box-shadow: none;
-  }
-  
-  /* Melhorar visualização de citações */
-  .prose blockquote, .prose-sm blockquote {
-    border-left: 3px solid rgb(var(--bible-main-rgb), 0.3);
-    padding-left: 1em;
-    font-style: italic;
-    margin: 1.5em 0 1.5em 0;
-  }
-  
-  /* Destacar a área de entrada */
-  .mobile-input-container {
-    margin-top: 1.5rem;
-  }
-}
-
-/* Estilos responsivos para a área de entrada */
-@media (max-width: 768px) {
-  .chat-input-form {
-    margin-bottom: 8px;
-  }
-}
-
-/* Estilos específicos para a caixa de input do chat */
-.chat-input-form {
-  position: relative;
-  transition: all 0.3s ease;
-  will-change: transform, box-shadow;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-  border: 1px solid #e0e0e0 !important;
-  border-radius: 24px !important;
-}
-
-.chat-input-form:hover {
-  border-color: #c0c0c0 !important;
-}
-
-.chat-input-form:focus-within {
-  border-color: #333333 !important;
-  transform: translateY(-2px) !important;
-}
-
-/* Remover efeito de gradiente na borda do campo */
-.chat-input-form:after {
-  display: none;
-}
-
-.chat-input-form:hover:after {
-  display: none;
-}
-
-.chat-input-form:focus-within:after {
-  display: none;
-}
-
-/* Adicionar efeito de profundidade para o botão de enviar */
-.chat-input-form button[type="submit"] {
-  transition: all 0.3s ease !important;
-}
-
-.chat-input-form button[type="submit"]:not(:disabled):hover {
-  transform: translateY(-2px) !important;
-}
-
-.chat-input-form button[type="submit"]:not(:disabled):active {
-  transform: translateY(1px) !important;
-}
-
-/* ======= ESTILOS AVANÇADOS PARA O CAMPO DE ENTRADA ======= */
-.chat-input-form textarea::placeholder {
-  color: rgba(0, 0, 0, 0.35);
-  font-weight: 400;
-  font-style: normal;
-  transition: opacity 0.3s ease;
-  opacity: 0.5;
-}
-
-.chat-input-form textarea:focus::placeholder {
-  opacity: 0.7;
-}
-
-/* Estilos para desktop */
-@media (min-width: 769px) {
-  .mobile-input-container form {
-    margin: 20px auto;
-    border-radius: 28px !important;
-  }
-  
-  .mobile-input-container textarea {
-    font-size: 16px !important;
-    border-radius: 24px !important;
-  }
-}
-
-/* Estilos para mobile */
-@media (max-width: 768px) {
-  .mobile-input-container {
-    padding: 0 8px;
-  }
-  
-  .mobile-input-container form {
-    margin: 12px auto;
-    border-radius: 28px !important;
-    border: 1px solid #333333 !important;
-  }
-  
-  .mobile-input-container textarea {
-    border-radius: 22px !important;
-  }
-}
-
-/* Estilos específicos para o botão do menu hamburger */
-.mobile-menu-button {
-  color: white !important;
-}
-
-.mobile-menu-button svg {
-  color: white !important;
-}
-
-/* Regras específicas para streaming */
-body.is-streaming .navbar-fixed {
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15) !important;
-  background-color: #333333 !important;
-  color: white !important;
-}
-
-/* Esconder o input de chat quando o menu estiver aberto em dispositivos móveis */
-@media (max-width: 768px) {
-  body.menu-open .mobile-input-container,
-  body.menu-open .chat-input-form,
-  body.menu-open .input-box-3d {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    transition: opacity 0.3s ease, visibility 0.3s ease !important;
-  }
-}
-
-/* Estilos para o foco do botão de menu */
-.mobile-menu-button:focus {
-  outline: none !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3) !important;
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
-}
-
-/* Garantindo consistência nos estados de hover e active para o botão de menu em diferentes contextos */
-body.is-streaming .mobile-menu-button:hover,
-body.menu-open .mobile-menu-button:hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-body.is-streaming .mobile-menu-button:active,
-body.menu-open .mobile-menu-button:active {
-  background-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-body.menu-open .mobile-menu-button {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-}
-
-/* Estilos para o botão hamburger - centralização vertical */
-.navbar-fixed .mobile-menu-button {
-  position: relative;
-  top: 50%;
-  transform: translateY(-50%);
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-/* Garantir que o container do botão hamburger mantenha a altura adequada */
-.navbar-fixed .flex.items-center.justify-end {
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-body.menu-open .mobile-menu-button {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-}
-
-/* Ajuste adicional para centralização em todos os dispositivos */
-@media (max-width: 768px) {
-  .navbar-fixed .mobile-menu-button {
-    transform: translateY(-50%) scale(0.95);
-  }
-}
-
-/* Ajustes para centralização vertical na navbar */
-.navbar-fixed {
-  display: flex;
-  align-items: center;
-  height: 56px;
-}
-
-.navbar-fixed > div {
-  height: 100%;
-}
-
-/* Ajuste fino para o botão hamburger */
-@media (max-width: 768px) {
-  .navbar-fixed .mobile-menu-button {
-    transform: translateY(-50%);
-  }
-}
-
-/* Ajuste para o logo em dispositivos móveis */
-@media (max-width: 768px) {
-  .navbar-fixed .byblia-logo {
-    position: relative;
-    top: 1px; /* Ajuste fino para alinhamento visual */
-  }
-}
-
-@media (min-width: 769px) {
-  body.ios-device .navbar-fixed, 
-  body.ios-newer .navbar-fixed {
-    height: calc(56px + env(safe-area-inset-top, 0)) !important;
-  }
-}
-
-/* Estilos para centralização do botão hamburger */
-.navbar-fixed {
-  height: 56px !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-.navbar-fixed > div {
-  height: 56px !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-/* Centralização do botão hamburger */
-.mobile-menu-button {
-  margin: 0 auto !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Container do botão hamburger */
-.navbar-fixed .flex.items-center.justify-end {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-}
-
-/* Ajustes específicos para dispositivos móveis */
-@media (max-width: 768px) {
-  .navbar-fixed {
-    min-height: 56px !important;
-  }
-  
-  .mobile-menu-button {
-    height: 40px !important;
-    line-height: 40px !important;
-  }
-}
-
-/* Ajustes mais específicos para o iPhone */
-@media screen and (min-width: 390px) and (max-width: 430px) and (min-height: 800px) {
-  .navbar-fixed {
-    height: 56px !important;
-  }
-}
-
-/* Ajuste para remover margens e preenchimento indesejados */
-.mobile-menu-button {
-  padding: 0 !important;
-  position: relative !important;
-  top: 0 !important;
-  transform: none !important;
-}
-
-/* Limpeza de estilos conflitantes */
-.mobile-menu-button {
-  padding: 0 !important;
-  margin: auto 0 !important; /* Centralização vertical */
-  z-index: 9995 !important;
-}
-
-/* Altura da navbar para ajudar na centralização */
-.navbar-fixed {
-  height: 56px !important;
-}
-
-/* Container do botão com altura suficiente */
-.navbar-fixed .flex.items-center.justify-end {
-  height: 56px !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-/* Remover transformações que podem estar causando problemas */
-.navbar-fixed .mobile-menu-button {
-  transform: none !important;
-  position: relative !important;
-}
-
-/* Classes específicas para centralização em dispositivos móveis */
-@media (max-width: 768px) {
-  .navbar-fixed {
-    min-height: 56px !important;
-  }
-}
-
-/* NOVA REGRA PARA CENTRALIZAÇÃO DO BOTÃO HAMBURGER */
-header.navbar-fixed {
-  height: 56px !important;
-}
-
-header.navbar-fixed > div {
-  height: 56px !important;
-}
-
-header.navbar-fixed .mobile-menu-button {
-  position: relative !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-}
-
-/* Nova regra para alinhar itens no header */
-.navbar-fixed {
-  display: flex !important;
-  align-items: center !important;
-  height: 56px !important;
-}
-
-/* Correção final para centralização vertical */
-.navbar-fixed .mobile-menu-button {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: auto 0 !important;
-}
-
-/* Regras específicas para mobile */
-@media (max-width: 768px) {
-  .navbar-fixed {
-    min-height: 56px !important;
-  }
-  
-  .navbar-fixed .mobile-menu-button {
-    margin: auto 0 !important;
-  }
-}
-
-/* REGRA DE ALTA PRIORIDADE PARA CENTRALIZAÇÃO DO HAMBURGER MENU EM TODAS AS VIEWS */
-
-/* Reset para evitar conflitos com outras regras */
-.mobile-menu-button {
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-  margin: 0 !important;
-}
-
-/* Regra específica para centralização na navbar */
-header.navbar-fixed .mobile-menu-button {
-  margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Regra específica para mobile */
-@media (max-width: 768px) {
-  body header.navbar-fixed .flex.items-center.justify-end .mobile-menu-button,
-  body header.navbar-fixed .flex-1.flex.items-center.justify-end .mobile-menu-button {
-    position: relative !important;
-    top: 0 !important;
-    transform: none !important;
-    margin: 8px 0 !important;
-  }
-  
-  /* Garantir altura da navbar em dispositivos móveis */
-  body header.navbar-fixed {
-    min-height: 56px !important;
-    max-height: 56px !important;
-    height: 56px !important;
-    display: flex !important;
-    align-items: center !important;
-  }
-}
-
-/* ESTILOS FINAIS PARA O BOTÃO HAMBURGER */
-.mobile-menu-button:hover {
-  background-color: rgba(255, 255, 255, 0.2) !important;
-}
-
-.mobile-menu-button:active {
-  background-color: rgba(255, 255, 255, 0.3) !important;
-  transform: scale(0.95) !important;
-}
-
-/* Garantir posicionamento correto em mobile */
-@media (max-width: 768px) {
-  header.navbar-fixed {
-    height: 56px !important;
-    display: flex !important;
-    align-items: center !important;
-  }
-  
-  .navbar-fixed .mobile-menu-button {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid rgba(var(--primary-color), 0.6);
+  outline-offset: 2px;
 }

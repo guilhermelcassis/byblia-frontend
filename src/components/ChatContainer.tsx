@@ -1,119 +1,90 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import ChatInput from './ChatInput';
+import { ChatInput } from './ChatInput';
 import { MessageItem } from './MessageItem';
-import FeedbackButtons from './FeedbackButtons';
 import LoadingIndicator from './LoadingIndicator';
 import ColdStartIndicator from './ColdStartIndicator';
 import ErrorMessage from './ErrorMessage';
 import useChat from '../hooks/useChat';
 import { useScroll } from '../hooks/useScroll';
-import { checkBackendHealth, testBackendConnection } from '../services/api';
-import { FaServer, FaQuestionCircle, FaCommentDots, FaSyncAlt, FaTools, FaArrowDown, FaShareAlt } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
+import { FaSyncAlt, FaArrowDown, FaBible, FaExclamationTriangle, FaInfo } from 'react-icons/fa';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { useScreen } from '@/hooks/useScreen';
-import WelcomeTitleEffect from './WelcomeTitleEffect';
+import { useTheme } from 'next-themes';
+import { cn } from '../lib/utils';
+import { BookOpen, Scroll, BookHeart, BookText, MessageSquareQuote, Quote, Info, Sparkles } from 'lucide-react';
 
-// Componente para mostrar o status do backend
-const BackendStatus: React.FC = () => {
-  const [isBackendReady, setIsBackendReady] = useState<boolean | null>(null);
-  const [checkCount, setCheckCount] = useState(0);
-  
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const isHealthy = await checkBackendHealth(3000); // Aumentando o timeout para 3s
-        setIsBackendReady(isHealthy);
-        
-        // Se o backend não estiver pronto, verificar novamente em alguns segundos
-        if (!isHealthy && checkCount < 3) { // Reduzido para 3 tentativas
-          const timeout = setTimeout(() => {
-            setCheckCount(prev => prev + 1);
-          }, 3000 + (checkCount * 1000)); // Aumentar tempo entre tentativas
-          
-          return () => clearTimeout(timeout);
-        }
-      } catch (error) {
-        // Em caso de erro, consideramos o backend indisponível
-        setIsBackendReady(false);
-        
-        // Tentar novamente se estiver dentro do limite de tentativas
-        if (checkCount < 3) {
-          const timeout = setTimeout(() => {
-            setCheckCount(prev => prev + 1);
-          }, 3000 + (checkCount * 1000));
-          
-          return () => clearTimeout(timeout);
-        }
-      }
-    };
-    
-    checkHealth();
-  }, [checkCount]);
-  
-  // Sempre retornar null para não exibir nenhuma mensagem
-  return null;
+// Animation variants for consistent effects
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { 
+      duration: 0.5,
+      when: "beforeChildren",
+      staggerChildren: 0.1
+    }
+  }
 };
 
-// Componente para o botão de diagnóstico
-const DiagnosticButton: React.FC = () => {
-  const [isRunning, setIsRunning] = useState(false);
-  
-  const runDiagnostic = async () => {
-    if (isRunning) return;
-    
-    setIsRunning(true);
-    console.log('=== INICIANDO DIAGNÓSTICO DA CONEXÃO ===');
-    
-    try {
-      // Executar teste de conexão
-      const result = await testBackendConnection();
-      console.log('=== RESULTADO DO DIAGNÓSTICO ===');
-      console.log(result);
-      
-      // Mostrar resultado ao usuário
-      if (result.status === 'success') {
-        alert(`Diagnóstico concluído: A conexão com o backend parece estar funcionando. 
-Status HTTP: ${result.details.chatStatus}
-Tipo de resposta: ${result.details.contentType}
-Verifique o console do navegador para mais detalhes.`);
-      } else {
-        alert(`Diagnóstico concluído: Foram encontrados problemas na conexão.
-Erro: ${result.message}
-Verifique o console do navegador para mais detalhes.`);
-      }
-    } catch (error) {
-      console.error('Erro durante o diagnóstico:', error);
-      alert('Ocorreu um erro ao executar o diagnóstico. Verifique o console para mais detalhes.');
-    } finally {
-      setIsRunning(false);
-    }
-  };
-  
-  return (
-    <button 
-      onClick={runDiagnostic}
-      disabled={isRunning}
-      className="fixed bottom-2 right-2 bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-full shadow-md z-50"
-      title="Executar diagnóstico de conexão"
-    >
-      <FaTools className={`${isRunning ? 'animate-spin text-bible-brown' : ''}`} size={16} />
-    </button>
-  );
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
+  }
+};
+
+const fadeInVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { duration: 0.3 }
+  }
+};
+
+const slideUpVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.3, ease: "easeOut" } 
+  }
 };
 
 const ChatContainer: React.FC = () => {
   const { state, sendUserMessage, submitFeedback } = useChat();
   const lastMessageRef = useRef<string>('');
   const screen = useScreen();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [streamHasNewContent, setStreamHasNewContent] = useState(false);
   const [userManuallyScrolled, setUserManuallyScrolled] = useState(false);
   const lastScrollPositionRef = useRef<number>(0);
+  const controls = useAnimation();
+  // Add a mounted state to prevent hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
   
-  // Estado para controlar animação dos pontos no texto de loading
+  // Enhanced scroll hook
+  const { containerRef, userHasScrolled, scrollToBottom, isNearBottom, hasInvisibleNewContent } = useScroll({
+    isStreaming: state.isStreaming,
+    messagesCount: state.messages.length,
+    hasNewContent: streamHasNewContent,
+    currentResponseText: state.currentResponse || ''
+  });
+  
+  // Mark component as mounted to prevent hydration issues
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
+  // Loading animation state
   const [loadingDots, setLoadingDots] = useState('');
   
-  // Efeito para animar os pontos do texto de loading
+  // Animate loading dots
   useEffect(() => {
+    if (!isMounted) return;
+    
     if (state.isLoading || state.isStreaming) {
       const interval = setInterval(() => {
         setLoadingDots(prev => {
@@ -126,140 +97,106 @@ const ChatContainer: React.FC = () => {
       
       return () => clearInterval(interval);
     }
-  }, [state.isLoading, state.isStreaming]);
+  }, [state.isLoading, state.isStreaming, isMounted]);
   
-  // Use the new scroll hook
-  const { containerRef, userHasScrolled, scrollToBottom } = useScroll({
-    isStreaming: state.isStreaming,
-    messagesCount: state.messages.length
-  });
-
-  // Add scroll event listener to detect manual scrolling up
+  // Apply animation when messages change
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      // Simplificar para apenas atualizar a posição, toda a lógica está no hook useScroll
-      lastScrollPositionRef.current = container.scrollTop;
-    };
-
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Adicionar/remover a classe is-loading ao body
-  useEffect(() => {
-    if (state.isLoading) {
-      document.body.classList.add('is-loading');
-    } else {
-      document.body.classList.remove('is-loading');
+    if (isMounted) {
+      controls.start("visible");
     }
-    
-    return () => {
-      document.body.classList.remove('is-loading');
-    };
-  }, [state.isLoading]);
+  }, [state.messages.length, controls, isMounted]);
 
-  // Simplificar o efeito de streaming para um único responsável pelo scroll
+  // Handle messages from streaming response
   useEffect(() => {
-    // Durante streaming, sempre garantir que a classe is-streaming esteja no body e html
-    if (state.isStreaming) {
+    if (!isMounted) return;
+    
+    if (state.currentResponse && state.currentResponse !== '') {
+      if (!userManuallyScrolled) {
+        scrollToBottom("auto");
+      }
       setStreamHasNewContent(true);
-      
-      // Adicionar classes para scroll styling com garantia total de aplicação
-      document.body.classList.add('is-streaming');
-      document.documentElement.classList.add('is-streaming');
-      
-      // SCROLL AGRESSIVO - Forçar um scroll APENAS se o usuário NÃO rolou manualmente
-      if (containerRef.current && !userHasScrolled) {
-        // Scroll direto, sem behavior
-        containerRef.current.scrollTop = containerRef.current.scrollHeight + 5000;
-        
-        // Também forçar scroll da página inteira
-        window.scrollTo(0, document.body.scrollHeight);
-      } else if (userHasScrolled) {
-        // Log para confirmar que estamos respeitando a rolagem manual
-        console.log('Respeitando scroll manual do usuário - scroll automático pausado');
-      }
-      
-      // Resetar a flag após um curto período para permitir múltiplas atualizações
-      const timeout = setTimeout(() => {
-        setStreamHasNewContent(false);
-      }, 10);
-      
-      return () => {
-        clearTimeout(timeout);
-        // Remover as classes quando o streaming terminar
-        document.body.classList.remove('is-streaming');
-        document.documentElement.classList.remove('is-streaming');
-      };
-    } else {
-      // Garantir que as classes sejam removidas quando não há streaming
-      document.body.classList.remove('is-streaming');
-      document.documentElement.classList.remove('is-streaming');
     }
-  }, [state.currentResponse, state.isStreaming, userHasScrolled]);
-  
-  // Função específica para scroll DURANTE streaming - COM RESPEITO AO SCROLL MANUAL
-  useEffect(() => {
-    if (!state.isStreaming) return;
-    
-    // Polling menos frequente (200ms) para verificar se precisamos rolar - RESPEITANDO scroll manual
-    const forcedScrollInterval = setInterval(() => {
-      // APENAS faça scroll se o usuário NÃO rolou manualmente para cima
-      if (containerRef.current && !userHasScrolled) {
-        // Scroll direto sem comportamento suave
-        containerRef.current.scrollTop = containerRef.current.scrollHeight + 5000;
-        
-        // Também forçar scroll da página inteira
-        window.scrollTo(0, document.body.scrollHeight);
-      }
-    }, 200); // Reduzi a frequência para ser menos agressivo
-    
-    // MutationObserver que respeita rigorosamente o scroll manual
-    const observer = new MutationObserver(() => {
-      // APENAS faça scroll se o usuário NÃO rolou manualmente para cima
-      if (containerRef.current && !userHasScrolled) {
-        containerRef.current.scrollTop = containerRef.current.scrollHeight + 5000;
-      }
-    });
-    
-    // Observar todo o contêiner de mensagens
-    if (containerRef.current) {
-      observer.observe(containerRef.current, {
-        childList: true,
-        subtree: true,
-        characterData: true
-      });
-    }
-    
-    return () => {
-      clearInterval(forcedScrollInterval);
-      observer.disconnect();
-    };
-  }, [state.isStreaming, userHasScrolled]);
+  }, [state.currentResponse, userManuallyScrolled, scrollToBottom, isMounted]);
 
-  // Function to scroll to the last user message specifically
+  // Handle completed message
+  useEffect(() => {
+    if (!state.isStreaming && streamHasNewContent) {
+      setStreamHasNewContent(false);
+      
+      // Final scroll once streaming completes
+      if (!userHasScrolled) {
+        setTimeout(() => scrollToBottom("smooth"), 100);
+      }
+    }
+  }, [state.isStreaming, streamHasNewContent, userHasScrolled, scrollToBottom]);
+
+  // For welcome screen, scroll to bottom when message count changes
+  useEffect(() => {
+    if (state.messages.length === 0) {
+      scrollToBottom("auto");
+    }
+  }, [state.messages.length, scrollToBottom]);
+
+  // Function to retry on error
+  const handleRetry = () => {
+    if (lastMessageRef.current) {
+      sendUserMessage(lastMessageRef.current);
+    } else {
+      // If no message to retry, just reset the error state
+      window.location.reload();
+    }
+  };
+
+  // Submit feedback for assistant message
+  const handleFeedback = async (isPositive: boolean): Promise<boolean> => {
+    try {
+      await submitFeedback(isPositive);
+      return true;
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      return false;
+    }
+  };
+
+  // Get error severity for the error message component
+  const getErrorSeverity = (): 'error' | 'warning' | 'info' => {
+    if (!state.error) return 'info';
+    
+    const errorLower = state.error.toLowerCase();
+    
+    if (
+      errorLower.includes('servidor') ||
+      errorLower.includes('conexão') ||
+      errorLower.includes('indisponível') ||
+      errorLower.includes('falha') ||
+      errorLower.includes('não foi possível')
+    ) {
+      return 'error';
+    }
+    
+    if (
+      errorLower.includes('tente novamente') ||
+      errorLower.includes('timeout') ||
+      errorLower.includes('tempo limite')
+    ) {
+      return 'warning';
+    }
+    
+    return 'info';
+  };
+
+  // Function to scroll to the last user message
   const scrollToLastUserMessage = useCallback(() => {
     if (containerRef.current && state.messages.length > 0) {
-      // Sempre garantir que a navbar esteja visível no topo em dispositivos móveis
-      if (screen.isMobile) {
-        window.scrollTo({
-          top: 0,
-          behavior: 'auto'
-        });
-      }
-      
       // Reset user manually scrolled flag when sending a new message
       setUserManuallyScrolled(false);
       
-      // Deixar o scrollToBottom do hook useScroll cuidar do scroll
-      scrollToBottom();
+      // Let the scrollToBottom from useScroll handle scrolling
+      scrollToBottom("smooth");
     }
-  }, [state.messages.length, screen.isMobile, scrollToBottom]);
+  }, [state.messages.length, scrollToBottom]);
 
-  // Wrapper for sending message and updating the ref of the message length
+  // Wrapper for sending message and handling scroll
   const handleSendMessage = (message: string) => {
     // Save the last message to allow resending in case of error
     lastMessageRef.current = message;
@@ -269,132 +206,21 @@ const ChatContainer: React.FC = () => {
     
     // Reset zoom level to ensure proper visibility on mobile devices
     if (screen.isMobile) {
-      // Prevent zooming by meta viewport tag update and reset zoom
+      // Prevent zooming by meta viewport tag update
       const viewportMeta = document.querySelector('meta[name="viewport"]');
       if (viewportMeta) {
         viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
-        
-        // Restore viewport settings after a delay to prevent future zoom issues
-        setTimeout(() => {
-          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
-        }, 1000);
       }
-      
-      // Force the browser to reset zoom level
-      document.body.style.transform = 'scale(1)';
-      document.body.style.transformOrigin = 'center top';
-      
-      // Reset any transformation that might be causing zoom
-      document.body.style.transform = 'none';
-      document.documentElement.style.transform = 'none';
-      
-      // Force layout recalculation to ensure zoom is really reset
-      void document.body.offsetHeight;
     }
     
-    // Reset the user manual scroll flag when sending a new message
+    // Reset the user manual scroll flag
     setUserManuallyScrolled(false);
     
-    // Force scroll to the user's message with a small delay to ensure render is complete
-    setTimeout(() => {
-      scrollToLastUserMessage();
-    }, 10);
+    // Scroll to the user's message with a small delay
+    setTimeout(() => scrollToLastUserMessage(), 10);
   };
 
-  // Handle response display and ensure no zoom is applied
-  useEffect(() => {
-    // When a new response is received or streaming stops
-    if (state.messages.length > 0 && !state.isStreaming) {
-      // Ensure the page is not zoomed
-      if (screen.isMobile) {
-        // Reset any potential zoom
-        const viewportMeta = document.querySelector('meta[name="viewport"]');
-        if (viewportMeta) {
-          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
-          
-          // Allow user scaling after a short delay
-          setTimeout(() => {
-            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, shrink-to-fit=no');
-          }, 800);
-        }
-      }
-    }
-  }, [state.messages.length, state.isStreaming, screen.isMobile]);
-
-  // Função para tentar novamente a última mensagem
-  const handleRetry = useCallback(() => {
-    if (lastMessageRef.current) {
-      sendUserMessage(lastMessageRef.current);
-    }
-  }, [sendUserMessage]);
-
-  // Função para determinar a severidade do erro
-  const getErrorSeverity = () => {
-    if (!state.error) return 'info';
-    
-    // Verificar o conteúdo da mensagem para determinar a severidade
-    const errorMessage = state.error.toLowerCase();
-    
-    if (errorMessage.includes('tentar novamente') || 
-        errorMessage.includes('aguarde') || 
-        errorMessage.includes('formato inválido')) {
-      return 'warning';
-    }
-    
-    if (errorMessage.includes('servidor') || 
-        errorMessage.includes('conexão') || 
-        errorMessage.includes('processada')) {
-      return 'error';
-    }
-    
-    return 'info';
-  };
-
-  // Memoização simplificada das mensagens para reduzir re-renderizações
-  // Isto evita que toda a lista seja re-renderizada durante o streaming
-  const messageItems = state.messages.map((message, index) => {
-    const isLastMessage = index === state.messages.length - 1;
-    
-    // Encontrar a pergunta do usuário associada com esta resposta
-    let questionText = '';
-    if (message.role === 'assistant' && index > 0) {
-      // Percorrer as mensagens anteriores para encontrar a pergunta do usuário mais recente
-      for (let i = index - 1; i >= 0; i--) {
-        if (state.messages[i].role === 'user') {
-          questionText = state.messages[i].content;
-          break;
-        }
-      }
-    }
-    
-    // Determinar se esta mensagem deve mostrar os botões de feedback
-    // Somente a última mensagem do assistente deve mostrar os botões
-    const isLastAssistantMessage = 
-      message.role === 'assistant' && 
-      index === state.messages.findLastIndex(m => m.role === 'assistant');
-    
-    const shouldShowFeedback = 
-      isLastAssistantMessage && 
-      !state.isLoading && 
-      !state.isStreaming &&
-      !state.isColdStart;
-      
-    return (
-      <MessageItem 
-        key={message.id} // Usando apenas ID estável para evitar re-renderizações
-        message={message} 
-        isLastMessage={isLastMessage}
-        isStreaming={isLastAssistantMessage && state.isStreaming}
-        questionText={questionText}
-        isLoading={state.isLoading}
-        onFeedback={submitFeedback} // Passando a função de feedback para o MessageItem
-        currentInteractionId={state.currentInteractionId} // Passando o ID da interação atual
-        showFeedback={shouldShowFeedback} // Mostrar feedback apenas na última mensagem do assistente
-      />
-    );
-  });
-
-  // Verificar se o erro atual está relacionado a problemas de conexão
+  // Is there a connection error?
   const hasConnectionError = state.error && (
     state.error.toLowerCase().includes('servidor') ||
     state.error.toLowerCase().includes('conexão') ||
@@ -402,197 +228,283 @@ const ChatContainer: React.FC = () => {
     state.error.toLowerCase().includes('tentando reconectar')
   );
 
-  // Função para rolar para o final da resposta atual
-  const scrollToCurrentResponse = () => {
-    if (containerRef.current) {
-      // Encontra o último elemento da resposta
-      const lastMessageElement = containerRef.current.querySelector('.message-item:last-child');
-      
-      if (lastMessageElement) {
-        lastMessageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        // Fallback: rola para o final do container
-        scrollToBottom();
-      }
+  // Check if error is non-recoverable
+  const isErrorNonRecoverable = hasConnectionError;
+
+  // Show scroll to bottom button?
+  const showScrollToBottomButton = userHasScrolled && state.messages.length > 1;
+
+  // Scroll to bottom handler
+  const handleScrollToBottom = (resetScroll: boolean) => {
+    scrollToBottom("smooth");
+    if (resetScroll) {
+      setUserManuallyScrolled(false);
     }
   };
 
-  // Botão flutuante para recarregar em caso de erro
-  const isErrorNonRecoverable = state.error && (
-    state.error.toLowerCase().includes('servidor') ||
-    state.error.toLowerCase().includes('conexão') ||
-    state.error.toLowerCase().includes('indisponível') ||
-    state.error.toLowerCase().includes('tentando reconectar')
-  );
+  // Ensure scrolling when messages change
+  useEffect(() => {
+    if (state.messages.length > 0 && !userHasScrolled) {
+      handleScrollToBottom(false);
+    }
+  }, [state.messages.length, userHasScrolled]);
 
-  // Botão para rolar para a resposta
-  const showScrollToBottomButton = containerRef.current && !userHasScrolled;
-
-  // Botão para compartilhar com amigos
-  const showShareButton = false; // Implemente a lógica para mostrar o botão de compartilhamento
+  // Only render the full chat UI after component is mounted
+  if (!isMounted) {
+    return (
+      <div className="relative flex flex-col h-full w-full">
+        <div className="flex-1 overflow-y-auto bg-white dark:bg-black">
+          <div className="flex justify-center py-8">
+            <div className="dot-elastic"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <section className="flex-1 h-full relative flex flex-col" style={{ paddingTop: '0', marginTop: '0' }}>
+    <div className="relative flex flex-col h-full w-full">
+      {/* Main message container with enhanced styling */}
       <div
         ref={containerRef}
         id="chat-messages"
-        className="flex flex-col flex-1 overflow-y-auto max-h-full pb-2 md:pb-3"
-        style={{ 
-          paddingTop: '0', 
-          marginTop: '56px', // Apenas a altura exata do header
-          overflowAnchor: 'none'
-        }}
+        className={cn(
+          "flex-1 overflow-y-auto",
+          "px-3 sm:px-4 pt-2 pb-32",
+          "scroll-smooth",
+          "scroll-behavior-smooth",
+          "overscroll-contain",
+          "bg-white dark:bg-black"
+        )}
+        style={{ scrollBehavior: 'smooth' }}
       >
-        {/* Pequena indicação de que o scroll automático foi pausado - sem botão */}
-        {state.isStreaming && userHasScrolled && (
-          <div className="auto-scroll-paused">
-            <span>Rolagem automática pausada</span>
-          </div>
-        )}
-      
-        {state.messages.length === 0 ? (
-          <div className={`flex flex-col items-center ${screen.isMobile && !screen.isLandscape ? 'justify-start pt-10' : 'justify-center h-full'} px-4 md:px-6 ${screen.isLandscape ? 'pt-2 pb-4' : 'pb-4'}`}>
-            {/* Mensagem de boas-vindas estilo DeepSeek - agora com efeito de relevo */}
-            <div className={`flex flex-col items-center justify-center text-center max-w-md w-full ${screen.isLandscape ? 'mb-4' : 'mb-4'}`}>
-              <WelcomeTitleEffect className={`${screen.isLandscape ? 'text-lg' : 'text-xl'} font-bold ${screen.isMobile && !screen.isLandscape ? 'mb-2' : 'mb-3 md:mb-4'} byblia-title-md`}>
-                Oi, eu sou a Byblia,
-              </WelcomeTitleEffect>
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className={`${screen.isLandscape ? 'text-xs' : 'text-sm'} text-gray-500 mb-0`}
+        {/* If there are messages, show them */}
+        {state.messages.length > 0 && (
+          <motion.div
+            className="flex flex-col gap-4 max-w-3xl mx-auto pt-4 pb-16"
+            variants={containerVariants}
+            initial="hidden"
+            animate={controls}
+          >
+            {state.messages.map((message, index) => (
+              <motion.div 
+                key={message.id || index} 
+                variants={itemVariants}
+                className="message-wrapper"
               >
-                Como posso te ajudar hoje?
-              </motion.p>
-            </div>
-            
-            {/* Input centralizado após a mensagem de boas-vindas */}
-            <motion.div 
-              className={`w-full max-w-2xl z-50 ${screen.isMobile && !screen.isLandscape ? 'mb-2' : 'mb-4 md:mb-8'} mx-auto`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <div className="input-box-3d welcome-input">
-                <ChatInput 
-                  onSendMessage={handleSendMessage} 
-                  isLoading={state.isLoading || state.isStreaming}
+                <MessageItem
+                  message={message}
+                  isLastMessage={index === state.messages.length - 1}
+                  isStreaming={state.isStreaming && index === state.messages.length - 1}
+                  onFeedback={handleFeedback}
+                  showFeedback={!state.isStreaming && message.role === 'assistant'}
+                  questionText={message.role === 'assistant' && index > 0 ? state.messages[index - 1].content : ''}
+                  isLoading={state.isLoading}
                 />
-              </div>
-            </motion.div>
-          </div>
-        ) : (
-          messageItems
+              </motion.div>
+            ))}
+            
+            {/* Loading indicator shown when streaming is complete but we're still processing */}
+            {state.isLoading && !state.isStreaming && (
+              <motion.div 
+                className="flex justify-center py-8"
+                variants={fadeInVariants}
+              >
+                <div className="dot-elastic"></div>
+              </motion.div>
+            )}
+            
+            {/* Error message */}
+            {state.error && !isErrorNonRecoverable && (
+              <motion.div 
+                className="my-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-700 dark:text-red-300 text-sm flex items-center gap-2"
+                variants={slideUpVariants}
+              >
+                <FaExclamationTriangle className="text-red-600 dark:text-red-400 shrink-0" />
+                <span>Erro: {state.error || "Ocorreu um erro no processamento da solicitação."}</span>
+                <button 
+                  onClick={handleRetry} 
+                  className="ml-auto bg-red-100 dark:bg-red-800/50 text-red-600 dark:text-red-300 px-3 py-1 rounded text-xs font-medium hover:bg-red-200 dark:hover:bg-red-700/50 transition-colors"
+                >
+                  Tentar novamente
+                </button>
+              </motion.div>
+            )}
+            
+            {/* Cold start indicator */}
+            {state.isColdStart && (
+              <motion.div 
+                className="my-4 p-4 bg-blue-50 dark:bg-black/80 rounded-lg text-blue-700 dark:text-gray-200 text-sm flex items-center gap-2 dark:border dark:border-white/20"
+                variants={slideUpVariants}
+              >
+                <FaInfo className="text-blue-600 dark:text-white shrink-0" />
+                <span>Primeira mensagem pode demorar um pouco mais enquanto o serviço é inicializado.</span>
+              </motion.div>
+            )}
+          </motion.div>
         )}
         
-        {/* Mostrar o indicador de cold start quando o backend estiver inicializando */}
-        {state.isColdStart && <ColdStartIndicator />}
-        
-        {/* Mostrar o indicador de loading apenas antes do streaming iniciar */}
-        {!state.isColdStart && state.isLoading && !state.isStreaming && (
-          <div className="pre-streaming-container" style={{ margin: 0, maxHeight: '36px' }}>
-            <div 
-              className="pre-streaming-indicator rounded-md shadow-sm"
-              style={{ 
-                padding: '6px 12px', 
-                margin: '0 auto', 
-                backgroundColor: '#4A4A4A',
-                maxWidth: 'fit-content',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
-              <div className="streaming-indicator-text" style={{ margin: 0 }}>
-                <span style={{ 
-                  fontSize: '14px', 
-                  color: '#FFFFFF', 
-                  fontWeight: '500',
-                  letterSpacing: '0.2px'
-                }}>
-                  Procurando nas Escrituras{loadingDots}
-                </span>
-              </div>
+        {/* Empty state with centered chat input */}
+        {state.messages.length === 0 && !state.isLoading && (
+          <div className="h-full w-full relative overflow-hidden">
+            {/* Remove ambient background elements */}
+
+            {/* Centered input with absolute positioning */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-xl px-4 z-10">
+              <motion.div
+                className="flex flex-col items-center"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                {/* Logo and title area - above centered input */}
+                <motion.div className="text-center mb-10" variants={itemVariants}>
+                  
+                  <motion.h2 
+                    className="text-3xl sm:text-4xl font-semibold mb-3"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                  >
+                    Olá, sou a <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-black dark:from-gray-300 dark:to-white font-boldonse animate-gradient-text">Bybl.ia</span>
+                  </motion.h2>
+                  
+                  <motion.p 
+                    className="text-gray-600 dark:text-white text-center max-w-md mx-auto text-lg"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    Seu conselheiro bíblico
+                  </motion.p>
+                </motion.div>
+                
+                {/* Perfectly centered input */}
+                <motion.div
+                  className="w-full"
+                  variants={itemVariants}
+                >
+                  <motion.div 
+                    className={cn(
+                      "chat-input-container",
+                      "w-full bg-transparent rounded-2xl",
+                      "transition-opacity transition-transform duration-300 ease-out"
+                    )}
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 30
+                    }}
+                  >
+                    <ChatInput 
+                      onSubmit={handleSendMessage}
+                      isLoading={state.isLoading || state.isStreaming}
+                      autoFocus={true}
+                      placeholderText="Como posso ajudar hoje?"
+                    />
+                  </motion.div>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
         )}
       </div>
       
-      {/* Input area when messages exist */}
+      {/* Input area at the bottom, shown during conversations or when loading messages */}
+      {(state.messages.length > 0 || state.isLoading) && (
+        <div className="fixed bottom-0 left-0 right-0 p-3 z-30 bg-white dark:bg-black pt-4 border-t border-transparent dark:border-gray-800">
+          <div className="max-w-2xl mx-auto">
+            <motion.div
+              className={cn(
+                "chat-input-container",
+                "w-full bg-transparent rounded-2xl",
+                "transition-opacity transition-transform duration-300 ease-out"
+              )}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ChatInput 
+                onSubmit={handleSendMessage} 
+                isLoading={state.isLoading || state.isStreaming}
+                autoFocus={true}
+                placeholderText="Digite sua pergunta..."
+              />
+            </motion.div>
+          </div>
+        </div>
+      )}
+      
+      {/* Connection error button */}
       <AnimatePresence>
-        {state.messages.length > 0 && !state.isStreaming && !state.isLoading && !state.isColdStart && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="p-0 bg-transparent relative z-[100] w-full mt-0"
-            style={{ 
-              padding: '0',
-              margin: '0',
-              marginTop: '0'
-            }}
-          >
-            <div className="max-w-2xl mx-auto">
-              <div className="input-box-3d">
-                <ChatInput 
-                  onSendMessage={handleSendMessage} 
-                  isLoading={state.isLoading || state.isStreaming}
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Error message display - não mostrar durante cold start */}
-        {state.error && !state.isColdStart && (
-          <ErrorMessage 
-            message={state.error}
-            severity={getErrorSeverity()}
-            onRetry={handleRetry}
-          />
-        )}
-
-        {/* Botão flutuante para recarregar em caso de erro */}
         {isErrorNonRecoverable && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-[999]"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.4, type: "spring", stiffness: 300, damping: 25 }}
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
           >
-            <button
+            <motion.button
               onClick={handleRetry}
-              className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 hover:bg-red-100 transition-colors"
+              className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-full shadow-md flex items-center gap-2 hover:bg-red-100 transition-colors dark:bg-red-950 dark:border-red-800 dark:text-red-300"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
-              <FaSyncAlt size={14} className="text-red-500" />
-              <span>Erro de conexão - Recarregar</span>
-            </button>
-          </motion.div>
-        )}
-
-        {/* Botão para compartilhar com amigos */}
-        {showShareButton && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-4 z-[90]"
-          >
-            <button
-              onClick={() => {}}
-              className="bg-white text-bible-brown border border-gray-200 rounded-full p-2 shadow-md hover:bg-gray-50"
-              aria-label="Compartilhar"
-            >
-              <FaShareAlt size={16} />
-            </button>
+              <FaSyncAlt size={14} className="text-red-500 animate-spin-slow" />
+              <span>Erro de conexão - Tentar novamente</span>
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+      
+      {/* Enhanced scroll to bottom button */}
+      <AnimatePresence>
+        {showScrollToBottomButton && !hasInvisibleNewContent && (
+          <motion.button
+            className="fixed right-4 bottom-28 p-3 rounded-full shadow-lg text-white hover:shadow-xl transition-shadow duration-200 ease-out bg-gray-800 dark:bg-black hover:bg-black dark:hover:bg-gray-900 dark:border dark:border-white/20"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => handleScrollToBottom(true)}
+            aria-label="Scroll to bottom"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <FaArrowDown size={14} className="text-white" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+      
+      {/* New content indicator when user has scrolled up during streaming */}
+      <AnimatePresence>
+        {hasInvisibleNewContent && state.isStreaming && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3, type: "spring", stiffness: 500, damping: 30 }}
+            className="fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50"
+          >
+            <motion.button
+              onClick={() => scrollToBottom("smooth")}
+              className="bg-gray-800 text-white dark:bg-gray-900 dark:text-gray-100 px-4 py-2 rounded-full shadow-md flex items-center gap-2 hover:bg-gray-700 dark:hover:bg-gray-800 transition-colors border border-gray-700 dark:border-gray-600"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <div className="flex items-center gap-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-gray-300 animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-gray-300 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-gray-300 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+              <span>Nova resposta está sendo gerada</span>
+              <FaArrowDown size={12} className="text-white dark:text-gray-300 ml-1" />
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaThumbsUp, FaThumbsDown, FaSpinner } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { ThumbsUp, ThumbsDown, Check } from 'lucide-react';
 
 interface FeedbackButtonsProps {
   onFeedback: (isPositive: boolean) => Promise<boolean>;
@@ -16,99 +18,82 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback }) => {
     setError(null);
     
     try {
-      // Tentativa de envio do feedback
-      const success = await onFeedback(isPositive);
-      
-      // Mesmo com falha no servidor, vamos mostrar como enviado para melhorar UX
+      await onFeedback(isPositive);
       setFeedbackGiven(isPositive);
-      
-      if (!success) {
-        // Log de erro sem mostrar ao usuário
-        console.log('Feedback não foi enviado ao servidor, mas UI foi atualizada');
-      }
     } catch (err) {
       console.error('Erro ao processar feedback:', err);
-      
-      // Mesmo com erro, mostrar como enviado para melhorar UX
+      // Still show as sent for better UX
       setFeedbackGiven(isPositive);
     } finally {
       setIsLoading(false);
     }
   };
   
-  // Estilo ainda mais compacto para o container
-  const containerStyle: React.CSSProperties = {
-    display: 'inline-flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: '2px', // Reduzido para minimizar espaço
-    width: 'auto',
-    textAlign: 'center',
-    margin: '0 auto',
-    padding: '0px 2px', // Reduzido ao mínimo
-    maxWidth: 'fit-content',
-    borderRadius: '12px',
-    fontSize: '10px' // Reduzido ao mínimo legível
-  };
-  
-  // Se o feedback já foi enviado, mostrar mensagem discreta de agradecimento
+  // If feedback was already given, show a thank you message
   if (feedbackGiven !== null) {
     return (
-      <div style={containerStyle} className="feedback-buttons opacity-60">
-        <p style={{ margin: '0 auto', fontSize: '0.7rem', fontStyle: 'italic', color: '#9ca3af' }}>
-          Obrigado
-        </p>
-      </div>
+      <motion.div
+        className={cn(
+          "flex items-center gap-1.5",
+          "text-xs text-gray-600 dark:text-gray-400"
+        )}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <Check size={12} className="text-green-600 dark:text-green-500" />
+        <span>Obrigado pelo feedback</span>
+      </motion.div>
     );
   }
   
-  // Estilo compacto para botões
-  const buttonStyle: React.CSSProperties = {
-    color: '#9ca3af',
-    padding: '0.15rem', // Ligeiramente aumentado
-    margin: '0',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 'auto',
-    minHeight: 'auto'
-  };
-  
   return (
-    <div style={containerStyle} className="feedback-buttons">
-      {error && (
-        <div style={{ fontSize: '0.7rem', color: '#ef4444', marginRight: '0.1rem' }}>
-          {error}
-        </div>
-      )}
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-gray-600 dark:text-gray-400">
+        Esta resposta foi útil?
+      </span>
       
-      {/* Texto entre os botões para economizar espaço horizontal */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}> {/* Gap aumentado de 2px para 4px */}
+      <div className="flex items-center gap-1.5">
+        {/* Positive feedback button */}
         <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => handleFeedback(true)}
-          style={buttonStyle}
-          aria-label="Resposta útil"
           disabled={isLoading}
+          className={cn(
+            "flex items-center justify-center p-1.5 rounded",
+            "transition-colors duration-200",
+            "hover:bg-gray-100 dark:hover:bg-gray-800",
+            "text-gray-600 dark:text-gray-400",
+            "hover:text-green-600 dark:hover:text-green-400"
+          )}
+          aria-label="Resposta útil"
         >
-          {isLoading ? <FaSpinner className="animate-spin" size={12} /> : <FaThumbsUp size={12} />} {/* Tamanho aumentado de 10px para 12px */}
+          {isLoading ? 
+            <FaSpinner className="animate-spin" size={12} /> : 
+            <ThumbsUp size={14} />
+          }
         </motion.button>
         
-        <span style={{ fontSize: '0.7rem', color: '#9ca3af' }}>útil?</span> {/* Tamanho aumentado de 0.65rem para 0.7rem */}
-        
+        {/* Negative feedback button */}
         <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }} 
+          whileTap={{ scale: 0.95 }}
           onClick={() => handleFeedback(false)}
-          style={buttonStyle}
-          aria-label="Resposta não útil"
           disabled={isLoading}
+          className={cn(
+            "flex items-center justify-center p-1.5 rounded",
+            "transition-colors duration-200",
+            "hover:bg-gray-100 dark:hover:bg-gray-800",
+            "text-gray-600 dark:text-gray-400",
+            "hover:text-red-600 dark:hover:text-red-400"
+          )}
+          aria-label="Resposta não útil"
         >
-          {isLoading ? <FaSpinner className="animate-spin" size={12} /> : <FaThumbsDown size={12} />} {/* Tamanho aumentado de 10px para 12px */}
+          {isLoading ? 
+            <FaSpinner className="animate-spin" size={12} /> : 
+            <ThumbsDown size={14} />
+          }
         </motion.button>
       </div>
     </div>

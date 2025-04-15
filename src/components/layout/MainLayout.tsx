@@ -1,17 +1,36 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
-import { FaGithub } from 'react-icons/fa';
+import { 
+  Menu,
+  X,
+  ChevronRight,
+  BookOpen
+} from 'lucide-react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
+import { FaBible } from 'react-icons/fa';
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
+// Add the global declaration at the top level
+declare global {
+  interface Window {
+    copyCodeToClipboard: (button: HTMLButtonElement) => void;
+  }
+}
+
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const checkTouch = () => {
@@ -20,61 +39,50 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         navigator.maxTouchPoints > 0 ||
         (navigator as any).msMaxTouchPoints > 0;
       
-      // Detectar iOS apenas uma vez na inicialização
-      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-      const isNewerDevice = isIOS && window.screen.height >= 800 && window.screen.width >= 375;
-      
-      // Adicionar classes relevantes uma única vez
       if (touchDevice) {
         document.body.classList.add('touch-device');
-      }
-      
-      if (isIOS) {
-        document.body.classList.add('ios-device');
-        if (isNewerDevice) {
-          document.body.classList.add('ios-newer');
-        }
+        setIsTouchDevice(true);
       }
     };
 
-    // Check for touch capability - apenas uma vez na inicialização
     checkTouch();
 
-    // Handle scroll detection
+    // Handle scroll detection with debouncing for better performance
+    let scrollTimer: NodeJS.Timeout;
     const handleScroll = () => {
-      const scrolled = window.scrollY > 10;
-      if (scrolled) {
-        document.documentElement.setAttribute('data-scroll', 'true');
-        document.body.classList.add('is-scrolled');
-      } else {
-        document.documentElement.setAttribute('data-scroll', 'false');
-        document.body.classList.remove('is-scrolled');
-      }
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const isScrolled = window.scrollY > 10;
+        setScrolled(isScrolled);
+        
+        if (isScrolled) {
+          document.documentElement.setAttribute('data-scroll', 'true');
+          document.body.classList.add('is-scrolled');
+        } else {
+          document.documentElement.setAttribute('data-scroll', 'false');
+          document.body.classList.remove('is-scrolled');
+        }
+      }, 10);
     };
 
-    // Initialize scroll state
     handleScroll();
-    
-    // Add scroll listener with passive option for better performance
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Clean up
     return () => {
-      // Remover todas as classes quando o componente for desmontado
       document.body.classList.remove('touch-device');
-      document.body.classList.remove('ios-device');
-      document.body.classList.remove('ios-newer');
       document.body.classList.remove('is-scrolled');
       window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimer);
     };
   }, []);
 
   useEffect(() => {
-    // Prevent scrolling when menu is open
     if (menuOpen) {
       document.body.classList.add('menu-open');
+      document.body.style.overflow = 'hidden';
     } else {
       document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
     }
   }, [menuOpen]);
 
@@ -86,71 +94,87 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       setIsMobile(window.innerWidth < 768);
     };
     
-    // Initial check
     checkMobile();
-    
-    // Add resize listener
     window.addEventListener('resize', checkMobile);
-    
-    // Clean up
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Add function to copy code blocks
+  useEffect(() => {
+    // Define the function globally so it can be called from inline handlers
+    (window as Window).copyCodeToClipboard = (button: HTMLButtonElement) => {
+      // Find the code element within the same code block
+      const codeBlock = button.closest('.code-block');
+      if (!codeBlock) return;
+      
+      const codeElement = codeBlock.querySelector('code');
+      if (!codeElement) return;
+      
+      // Get the text content and clean it up
+      const codeText = codeElement.textContent || '';
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(codeText).then(() => {
+        // Show success state
+        const originalText = button.textContent;
+        button.textContent = 'Copiado!';
+        button.classList.add('text-green-400');
+        
+        // Reset after a delay
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('text-green-400');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+        button.textContent = 'Erro!';
+        button.classList.add('text-red-400');
+        
+        setTimeout(() => {
+          button.textContent = 'Copiar';
+          button.classList.remove('text-red-400');
+        }, 2000);
+      });
+    };
+    
+    return () => {
+      // Clean up
+      delete (window as any).copyCodeToClipboard;
+    };
+  }, []);
+
+  // No navigation links since there's only one page
+  const navItems: any[] = [];
+
+  const handleClose = () => {
+    setMenuOpen(false);
+  };
+
+  // Menu animation variants
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.25, ease: "easeInOut" } }
+  };
+
+  const menuVariants = {
+    hidden: { opacity: 0, y: -15, transition: { duration: 0.2, ease: "easeInOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut", staggerChildren: 0.05 } }
+  };
+
+  const menuItemVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.3 } }
+  };
+
   return (
-    <div className={`app-container ${menuOpen ? 'menu-open' : ''}`}>
-      {/* Navbar fixa - sempre visível em todas as páginas */}
-      <Header 
-        isMobile={isMobile}
-        menuOpen={menuOpen}
-        toggleMenu={() => setMenuOpen(!menuOpen)}
-      />
-      
-      {/* Menu Dropdown - aparece apenas quando o menu está aberto */}
-      {menuOpen && (
-        <div 
-          className="menu-backdrop visible"
-          onClick={() => setMenuOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-      
-      <div className={`menu-dropdown ${menuOpen ? 'visible' : ''}`}>
-        <nav className="flex flex-col space-y-4 p-6">
-          <Link
-            href="/"
-            className="menu-item touch-area text-gray-900 hover:text-bible-brown"
-            onClick={() => setMenuOpen(false)}
-          >
-            Home
-          </Link>
-          <Link
-            href="/about"
-            className="menu-item touch-area text-gray-900 hover:text-bible-brown"
-            onClick={() => setMenuOpen(false)}
-          >
-            Sobre
-          </Link>
-          <Link
-            href="/contact"
-            className="menu-item touch-area text-gray-900 hover:text-bible-brown"
-            onClick={() => setMenuOpen(false)}
-          >
-            Contato
-          </Link>
-          <a
-            href="https://github.com/guilhermelcassis/byblia-frontend"
-            target="_blank"
-            className="menu-item touch-area text-gray-900 hover:text-bible-brown flex items-center gap-2"
-            rel="noopener noreferrer"
-          >
-            <FaGithub /> GitHub
-          </a>
-        </nav>
-      </div>
-      
-      {/* Conteúdo principal - com rolagem normal */}
-      <main className="page-content">
-        {children}
+    <div className="flex flex-col h-screen bg-white dark:bg-zinc-900 font-sans">
+      {/* Main content com design moderno e clean */}
+      <main className="flex-grow overflow-hidden flex flex-col w-full relative">
+        {/* Clean background with no decorative elements */}
+        
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col overflow-hidden px-4 md:px-6 pt-4 pb-6 relative z-10">
+          {children}
+        </div>
       </main>
     </div>
   );

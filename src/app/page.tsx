@@ -5,6 +5,10 @@ import ChatContainer from '@/components/ChatContainer';
 import { ScreenProvider, useScreen } from '@/hooks/useScreen';
 import MainLayout from '@/components/layout/MainLayout';
 import { useMouseEffect } from '@/hooks/useMouseEffect';
+import { useTheme } from 'next-themes';
+import WelcomeTitleEffect from '@/components/WelcomeTitleEffect';
+import { motion, AnimatePresence } from 'framer-motion';
+import { BookText, MessageSquareText, ChevronDown } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -16,133 +20,215 @@ export default function Home() {
 
 function HomeContent() {
   const screen = useScreen();
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === 'dark';
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [showWelcome, setShowWelcome] = React.useState(true);
+  const [chatReady, setChatReady] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
   
-  // Integrar o efeito de mouse para melhorar a experiência em desktop
+  // Scroll handler for mobile devices
+  const handleScrollDown = () => {
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: 'smooth'
+    });
+  };
+  
+  // Integrate mouse effect to improve desktop experience
   useMouseEffect();
+  
+  // Mark component as mounted to prevent hydration issues
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
-  // Controle de zoom e visualização para melhorar a experiência em dispositivos móveis
+  // Show welcome screen then fade to chat after a delay
+  React.useEffect(() => {
+    if (!isMounted) return;
+    
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+      // Prepare chat with short delay after welcome animation
+      setTimeout(() => {
+        setChatReady(true);
+      }, 500);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, [isMounted]);
+
+  // Simulate loading and reveal content
+  React.useEffect(() => {
+    if (!isMounted) return;
+    
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [isMounted]);
+
+  // Control zoom and view to improve experience on mobile devices
   useEffect(() => {
+    if (!isMounted) return;
     if (screen.isMobile) {
-      // Função para garantir que não haja zoom automático
+      // Function to ensure no automatic zoom
       const preventZoom = (e: TouchEvent) => {
-        // Previne zoom apenas quando há múltiplos toques (pinch zoom)
+        // Prevent zoom only when there are multiple touches (pinch zoom)
         if (e.touches.length > 1) {
           e.preventDefault();
         }
       };
       
-      // Função para resetar o zoom ao carregar a página
+      // Function to reset zoom when loading the page
       const resetZoom = () => {
-        // Faz um reset no zoom da página para garantir visibilidade completa
+        // Reset page zoom to ensure full visibility
         const viewportMeta = document.querySelector('meta[name="viewport"]');
         if (viewportMeta) {
           viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0');
           
-          // Permite zoom controlado após um curto período
+          // Allow controlled zoom after a short period
           setTimeout(() => {
             viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no');
           }, 500);
         }
-        
-        // Aplicar uma transformação direta para garantir que não haja zoom
-        document.body.style.transform = 'scale(1)';
-        document.body.style.transformOrigin = 'center top';
-        
-        // Reset completo de transformações que podem causar zoom
-        setTimeout(() => {
-          document.body.style.transform = 'none';
-          document.documentElement.style.transform = 'none';
-          // Forçar recálculo de layout para garantir que o zoom seja realmente resetado
-          void document.body.offsetHeight;
-        }, 50);
       };
       
-      // Função para controlar zoom quando a visibilidade da página muda
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'visible') {
-          resetZoom();
-        }
-      };
-      
-      // Função para prevenir zoom quando o input é focado
-      const preventInputZoom = () => {
-        const viewportMeta = document.querySelector('meta[name="viewport"]');
-        if (viewportMeta) {
-          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-        }
-      };
-      
-      // Adicionar listeners para detectar quando inputs são focados
-      const addInputListeners = () => {
-        const inputs = document.querySelectorAll('input, textarea');
-        inputs.forEach(input => {
-          input.addEventListener('focus', preventInputZoom);
-          input.addEventListener('blur', resetZoom);
-        });
-      };
-      
-      // Observar mudanças no DOM para adicionar listeners em novos inputs
-      const observer = new MutationObserver(mutations => {
-        for (const mutation of mutations) {
-          if (mutation.addedNodes.length) {
-            addInputListeners();
-          }
-        }
-      });
-      
-      // Resetar zoom ao carregar
+      // Reset zoom on load
       resetZoom();
       
-      // Adicionar listeners iniciais
-      addInputListeners();
+      // Add input listeners for preventing zoom
+      const inputs = document.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        input.addEventListener('focus', resetZoom);
+      });
       
-      // Configurar observer para detectar novos inputs
-      observer.observe(document.body, { childList: true, subtree: true });
-      
-      // Também resetar quando a tab ficar visível novamente
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      
-      // Prevenir zoom por pinça (pinch zoom)
+      // Prevent pinch zoom
       document.addEventListener('touchstart', preventZoom, { passive: false });
       
-      // Adicionar mais um nivel de garantia para prevenir zoom no iOS
-      const handleOrientationChange = () => {
-        setTimeout(resetZoom, 300); // Atraso para permitir que a mudança de orientação seja concluída
-      };
-      
-      // Resetar zoom quando a orientação da tela mudar
-      window.addEventListener('orientationchange', handleOrientationChange);
-      
       return () => {
-        // Limpar todos os listeners
+        // Clean up all listeners
         document.removeEventListener('touchstart', preventZoom);
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-        window.removeEventListener('orientationchange', handleOrientationChange);
-        observer.disconnect();
         
-        // Remover listeners de inputs existentes
+        // Remove listeners from existing inputs
         const inputs = document.querySelectorAll('input, textarea');
         inputs.forEach(input => {
-          input.removeEventListener('focus', preventInputZoom);
-          input.removeEventListener('blur', resetZoom);
+          input.removeEventListener('focus', resetZoom);
         });
       };
     }
-  }, [screen.isMobile]);
+  }, [screen.isMobile, isMounted]);
+
+  // Only render client-side content after mounting to prevent hydration issues
+  if (!isMounted) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <BookText size={48} className="text-gray-400 animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <MainLayout>
-      <section className="w-full max-w-4xl mx-auto flex flex-col p-2 md:px-6">
-        <div className={`flex-grow flex flex-col ${
-          screen.isMobile && !screen.isLandscape 
-            ? 'min-h-[calc(100vh-90px)]' 
-            : screen.isMobile 
-              ? 'h-[calc(100vh-80px)]'
-              : 'h-[calc(100vh-100px)]'
-        }`}>
-          <ChatContainer />
-        </div>
-      </section>
+      {/* Full height chat container with welcome screen */}
+      <div className="h-full flex flex-col relative">
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div 
+              key="loading"
+              className="h-full flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <div className="flex flex-col items-center gap-4">
+                <BookText size={48} className={`animate-pulse ${isDark ? 'text-white' : 'text-black'}`} />
+                <p className="text-lg font-medium">Carregando...</p>
+              </div>
+            </motion.div>
+          ) : showWelcome ? (
+            <motion.div 
+              key="welcome"
+              className="h-full flex items-center justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <WelcomeTitleEffect>
+                <motion.h2 
+                  className="text-3xl sm:text-4xl font-semibold mb-3"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                  Olá, sou a <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-black dark:from-gray-300 dark:to-white font-boldonse animate-gradient-text">Bybl.ia</span>
+                </motion.h2>
+                
+                <motion.p 
+                  className="text-gray-600 dark:text-gray-300 text-center max-w-md mx-auto text-lg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  Seu conselheiro bíblico
+                </motion.p>
+              </WelcomeTitleEffect>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="chat"
+              className="flex-grow overflow-hidden relative"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {!chatReady && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-200/80 z-10">
+                  <div className="flex items-center gap-3">
+                    <MessageSquareText className="animate-bounce" size={24} />
+                    <p>Preparando chat...</p>
+                  </div>
+                </div>
+              )}
+              <ChatContainer />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Theme toggle button with animation */}
+        <motion.button
+          className="absolute bottom-4 right-4 p-2 rounded-full bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 transition-all"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+        >
+          <div className={`p-2 rounded-full ${isDark ? 'bg-gray-300' : 'bg-gray-800'}`}>
+            {isDark ? (
+              <motion.svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-black">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </motion.svg>
+            ) : (
+              <motion.svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </motion.svg>
+            )}
+          </div>
+        </motion.button>
+      </div>
     </MainLayout>
   );
 }

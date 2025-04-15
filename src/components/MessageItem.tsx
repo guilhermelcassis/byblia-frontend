@@ -1,70 +1,125 @@
 import React, { useRef, useState, memo, useEffect } from 'react';
 import { Message } from '../types';
 import MessageText from './MessageText';
-import { FaCopy, FaWhatsapp, FaCheck, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import { FaWhatsapp } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useScreen } from '@/hooks/useScreen';
 import FeedbackButtons from './FeedbackButtons';
+import { Share2, Check, Copy, MessageSquare, User, Sparkles, BookOpen } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
 
 interface Props {
   message: Message;
   isLastMessage?: boolean;
   isStreaming?: boolean;
-  questionText?: string; // Pergunta do usuário que originou esta resposta
+  questionText?: string; // User question that originated this response
   isLoading?: boolean;
-  onFeedback?: (isPositive: boolean) => Promise<boolean>; // Função para enviar feedback
-  currentInteractionId?: number | null; // ID da interação atual
-  showFeedback?: boolean; // Flag para mostrar ou não os botões de feedback
+  onFeedback?: (isPositive: boolean) => Promise<boolean>; // Function to send feedback
+  currentInteractionId?: number | null; // Current interaction ID
+  showFeedback?: boolean; // Flag to show feedback buttons
+  lastMessageRef?: React.RefObject<HTMLDivElement>;
 }
 
-// Função auxiliar para formatar a hora
+// Helper function to format time
 const formatTime = (date: Date): string => {
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
   return `${hours}:${minutes}`;
 };
 
-// Usando memo para evitar re-renderizações desnecessárias durante streaming
+// Using memo to avoid unnecessary re-renders during streaming
 export const MessageItem: React.FC<Props> = memo(({ 
   message, 
   isLastMessage = false,
   isStreaming = false,
-  questionText = '', // Valor padrão caso não seja fornecido
+  questionText = '', // Default value if not provided
   isLoading = false,
   onFeedback,
   currentInteractionId,
-  showFeedback = false
+  showFeedback = false,
+  lastMessageRef
 }) => {
   const isUser = message.role === 'user';
   const containerRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const screen = useScreen();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
-  // Remover manipulação de zoom sem necessidade - pode estar interferindo no scroll
-  useEffect(() => {
-    // Não fazer nada aqui que possa afetar scroll
-  }, [isLastMessage, isUser, screen.isMobile]);
+  // Determine if we should show buttons (not during loading or streaming)
+  const shouldShowButtons = !isStreaming && !isLoading && message.role === 'assistant';
 
-  // Remover completamente qualquer manipulação de scroll
+  // Message animation variants with improved physics
+  const messageVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 20,
+      scale: 0.97
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      transition: { 
+        type: 'spring',
+        damping: 20,
+        stiffness: 300,
+        duration: 0.4
+      }
+    },
+    exit: { 
+      opacity: 0,
+      y: -10,
+      transition: { duration: 0.3 } 
+    }
+  };
+
+  // Button animation variants
+  const buttonVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { type: 'spring', stiffness: 400, damping: 25 }
+    },
+    hover: { 
+      scale: 1.1,
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+      transition: { duration: 0.2 } 
+    },
+    tap: { scale: 0.95 }
+  };
+
+  // Avatar animation variants
+  const avatarVariants = {
+    hidden: { opacity: 0, scale: 0.5 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { type: 'spring', stiffness: 500, damping: 25, delay: 0.1 }
+    }
+  };
+
+  // Remove unnecessary scroll manipulation
   useEffect(() => {
-    // Este componente NÃO deve controlar o scroll, apenas mostrar o conteúdo
+    // This component should NOT control scroll, only display content
   }, [isLastMessage, isStreaming]);
 
-  // Função auxiliar para truncar texto se necessário
+  // Helper function to truncate text if needed
   const truncateText = (text: string, maxLength: number): string => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength - 3) + '...';
   };
 
-  // Função para copiar a mensagem para a área de transferência
+  // Function to copy message to clipboard
   const copyToClipboard = () => {
-    // Não truncamos a cópia para a área de transferência, pois não tem limitação como a URL
     const textToCopy = questionText 
       ? `Pergunta: ${questionText}\n\nResposta da Byblia:\n${message.content}\n\n— Enviado via Byblia (https://byblia.com/)`
       : `${message.content}\n\n— Enviado via Byblia (https://byblia.com/)`;
       
     if (navigator.clipboard && window.isSecureContext) {
-      // Para navegadores modernos
       navigator.clipboard.writeText(textToCopy)
         .then(() => {
           setCopied(true);
@@ -74,10 +129,8 @@ export const MessageItem: React.FC<Props> = memo(({
           console.error('Erro ao copiar texto: ', err);
         });
     } else {
-      // Fallback para navegadores mais antigos
       const textArea = document.createElement("textarea");
       textArea.value = textToCopy;
-      // Tornar o textarea invisível
       textArea.style.position = "fixed";
       textArea.style.left = "-999999px";
       textArea.style.top = "-999999px";
@@ -97,128 +150,163 @@ export const MessageItem: React.FC<Props> = memo(({
     }
   };
 
-  // Função para compartilhar via WhatsApp
+  // Function to share via WhatsApp
   const shareViaWhatsApp = () => {
-    // Usar a mensagem completa sem truncamento, igual à função de cópia
     const messageToShare = questionText 
       ? `Pergunta: ${questionText}\n\nResposta da Byblia:\n${message.content}`
       : `Mensagem da Byblia:\n\n${message.content}`;
     
-    // Criar URL do WhatsApp com a mensagem codificada
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
       messageToShare + '\n\n— Enviado via Byblia (https://byblia.com/)'
     )}`;
     
-    // Abrir em uma nova aba
     window.open(whatsappUrl, '_blank');
   };
 
+  const toggleOptions = () => {
+    setShowOptions(!showOptions);
+  };
+
+  // Static properties based on message role
+  const avatarText = isUser ? 'U' : 'B';
+  const avatarBg = isUser 
+    ? 'bg-gray-800 text-white dark:bg-gray-600' 
+    : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200';
+
   return (
-    <div 
-      ref={containerRef}
-      className={`flex w-full ${
-        isUser ? 'justify-end user-message-item' : 'mb-0'
-      }`}
-      data-testid="message-item"
-      style={isUser ? { marginTop: '0', padding: '0' } : { marginBottom: '0' }}
+    <motion.div 
+      ref={lastMessageRef || containerRef}
+      className={cn(
+        "message-item w-full max-w-full flex py-5 first:pt-0 last:pb-0",
+        isUser ? "justify-end" : "justify-start"
+      )}
+      data-user-message={isUser}
+      data-message-id={message.id}
+      variants={messageVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      layout
     >
-      <div
-        className={`${
-          isUser
-            ? 'p-3 bg-bible-brown text-white font-medium rounded-user-message user-message user-message-container max-w-[85%]'
-            : 'text-gray-800 rounded-tl-md assistant-message w-full'
-        } ${isStreaming ? 'streaming-message' : ''}`}
-        style={{ 
-          boxShadow: isUser ? 'none' : 'none',
-          backgroundColor: isUser ? '' : 'transparent',
-          borderRadius: isUser ? '20px' : '0',
-          fontSize: screen.isMobile ? '16px' : '17px', 
-          padding: isUser ? '8px 12px' : '0',
-          marginTop: isUser ? '0' : '',
-          marginBottom: '0',
-          maxWidth: screen.isMobile ? '' : '100%',
-          margin: screen.isMobile ? '' : '0 auto'
-        }}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className={cn(
+          "message-container flex gap-3 max-w-[90%] sm:max-w-[85%] md:max-w-[80%]",
+          isUser ? "flex-row-reverse" : "flex-row"
+        )}
       >
-        {/* Show timestamp for user messages in mobile view */}
-        {isUser && screen.isMobile && message.timestamp && (
-          <div className="text-[10px] text-white opacity-80 mb-1">
-            {formatTime(new Date(message.timestamp))}
+        {/* Simple Avatar */}
+        <div className="flex-shrink-0 w-8 h-8">
+          <div className={cn(
+            "h-8 w-8 rounded-md overflow-hidden border dark:border-gray-700 flex items-center justify-center",
+            avatarBg,
+            isUser ? "ml-2" : "mr-2"
+          )}>
+            {avatarText}
           </div>
-        )}
-        
-        <div 
-          className={`whitespace-pre-wrap prose prose-sm max-w-none ${
-            isUser ? 'prose-invert font-medium user-message-text' : ''
-          }`}
-          style={isUser ? { color: 'white' } : { lineHeight: screen.isMobile ? '1.5' : '1.7' }}
-        >
-          <MessageText content={message.content} isStreaming={isStreaming} isUser={isUser} />
         </div>
-        
-        {/* Exibir os botões de compartilhamento apenas se for uma mensagem do assistente e não estiver em streaming ou carregando */}
-        {!isUser && !isStreaming && !isLoading && (
-          <div 
-            className="flex items-center justify-start mt-2 gap-1 share-buttons-container"
-            style={{ 
-              borderTop: 'none', 
-              background: 'transparent', 
-              borderRadius: '0', 
-              padding: '0',
-              margin: '8px 0 2px 0',
-              maxWidth: 'fit-content'
-            }}
-          >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={copyToClipboard}
-              className="flex items-center justify-center text-xs text-gray-600 hover:text-bible-brown rounded-full px-2 py-1 transition-colors share-button"
-              aria-label="Copiar mensagem"
-            >
-              {copied ? (
-                <>
-                  <FaCheck size={12} className="mr-1 text-green-500" />
-                  <span>Copiado</span>
-                </>
+
+        {/* Message Content with Restored Background */}
+        <div
+          className={cn(
+            "message-bubble flex-1 overflow-hidden rounded-md p-4 shadow-sm",
+            isUser 
+              ? "bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700" 
+              : "bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700",
+            isUser ? "rounded-tr-sm" : "rounded-tl-sm",
+            "pb-5"
+          )}
+          style={{
+            boxShadow: isDark 
+              ? '0 1px 3px rgba(0,0,0,0.2)' 
+              : '0 1px 3px rgba(0,0,0,0.1)'
+          }}
+        >
+          {/* Message Content Wrapper */}
+          <div className="message-content flex flex-col">
+            {/* Role Indicator */}
+            <div className={cn(
+              "text-xs font-medium mb-1",
+              isUser 
+                ? "text-gray-700 dark:text-gray-300"
+                : "text-gray-700 dark:text-gray-300"
+            )}>
+              {isUser ? 'Você' : 'Bybl.ia'}
+            </div>
+
+            {/* Actual Message Content - Always render with div wrapper for consistency */}
+            <div className="mb-1 min-h-[1.5rem]">
+              {message.content ? (
+                <MessageText 
+                  content={message.content} 
+                  isStreaming={isStreaming && !isUser} 
+                  isUser={isUser}
+                />
               ) : (
-                <>
-                  <FaCopy size={12} className="mr-1" />
-                  <span>{questionText ? "Copiar" : "Copiar"}</span>
-                </>
+                <div className="flex items-center h-6">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 animate-pulse"></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                </div>
               )}
-            </motion.button>
+            </div>
             
-            <div className="text-gray-300 mx-1">|</div>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={shareViaWhatsApp}
-              className="flex items-center justify-center text-xs text-gray-600 hover:text-green-600 rounded-full px-2 py-1 transition-colors share-button"
-              aria-label="Compartilhar via WhatsApp"
-            >
-              <FaWhatsapp size={12} className="mr-1" />
-              <span>{questionText ? "Compartilhar" : "Compartilhar"}</span>
-            </motion.button>
+            {/* Action Buttons for assistant messages */}
+            {shouldShowButtons && (
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-800">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  {/* Feedback buttons */}
+                  {showFeedback && onFeedback && (
+                    <FeedbackButtons onFeedback={onFeedback} />
+                  )}
+                  
+                  {/* Copy and share buttons */}
+                  <div className="flex items-center gap-2 ml-auto">
+                    {/* Copy button */}
+                    <button
+                      onClick={copyToClipboard}
+                      className={cn(
+                        "group flex items-center justify-center p-1.5 rounded",
+                        "hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
+                        "text-gray-500 dark:text-gray-400"
+                      )}
+                      aria-label="Copiar mensagem"
+                    >
+                      {copied ? (
+                        <Check size={16} className="text-green-600 dark:text-green-500" />
+                      ) : (
+                        <Copy size={16} className="group-hover:text-gray-700 dark:group-hover:text-gray-300" />
+                      )}
+                    </button>
+                    
+                    {/* WhatsApp button */}
+                    <button
+                      onClick={shareViaWhatsApp}
+                      className={cn(
+                        "group flex items-center justify-center p-1.5 rounded",
+                        "hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
+                        "text-gray-500 dark:text-gray-400"
+                      )}
+                      aria-label="Compartilhar via WhatsApp"
+                    >
+                      <FaWhatsapp size={16} className="group-hover:text-gray-700 dark:group-hover:text-gray-300" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        
-        {/* Feedback buttons - mostrar abaixo dos botões de compartilhamento */}
-        {!isUser && !isStreaming && !isLoading && showFeedback && onFeedback && (
-          <div className="flex justify-center mt-0 mb-0">
-            <FeedbackButtons onFeedback={onFeedback} />
-          </div>
-        )}
-        
-        {!isUser && message.feedbackGiven !== undefined && (
-          <div className="text-xs mt-1 italic text-gray-400 pt-1">
-            {message.feedback
-              ? 'Você achou esta resposta útil'
-              : 'Você indicou que esta resposta não foi útil'}
-          </div>
-        )}
-      </div>
-    </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 });
+
+// Displaying the component name in React DevTools
+MessageItem.displayName = 'MessageItem';
+
+export default MessageItem;

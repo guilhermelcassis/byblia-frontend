@@ -1,0 +1,802 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 51, 51, 51;
+  --background-rgb: 255, 255, 255;
+  --bible-main-rgb: 51, 51, 51;
+  --bible-black-rgb: 51, 51, 51;
+  --accent-light: 245, 245, 245;
+  --accent-border: 229, 231, 235;
+}
+
+/* Font for logo */
+@font-face {
+  font-family: 'Boldonse';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.googleapis.com/css2?family=Boldonse:wght@400;700&display=swap');
+}
+
+/* Base styles */
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  touch-action: manipulation;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+html {
+  height: 100%;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 180, 180, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.5);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(180, 180, 180, 0.3) transparent;
+}
+
+/* Logo styles */
+.byblia-logo {
+  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  color: rgb(var(--bible-main-rgb));
+  display: inline-block;
+  white-space: nowrap;
+  overflow: visible;
+  word-spacing: -0.05em;
+  padding-right: 2px;
+}
+
+/* Title styles */
+.byblia-title {
+  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
+  font-weight: 400; 
+  color: rgb(var(--bible-main-rgb));
+}
+
+.byblia-title-lg {
+  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
+  font-weight: 400;
+  font-size: 2.25rem;
+  letter-spacing: -0.02em;
+  color: rgb(var(--bible-main-rgb));
+}
+
+.byblia-title-md {
+  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: rgb(var(--bible-main-rgb));
+}
+
+.byblia-title-sm {
+  font-family: 'Boldonse', var(--font-boldonse), sans-serif;
+  font-weight: 400;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  color: rgb(var(--bible-main-rgb));
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-rgb: 0, 0, 0;
+  }
+}
+
+/* Content streaming styles */
+.streaming-content {
+  position: relative;
+}
+
+.message-text-content {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message-text-content.streaming-content {
+  position: relative;
+}
+
+/* User message styles */
+.user-message-container,
+.user-message-text,
+.user-message-content,
+.user-message-inner {
+  color: white !important;
+  font-weight: 500 !important;
+}
+
+[data-user-message="true"] * {
+  color: white !important;
+}
+
+.bg-bible-brown {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.bg-bible-brown .message-text,
+.bg-bible-brown .prose,
+.bg-bible-brown .prose-sm,
+.bg-bible-brown .message-text-content,
+.bg-bible-brown .prose-invert,
+.bg-bible-brown * {
+  color: white !important;
+}
+
+.bg-bible-brown .message-text strong {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: white !important;
+}
+
+.prose-invert strong {
+  color: white !important;
+  font-weight: 700;
+}
+
+.prose .user-message-inner,
+.prose-sm .user-message-inner,
+.prose-sm.user-message-text,
+.prose.user-message-text {
+  color: white !important;
+}
+
+/* Message content styles */
+.prose p, .prose-sm p {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.65;
+  margin-bottom: 0.75em;
+  transition: none !important;
+}
+
+.prose p:last-child, .prose-sm p:last-child {
+  margin-bottom: 0;
+}
+
+/* Chat scroll styles */
+.streaming-scroll {
+  scroll-behavior: auto !important;
+  overflow-anchor: none !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-padding: 0 !important;
+  scroll-snap-type: none !important;
+}
+
+.streaming-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.is-streaming .message-text-content {
+  overflow-anchor: auto !important;
+}
+
+.streaming-message {
+  scroll-margin: 0 !important;
+  scroll-snap-align: end !important;
+  overflow-anchor: auto !important;
+}
+
+/* Chat container styles */
+#chat-messages {
+  scroll-behavior: auto !important; 
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-anchor: none !important;
+  scroll-padding: 0 !important;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: none !important;
+  scrollbar-width: none;
+  padding-bottom: 70px !important;
+}
+
+#chat-messages::-webkit-scrollbar {
+  display: none;
+}
+
+/* Input container styles */
+.mobile-input-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.mobile-input-container form {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.mobile-input-container form:focus-within {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Chat UI styles */
+.chat-container {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.chat-header {
+  background: #fff;
+  border-bottom: 1px solid rgba(var(--accent-border), 1);
+  padding: 12px 16px;
+}
+
+/* Welcome screen styles */
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  margin-top: 40px;
+}
+
+.welcome-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: rgb(var(--bible-main-rgb));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--bible-main-rgb), 0.08);
+}
+
+.welcome-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.welcome-text {
+  font-size: 0.9rem;
+  color: #666;
+  max-width: 400px;
+}
+
+/* Message styles */
+.user-message {
+  background-color: rgb(var(--bible-main-rgb));
+  color: white;
+  border-radius: 20px !important;
+}
+
+.rounded-user-message {
+  border-radius: 20px !important;
+}
+
+.assistant-message {
+  background-color: rgb(var(--accent-light));
+  border-radius: 20px !important;
+  color: #333;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+div.user-message, 
+div.user-message-container,
+div.rounded-user-message {
+  border-radius: 20px !important;
+}
+
+/* Message list */
+.message-list {
+  position: relative;
+  padding-top: 10px;
+}
+
+.message-item {
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+/* Feedback buttons */
+.feedback-buttons {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 2px 8px !important;
+  margin: 4px auto !important;
+  max-width: fit-content !important;
+  background-color: rgba(249, 250, 251, 0.7) !important;
+  border-radius: 12px !important;
+  font-size: 12px !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+
+.feedback-buttons > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.feedback-buttons button {
+  min-height: auto !important;
+  min-width: auto !important;
+  padding: 4px !important;
+}
+
+/* Share buttons */
+.share-buttons-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 8px auto !important;
+  padding: 2px 6px !important;
+  max-width: fit-content !important;
+  border-radius: 12px !important;
+  background: rgba(249, 250, 251, 0.8) !important;
+}
+
+.share-button {
+  font-size: 11px !important;
+  padding: 3px 6px !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 24px !important;
+}
+
+.share-button:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.share-button:active {
+  transform: scale(0.95);
+}
+
+/* Navbar */
+.navbar-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  padding: 0 16px;
+  z-index: 9999;
+  background-color: #333333 !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: box-shadow 0.3s ease,
+              background-color 0.3s ease,
+              border-color 0.3s ease;
+  color: white !important;
+}
+
+.navbar-fixed .byblia-logo {
+  font-size: 1.4rem !important;
+  letter-spacing: -0.01em !important;
+  color: white !important;
+}
+
+.navbar-fixed h2 {
+  font-family: 'Boldonse', var(--font-boldonse), sans-serif !important;
+  letter-spacing: 0.02em !important;
+  color: white !important;
+  font-size: 0.9rem !important;
+}
+
+/* Main layout */
+main {
+  padding-top: 56px !important;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  background-color: white;
+}
+
+.page-content {
+  flex: 1;
+  padding-top: 56px;
+  position: relative;
+  width: 100%;
+}
+
+/* Menu */
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 40;
+}
+
+.menu-backdrop.visible {
+  opacity: 1;
+  visibility: visible;
+  z-index: 9980 !important;
+}
+
+.menu-dropdown {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  width: 100%;
+  background-color: #333333 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, 
+              visibility 0.3s ease, 
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 9990;
+}
+
+.menu-dropdown.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  z-index: 9990 !important;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  color: white !important;
+}
+
+.menu-item:hover,
+.menu-item:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white !important;
+}
+
+/* Menu button */
+.mobile-menu-button {
+  z-index: 9995 !important;
+  cursor: pointer !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  padding: 0 !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  color: white !important;
+}
+
+.mobile-menu-button:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.mobile-menu-button:active {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+  transform: scale(0.95) !important;
+}
+
+/* Welcome animation */
+.welcome-title-animation {
+  position: relative;
+  display: inline-block;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, rgb(var(--bible-main-rgb)), rgba(var(--bible-main-rgb), 0.8));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: textShimmer 3s ease-in-out infinite alternate;
+  transform-style: preserve-3d;
+  perspective: 500px;
+  padding: 1rem 1.5rem;
+  margin: 0.5rem;
+  border-radius: 12px;
+}
+
+@keyframes textShimmer {
+  0% {
+    background-position: 0% 50%;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
+  }
+  100% {
+    background-position: 100% 50%;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Input 3D effect */
+.input-box-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: all 0.3s ease;
+  border-radius: 24px;
+  background-color: #f2f3f5;
+  box-shadow: none !important;
+  border: 1px solid #333333 !important;
+  background: transparent !important;
+  overflow: hidden;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.input-box-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(51, 51, 51, 0.15), 0 0 0 1px #333333;
+}
+
+.input-box-3d:focus-within {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(51, 51, 51, 0.18), 0 0 0 1px #333333;
+  background-color: #f8f9fa;
+}
+
+.input-box-3d > div,
+.input-box-3d div.mobile-input-container,
+.input-box-3d div.relative {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.input-box-3d form {
+  width: 100% !important;
+  background: transparent !important;
+}
+
+.input-box-3d textarea {
+  background: transparent !important;
+  width: 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+  /* Welcome container */
+  .welcome-container {
+    padding: 16px;
+    margin-top: 20px;
+  }
+  
+  .welcome-title {
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+  }
+  
+  .welcome-text {
+    font-size: 0.85rem;
+    max-width: 300px;
+  }
+  
+  /* Welcome animation */
+  .welcome-title-animation {
+    padding: 0.5rem 1rem;
+    margin: 0.3rem;
+  }
+  
+  /* Messages */
+  .message-list {
+    padding-bottom: 4px;
+    margin-bottom: 0;
+  }
+  
+  .message-item + .message-item {
+    margin-top: 8px;
+  }
+  
+  /* Buttons */
+  button {
+    min-height: 36px;
+  }
+  
+  button, a {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Forms */
+  input, textarea, select {
+    font-size: 16px !important;
+    display: block;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  
+  /* Mobile input */
+  .mobile-input-container > div {
+    border-radius: 24px !important;
+    background-color: #f5f5f7 !important;
+    border: 1px solid rgb(var(--accent-border)) !important;
+    min-height: 90px !important;
+    width: 99% !important;
+    max-width: 900px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+    margin: 0 auto !important;
+  }
+  
+  .mobile-input-container > div:focus-within {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    border-color: #c0c0c0 !important;
+    background-color: #f0f0f3 !important;
+  }
+  
+  /* Input type text */
+  input[type="text"] {
+    background-color: transparent !important;
+    -webkit-appearance: none;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    font-size: 15px !important;
+    color: #374151 !important;
+    padding: 12px 16px 42px 8px !important;
+    width: 100% !important;
+    min-height: 90px !important;
+    height: auto !important;
+    vertical-align: top !important;
+    border-radius: 24px !important;
+  }
+  
+  /* Submit button */
+  button[type="submit"] {
+    position: absolute !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    top: auto !important;
+    transform: none !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    z-index: 5 !important;
+  }
+  
+  button[type="submit"]:disabled {
+    background-color: #e5e7eb !important;
+    color: #9ca3af !important;
+    cursor: not-allowed !important;
+  }
+  
+  button[type="submit"]:not(:disabled) {
+    background-color: rgb(var(--bible-main-rgb)) !important;
+    color: white !important;
+  }
+  
+  /* Input box 3D */
+  .input-box-3d {
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #333333 !important;
+  }
+  
+  .input-box-3d textarea {
+    font-size: 15px !important;
+    padding: 12px 60px 12px 16px !important;
+  }
+  
+  /* Navbar */
+  .navbar-fixed h2 {
+    font-size: 0.8rem !important;
+  }
+  
+  /* Logo */
+  .byblia-logo {
+    font-size: 1.2rem;
+    letter-spacing: -0.01em;
+    word-spacing: -0.02em;
+    padding-right: 3px;
+    padding-left: 1px;
+  }
+  
+  /* Feedback */
+  .feedback-buttons {
+    padding: 2px 6px !important;
+    font-size: 11px !important;
+  }
+  
+  .feedback-buttons span {
+    font-size: 0.7rem !important;
+  }
+  
+  .feedback-buttons button {
+    padding: 3px !important;
+  }
+  
+  /* Share button */
+  .share-button {
+    font-size: 10px !important;
+    padding: 2px 4px !important;
+    min-height: 22px !important;
+  }
+  
+  /* Landscape orientation */
+  @media (orientation: portrait) {
+    .input-box-3d {
+      border-radius: 20px;
+    }
+  }
+}
+
+/* iOS-specific styles */
+@supports (-webkit-touch-callout: none) {
+  input[type="text"] {
+    display: block;
+  }
+  
+  .user-message, .user-message-container {
+    border-radius: 20px !important;
+  }
+}
