@@ -93,9 +93,10 @@ const PWAInstallButton: React.FC = () => {
       
       setDeferredPrompt(null);
       setIsInstallable(false);
+    } else if (isIOS) {
+      console.log("iOS device detected, showing installation instructions");
     } else {
       console.log("Installation prompt not available, but button was clicked");
-      window.open('/manifest.json', '_blank');
     }
   };
 

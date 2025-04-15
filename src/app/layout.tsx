@@ -43,10 +43,10 @@ export const metadata: Metadata = {
   description: "Um conselheiro virtual para encontrar sabedoria nas Escrituras Sagradas",
   viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no",
   icons: [
-    { rel: "icon", url: "/biblia.png" },
-    { rel: "icon", type: "image/png", url: "/biblia.png" },
-    { rel: "apple-touch-icon", url: "/biblia.png" },
-    { rel: "shortcut icon", url: "/biblia.png" }
+    { rel: "icon", url: "/icons/icon-192x192.png" },
+    { rel: "icon", type: "image/png", url: "/icons/icon-192x192.png" },
+    { rel: "apple-touch-icon", url: "/icons/icon-192x192.png" },
+    { rel: "shortcut icon", url: "/icons/icon-192x192.png" }
   ],
   // PWA metadata
   manifest: "/manifest.json",
@@ -67,8 +67,8 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no" />
-        <link rel="icon" href="/biblia.png" sizes="any" />
-        <link rel="apple-touch-icon" href="/biblia.png" />
+        <link rel="icon" href="/icons/icon-192x192.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" sizes="180x180" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Boldonse:wght@400;700&display=swap" rel="stylesheet" />
