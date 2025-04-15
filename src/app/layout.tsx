@@ -4,6 +4,10 @@ import { Montserrat, Pacifico, Syne, Archivo } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import "./mobile-optimization.css";
+import "./chat-styles.css";
+import "./fixes/header-fix.css";
+import "./fixes/chat-padding-fix.css";
+import "./fixes/chat-bubble-fix.css";
 
 const montserrat = Montserrat({ 
   subsets: ["latin"],
@@ -61,7 +65,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Boldonse:wght@400;700&display=swap" rel="stylesheet" />
       </head>
-      <body className={`${montserrat.className} ${pacifico.variable} ${boldonse.variable} ${archivo.variable} antialiased`}>
+      <body className={`${montserrat.className} ${pacifico.variable} ${boldonse.variable} ${archivo.variable} antialiased m-0 p-0 overflow-hidden`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
         </ThemeProvider>

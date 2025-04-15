@@ -58,5 +58,149 @@ textarea {
     overscroll-behavior-y: contain;
     overflow-x: hidden;
     overflow-y: auto;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
   }
+}
+
+/* Controle melhor do scroll */
+#chat-messages {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto;
+  overscroll-behavior-y: contain;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto !important;
+  max-height: 100vh !important; /* Aumentado para ocupar toda a tela */
+  padding-top: 0 !important; /* Remove o padding superior */
+  padding-bottom: 0.5rem !important;
+  margin-top: 0 !important; /* Remove a margem superior */
+  margin-bottom: 0 !important; /* Remover margens */
+}
+
+/* Melhorias para mensagens no mobile */
+.assistant-message {
+  max-width: 98% !important;
+  width: 98% !important;
+  margin-left: 0.1rem !important;
+  margin-right: auto !important;
+  box-sizing: border-box;
+  padding: 1.15rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+  border-radius: 1.25rem 1.25rem 1.25rem 0.25rem !important; /* Formato de chat app */
+}
+
+/* Primeira mensagem não deve ter margem superior */
+.assistant-message:first-child,
+.message-container:first-child .assistant-message {
+  margin-top: 0 !important;
+}
+
+.user-message {
+  max-width: 70% !important; /* Reduzido para ser mais compacto */
+  width: auto !important;
+  margin-left: auto !important;
+  margin-right: 0.1rem !important;
+  box-sizing: border-box;
+  padding: 0.8rem !important;
+  border-radius: 1.25rem 1.25rem 0.25rem 1.25rem !important; /* Formato de chat app */
+}
+
+.message-text-content {
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  overflow: visible !important;
+  max-height: none !important;
+  display: block;
+  height: auto !important;
+}
+
+/* Garante que os containers de texto se expandam corretamente */
+.message-container {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.25rem !important;
+}
+
+/* Chat container ocupa toda a altura disponível */
+.chat-container {
+  height: 100vh !important;
+  padding: 0 0.5rem 5rem 0.5rem !important; /* Remove o padding superior */
+  border-radius: 0 !important;
+}
+
+/* Ajustes específicos para iPad e tablets */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .assistant-message {
+    max-width: 98% !important;
+    width: 98% !important;
+    margin: 0.5rem auto 0.5rem 0.1rem !important;
+    padding: 1.25rem !important;
+  }
+  
+  .assistant-message:first-child,
+  .message-container:first-child .assistant-message {
+    margin-top: 0 !important;
+  }
+  
+  .user-message {
+    max-width: 70% !important;
+    margin-left: auto !important;
+    margin-right: 0.1rem !important;
+    padding: 0.85rem !important;
+  }
+  
+  #chat-messages {
+    max-height: 100vh !important;
+    padding: 0 0.25rem 0.5rem 0.25rem !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+}
+
+/* Ajustes específicos para telas pequenas (smartphones) */
+@media (max-width: 640px) {
+  .assistant-message {
+    padding: 1rem !important;
+    max-width: 98% !important;
+    width: 98% !important;
+    margin: 0.4rem auto 0.4rem 0.1rem !important;
+  }
+  
+  .assistant-message:first-child,
+  .message-container:first-child .assistant-message {
+    margin-top: 0 !important;
+  }
+  
+  .user-message {
+    padding: 0.75rem !important;
+    max-width: 70% !important;
+    margin: 0.4rem 0.1rem 0.4rem auto !important;
+  }
+  
+  .message-text-content {
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+  }
+  
+  #chat-messages {
+    padding: 0 0.25rem 0.25rem 0.25rem !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+    max-height: 100vh !important;
+  }
+  
+  .input-container {
+    padding: 0.75rem 0.5rem !important;
+  }
+}
+
+/* Garantir que o input container não ocupe muito espaço */
+.input-container {
+  padding: 0.75rem 0.5rem !important;
 } 

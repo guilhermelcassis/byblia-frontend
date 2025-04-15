@@ -167,12 +167,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-zinc-900 font-sans">
+    <div className="flex flex-col h-screen bg-white dark:bg-zinc-900 font-sans overflow-hidden m-0 p-0">
       {/* Main content com design moderno e clean */}
-      <main className="flex-grow overflow-hidden flex flex-col w-full relative">
+      <main className="flex-grow overflow-hidden flex flex-col w-full relative m-0 p-0">
         {/* Clean background with no decorative elements */}
         
-        <div className="w-full max-w-4xl mx-auto h-full flex flex-col overflow-hidden px-4 md:px-6 pt-4 pb-6 relative z-10">
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col overflow-hidden px-4 md:px-6 pb-6 pt-0 relative z-10">
           {children}
         </div>
       </main>

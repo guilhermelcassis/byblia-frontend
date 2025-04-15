@@ -1,0 +1,140 @@
+/* Chat Layout Simplificado */
+
+/* ===== RESET BÁSICO ===== */
+.avatar, .avatar-container, img[class*="avatar"] {
+  display: none !important;
+}
+
+/* ===== CONTÊINER DE MENSAGENS ===== */
+#chat-messages,
+.messages-container {
+  padding-bottom: 120px !important;
+  background-color: #121212 !important;
+  width: 100% !important;
+}
+
+/* ===== MENSAGEM DO USUÁRIO ===== */
+/* Contêiner da mensagem */
+.user-message {
+  position: relative !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  padding: 0 !important;
+  margin: 4px 0 !important;
+}
+
+/* Nome do usuário/autor */
+.user-message .message-author {
+  display: none !important;
+}
+
+/* Conteúdo da mensagem do usuário */
+.user-message .message-content {
+  background-color: #0078FF !important;
+  color: white !important;
+  max-width: 40% !important;
+  width: auto !important;
+  padding: 12px 15px !important;
+  margin-right: 12px !important;
+  margin-bottom: 4px !important;
+  border-radius: 18px 4px 18px 18px !important;
+  font-size: 0.95rem !important;
+  line-height: 1.4 !important;
+  text-align: left !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* ===== MENSAGEM DO ASSISTENTE ===== */
+/* Contêiner da mensagem */
+.assistant-message {
+  position: relative !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  padding: 0 !important;
+  margin: 10px 0 !important;
+}
+
+/* Nome do assistente */
+.assistant-message .message-author {
+  margin-left: 15px !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 0.8rem !important;
+  margin-bottom: 2px !important;
+}
+
+/* Conteúdo da mensagem do assistente */
+.assistant-message .message-content {
+  background-color: #2A2F39 !important;
+  color: white !important;
+  max-width: 85% !important;
+  width: auto !important;
+  padding: 15px !important;
+  margin-left: 12px !important;
+  margin-bottom: 4px !important;
+  border-radius: 4px 18px 18px 18px !important;
+  font-size: 0.95rem !important;
+  line-height: 1.5 !important;
+  text-align: left !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* ===== ESTILOS DE PARÁGRAFO ===== */
+.message-content p {
+  margin: 0 0 8px 0 !important;
+  padding: 0 !important;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0 !important;
+}
+
+
+/* ===== BOTÕES DE FEEDBACK ===== */
+.feedback-container,
+.message-actions,
+div[class*="feedback"] {
+  margin-top: 8px !important;
+  margin-bottom: 16px !important;
+  margin-left: 12px !important;
+  display: flex !important;
+  gap: 8px !important;
+}
+
+/* Estilos de botão simples */
+.feedback-button,
+.share-button,
+.copy-button {
+  background-color: rgba(59, 66, 82, 0.7) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 4px !important;
+  padding: 6px 12px !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+  .user-message .message-content {
+    max-width: 70% !important;
+    margin-right: 8px !important;
+  }
+  
+  .assistant-message .message-content {
+    max-width: 90% !important;
+    margin-left: 8px !important;
+  }
+  
+  #chat-messages,
+  .messages-container {
+    padding-bottom: 150px !important;
+  }
+} 

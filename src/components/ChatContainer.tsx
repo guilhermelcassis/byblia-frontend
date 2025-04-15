@@ -64,6 +64,8 @@ const ChatContainer: React.FC = () => {
   const controls = useAnimation();
   // Add a mounted state to prevent hydration mismatch
   const [isMounted, setIsMounted] = useState(false);
+  // Add state to track if we're at the top of scroll
+  const [isAtScrollTop, setIsAtScrollTop] = useState(true);
   
   // Enhanced scroll hook
   const { containerRef, userHasScrolled, scrollToBottom, isNearBottom, hasInvisibleNewContent } = useScroll({
@@ -72,6 +74,26 @@ const ChatContainer: React.FC = () => {
     hasNewContent: streamHasNewContent,
     currentResponseText: state.currentResponse || ''
   });
+  
+  // Add scroll event listener to check if we're at the top
+  useEffect(() => {
+    if (!containerRef.current) return;
+    
+    const checkScrollTop = () => {
+      const scrollTop = containerRef.current?.scrollTop || 0;
+      setIsAtScrollTop(scrollTop < 10); // Consider "at top" if scrolled less than 10px
+    };
+    
+    const container = containerRef.current;
+    container.addEventListener('scroll', checkScrollTop);
+    
+    // Initial check
+    checkScrollTop();
+    
+    return () => {
+      container.removeEventListener('scroll', checkScrollTop);
+    };
+  }, [containerRef.current]);
   
   // Mark component as mounted to prevent hydration issues
   useEffect(() => {
@@ -252,7 +274,7 @@ const ChatContainer: React.FC = () => {
   // Only render the full chat UI after component is mounted
   if (!isMounted) {
     return (
-      <div className="relative flex flex-col h-full w-full">
+      <div className="relative flex flex-col h-full w-full min-h-screen">
         <div className="flex-1 overflow-y-auto bg-white dark:bg-black">
           <div className="flex justify-center py-8">
             <div className="dot-elastic"></div>
@@ -263,25 +285,27 @@ const ChatContainer: React.FC = () => {
   }
 
   return (
-    <div className="relative flex flex-col h-full w-full">
+    <div className="relative flex flex-col h-full w-full min-h-screen inset-0 m-0 p-0">
       {/* Main message container with enhanced styling */}
       <div
         ref={containerRef}
         id="chat-messages"
         className={cn(
           "flex-1 overflow-y-auto",
-          "px-3 sm:px-4 pt-2 pb-32",
+          "px-3 sm:px-4 pb-32 pt-0", 
           "scroll-smooth",
           "scroll-behavior-smooth",
           "overscroll-contain",
-          "bg-white dark:bg-black"
+          "bg-white dark:bg-black",
+          "mt-0",
+          isAtScrollTop && state.messages.length > 0 ? "initial-padding" : ""
         )}
-        style={{ scrollBehavior: 'smooth' }}
+        style={{ scrollBehavior: 'smooth', marginTop: 0, paddingTop: isAtScrollTop && state.messages.length === 0 ? '1.5rem' : 0 }}
       >
         {/* If there are messages, show them */}
         {state.messages.length > 0 && (
           <motion.div
-            className="flex flex-col gap-4 max-w-3xl mx-auto pt-4 pb-16"
+            className={`flex flex-col gap-4 max-w-3xl mx-auto pb-16 ${isAtScrollTop ? 'pt-2' : 'pt-0'}`}
             variants={containerVariants}
             initial="hidden"
             animate={controls}
@@ -290,7 +314,7 @@ const ChatContainer: React.FC = () => {
               <motion.div 
                 key={message.id || index} 
                 variants={itemVariants}
-                className="message-wrapper"
+                className={`message-wrapper ${index === 0 && isAtScrollTop ? 'mt-2' : ''}`}
               >
                 <MessageItem
                   message={message}
@@ -358,7 +382,7 @@ const ChatContainer: React.FC = () => {
                 animate="visible"
               >
                 {/* Logo and title area - above centered input */}
-                <motion.div className="text-center mb-10" variants={itemVariants}>
+                <motion.div className="text-center mb-10 pt-8" variants={itemVariants}>
                   
                   <motion.h2 
                     className="text-3xl sm:text-4xl font-semibold mb-3"

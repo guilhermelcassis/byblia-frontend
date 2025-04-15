@@ -1,0 +1,199 @@
+/* Estilo simplificado para bolhas de chat */
+
+/* Reset para o fundo da página */
+body, #__next, main, .app-container {
+  background-color: transparent !important;
+}
+
+/* Configurações para os dois modos de tema */
+:root {
+  color-scheme: light dark;
+}
+
+.dark body, 
+.dark #__next, 
+.dark main, 
+.dark .app-container,
+.dark .chat-container,
+.dark #chat-messages {
+  background-color: rgb(18, 18, 18) !important;
+  color: #ffffff;
+}
+
+.light body, 
+.light #__next, 
+.light main, 
+.light .app-container,
+.light .chat-container,
+.light #chat-messages {
+  background-color: #ffffff !important;
+  color: #000000;
+}
+
+/* Container do chat */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.5rem 5rem 0.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 100%;
+}
+
+/* Container das mensagens */
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 1rem 0.5rem;
+  gap: 1rem;
+}
+
+/* Estilos base para mensagens */
+.message {
+  max-width: 90%;
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.5;
+  position: relative;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  margin-bottom: 0.5rem;
+}
+
+/* Mensagem do usuário */
+.user-message {
+  align-self: flex-end;
+  background-color: #1a8adb;
+  color: white;
+  border-bottom-right-radius: 4px;
+  margin-left: auto;
+  margin-right: 0.5rem;
+  text-align: right;
+}
+
+/* Mensagem do assistente no modo dark */
+.dark .assistant-message {
+  background-color: #2a2a2a;
+  color: #ffffff;
+  border-bottom-left-radius: 4px;
+  margin-right: auto;
+  margin-left: 0.5rem;
+}
+
+/* Mensagem do assistente no modo light */
+.light .assistant-message,
+.assistant-message {
+  background-color: #f0f0f0;
+  color: #000000;
+  border-bottom-left-radius: 4px;
+  margin-right: auto;
+  margin-left: 0.5rem;
+}
+
+/* Container individual da mensagem */
+.message-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Conteúdo da mensagem */
+.message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Remover margens excessivas */
+.user-message p, .assistant-message p {
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== VERSÍCULOS BÍBLICOS - MODO DARK ===== */
+.dark .assistant-message em,
+.dark .assistant-message i,
+.dark .assistant-message blockquote {
+  color: #AEC6FF !important;
+  font-style: italic !important;
+}
+
+/* ===== VERSÍCULOS BÍBLICOS - MODO LIGHT ===== */
+/* Estilo agressivo para garantir máxima legibilidade */
+.light .assistant-message em,
+.light .assistant-message i,
+.light .assistant-message blockquote,
+.assistant-message em,
+.assistant-message i,
+.assistant-message blockquote {
+  color: #003366 !important; /* Azul escuro - quase marinho */
+  font-style: italic !important;
+  font-weight: 500 !important;
+  background-color: #e6f0ff !important; /* Fundo azul bem claro */
+  padding: 3px 5px !important;
+  border-radius: 3px !important;
+  border-left: 2px solid #0052cc !important;
+  display: inline-block !important;
+  margin: 2px 0 !important;
+  line-height: 1.6 !important;
+}
+
+/* Estilo para links de referências bíblicas */
+.light .assistant-message a,
+.assistant-message a {
+  color: #004d99 !important; /* Azul escuro */
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba(0, 77, 153, 0.3) !important;
+  padding-bottom: 1px !important;
+}
+
+/* Destaque para textos importantes */
+.dark .assistant-message strong,
+.dark .assistant-message b {
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+}
+
+.light .assistant-message strong,
+.light .assistant-message b,
+.assistant-message strong,
+.assistant-message b {
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+/* Remover qualquer estilo que possa estar interferindo */
+#chat-messages {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Forçar a exibição correta dos elementos de mensagem */
+.user-message, .assistant-message {
+  display: inline-block !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Garantir que o avatar fica alinhado corretamente */
+.avatar-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+/* Desativar transformações que possam estar afetando o layout */
+.message-container, .message, .user-message, .assistant-message {
+  transform: none !important;
+  transition: none !important;
+} 

@@ -1,0 +1,91 @@
+/* Header space fix - Removes any potential space at the top of the app */
+html, body {
+  margin: 0;
+  padding: 0; 
+  overflow-x: hidden;
+  max-height: 100vh;
+  height: 100%;
+}
+
+body::before {
+  display: none !important;
+}
+
+body > div {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+#__next, 
+main, 
+.app-container,
+.chat-container {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+/* Fix for potential ghost header/navbar */
+header, 
+.header, 
+nav, 
+.navbar, 
+.nav-container {
+  display: none !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  z-index: -999 !important;
+}
+
+/* Override Tailwind classes that might be causing the issue */
+.pt-16, .pt-20, .pt-24, .py-16, .py-20, .py-24,
+.mt-16, .mt-20, .mt-24, .my-16, .my-20, .my-24 {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Force full height on chat messages container */
+#chat-messages {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-y: auto;
+  transition: padding-top 0.3s ease-out;
+}
+
+/* Initial padding for chat messages when at top of scroll */
+#chat-messages.initial-padding {
+  padding-top: 1.5rem !important;
+}
+
+/* Ensure smooth transition for padding changes */
+.message-wrapper {
+  transition: margin-top 0.3s ease-out;
+}
+
+/* First message should have nice spacing when at top of chat */
+.message-wrapper:first-child {
+  margin-top: 0.5rem;
+}
+
+/* Add smooth scrolling for a nicer experience */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Content scaling transition */
+#chat-messages .flex.flex-col.gap-4 {
+  transition: transform 0.3s ease-out;
+}
+
+/* Content appears slightly larger when at top of scroll with padding */
+#chat-messages.initial-padding .flex.flex-col.gap-4 {
+  transform: scale(1.01);
+  transform-origin: top center;
+} 
