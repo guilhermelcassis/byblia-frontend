@@ -1,4 +1,4 @@
-# Byblia - Conselheiro Bíblico
+# Byblia - Conselheiro Bíblico - made by @guilhermelcassis
 
 Um conselheiro virtual para obter respostas baseadas na Bíblia Sagrada. Byblia permite que usuários façam perguntas relacionadas à fé e recebam respostas baseadas nos ensinamentos bíblicos.
 
