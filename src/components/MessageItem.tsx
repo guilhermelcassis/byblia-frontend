@@ -47,9 +47,34 @@ export const MessageItem: React.FC<Props> = memo(({
   const screen = useScreen();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Verificar se estamos no cliente
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Determine if we should show buttons (not during loading or streaming)
   const shouldShowButtons = !isStreaming && !isLoading && message.role === 'assistant';
+  
+  // Quando uma resposta da IA for renderizada, adicionar um atributo no body
+  // para que possamos detectar e ocultar botões
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    if (!isUser && (isStreaming || isLoading)) {
+      document.body.setAttribute('data-ai-responding', 'true');
+      
+      return () => {
+        // Pequeno delay para evitar flickering
+        setTimeout(() => {
+          if (typeof document !== 'undefined') {
+            document.body.removeAttribute('data-ai-responding');
+          }
+        }, 500);
+      };
+    }
+  }, [isUser, isStreaming, isLoading, message.content, isMounted]);
 
   // Message animation variants with improved physics
   const messageVariants = {
