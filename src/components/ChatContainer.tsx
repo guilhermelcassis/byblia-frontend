@@ -141,7 +141,7 @@ const ChatContainer: React.FC = () => {
       // Use requestAnimationFrame for smoother updates
       requestAnimationFrame(() => {
         if (!userManuallyScrolled) {
-          scrollToBottom("auto");
+          scrollToBottom({ behavior: "auto" });
         }
         setStreamHasNewContent(true);
       });
@@ -155,7 +155,7 @@ const ChatContainer: React.FC = () => {
       
       // Final scroll once streaming completes - use a slightly longer delay
       if (!userHasScrolled) {
-        setTimeout(() => scrollToBottom("smooth"), 150);
+        setTimeout(() => scrollToBottom({ behavior: "smooth" }), 150);
       }
     }
   }, [state.isStreaming, streamHasNewContent, userHasScrolled, scrollToBottom]);
@@ -163,7 +163,7 @@ const ChatContainer: React.FC = () => {
   // For welcome screen, scroll to bottom when message count changes
   useEffect(() => {
     if (state.messages.length === 0) {
-      scrollToBottom("auto");
+      scrollToBottom({ behavior: "auto" });
     }
   }, [state.messages.length, scrollToBottom]);
 
@@ -222,7 +222,7 @@ const ChatContainer: React.FC = () => {
       setUserManuallyScrolled(false);
       
       // Let the scrollToBottom from useScroll handle scrolling
-      scrollToBottom("smooth");
+      scrollToBottom({ behavior: "smooth" });
     }
   }, [state.messages.length, scrollToBottom]);
 
@@ -269,7 +269,7 @@ const ChatContainer: React.FC = () => {
     if (resetScroll) {
       resetAutoScroll(); // Use the new resetAutoScroll function
     } else {
-      scrollToBottom("smooth");
+      scrollToBottom({ behavior: "smooth" });
     }
   };
 
