@@ -79,9 +79,16 @@ const ChatContainer: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
     
-    // Apply smooth scroll CSS for better animation
+    // Apply smooth scroll CSS for better animation - use auto for mobile
     if (containerRef.current.style) {
-      containerRef.current.style.scrollBehavior = 'smooth';
+      containerRef.current.style.scrollBehavior = screen.isMobile ? 'auto' : 'smooth';
+      
+      // Apply hardware acceleration for mobile
+      if (screen.isMobile) {
+        // Use a type assertion for the non-standard webkit property
+        (containerRef.current.style as any).WebkitOverflowScrolling = 'touch';
+        containerRef.current.style.transform = 'translateZ(0)';
+      }
     }
     
     const checkScrollTop = () => {
@@ -98,7 +105,7 @@ const ChatContainer: React.FC = () => {
     return () => {
       container.removeEventListener('scroll', checkScrollTop);
     };
-  }, [containerRef.current]);
+  }, [containerRef.current, screen.isMobile]);
   
   // Mark component as mounted to prevent hydration issues
   useEffect(() => {
@@ -141,6 +148,7 @@ const ChatContainer: React.FC = () => {
       // Use requestAnimationFrame for smoother updates
       requestAnimationFrame(() => {
         if (!userManuallyScrolled) {
+          // Use auto scroll for mobile devices for better performance
           scrollToBottom({ behavior: "auto" });
         }
         setStreamHasNewContent(true);
@@ -155,10 +163,12 @@ const ChatContainer: React.FC = () => {
       
       // Final scroll once streaming completes - use a slightly longer delay
       if (!userHasScrolled) {
-        setTimeout(() => scrollToBottom({ behavior: "smooth" }), 150);
+        // Use longer delay on mobile
+        setTimeout(() => scrollToBottom({ behavior: screen.isMobile ? "auto" : "smooth" }), 
+          screen.isMobile ? 200 : 150);
       }
     }
-  }, [state.isStreaming, streamHasNewContent, userHasScrolled, scrollToBottom]);
+  }, [state.isStreaming, streamHasNewContent, userHasScrolled, scrollToBottom, screen.isMobile]);
 
   // For welcome screen, scroll to bottom when message count changes
   useEffect(() => {
@@ -222,9 +232,9 @@ const ChatContainer: React.FC = () => {
       setUserManuallyScrolled(false);
       
       // Let the scrollToBottom from useScroll handle scrolling
-      scrollToBottom({ behavior: "smooth" });
+      scrollToBottom({ behavior: screen.isMobile ? "auto" : "smooth" });
     }
-  }, [state.messages.length, scrollToBottom]);
+  }, [state.messages.length, scrollToBottom, screen.isMobile]);
 
   // Wrapper for sending message and handling scroll
   const handleSendMessage = (message: string) => {
@@ -269,7 +279,7 @@ const ChatContainer: React.FC = () => {
     if (resetScroll) {
       resetAutoScroll(); // Use the new resetAutoScroll function
     } else {
-      scrollToBottom({ behavior: "smooth" });
+      scrollToBottom({ behavior: screen.isMobile ? "auto" : "smooth" });
     }
   };
 
@@ -309,13 +319,13 @@ const ChatContainer: React.FC = () => {
           isAtScrollTop && state.messages.length > 0 ? "initial-padding" : ""
         )}
         style={{ 
-          scrollBehavior: 'smooth',
+          scrollBehavior: screen.isMobile ? 'auto' : 'smooth',
           marginTop: 0, 
           paddingTop: isAtScrollTop && state.messages.length === 0 ? '1.5rem' : 0,
           WebkitOverflowScrolling: 'touch', // For smooth scrolling on iOS
           transform: 'translateZ(0)',  // Hardware acceleration
-          willChange: 'transform',     // Hint for browser optimization
-          transition: 'transform 0.2s ease-out' // Smooth transition for scrolling
+          willChange: screen.isMobile ? 'transform' : 'auto',     // Hint for browser optimization
+          transition: screen.isMobile ? 'none' : 'transform 0.2s ease-out' // Smooth transition for scrolling
         }}
       >
         {/* If there are messages, show them */}

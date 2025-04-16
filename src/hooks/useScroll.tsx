@@ -24,6 +24,12 @@ interface UseScrollOptions {
 const MAX_AUTO_SCROLL_FREQUENCY_DESKTOP = 950; // Increased from 750ms to 950ms for even smoother scrolling
 const MAX_AUTO_SCROLL_FREQUENCY_MOBILE = 1200; // Increased from 1000ms to 1200ms for mobile
 
+// Add mobile-specific scroll parameters for smoother animation
+const MOBILE_SCROLL_BEHAVIOR: ScrollBehavior = 'auto'; // Use 'auto' on mobile for better performance
+const DESKTOP_SCROLL_BEHAVIOR: ScrollBehavior = 'smooth';
+const SCROLL_THROTTLE_MOBILE = 300; // More aggressive throttling on mobile
+const SCROLL_THROTTLE_DESKTOP = 150;
+
 // Interface to better define scroll behavior options
 interface ScrollBehaviorOptions {
   behavior?: ScrollBehavior;
@@ -234,8 +240,18 @@ export function useScroll({
     
     if (!container || !isMounted.current) return;
     
+    // Choose appropriate behavior based on device for better performance on mobile
     // During streaming, use 'auto' to prevent animation stacking
-    const finalBehavior: ScrollBehavior = isStreaming ? 'auto' : behavior;
+    let finalBehavior: ScrollBehavior;
+    
+    if (isStreaming) {
+      finalBehavior = 'auto';
+    } else if (screen.isMobile) {
+      // For mobile, prioritize performance by using auto by default, unless explicitly smooth is requested
+      finalBehavior = behavior === 'smooth' ? MOBILE_SCROLL_BEHAVIOR : 'auto';
+    } else {
+      finalBehavior = behavior;
+    }
     
     // Respect user's scroll position unless forced
     if (!autoScrollEnabledRef.current && respectUserScrollPosition && !force) {
@@ -245,6 +261,7 @@ export function useScroll({
     // Check if throttling is needed based on device and streaming state
     const now = Date.now();
     const timeSinceLastScroll = now - throttleState.current.lastScrollTime;
+    const throttleTime = screen.isMobile ? SCROLL_THROTTLE_MOBILE : SCROLL_THROTTLE_DESKTOP;
     
     // Apply throttling for smoother experience
     if (timeSinceLastScroll < maxAutoScrollFrequencyRef.current && !force) {
@@ -259,24 +276,55 @@ export function useScroll({
             
             // Re-check if we should still scroll before executing
             if (autoScrollEnabledRef.current || force) {
+              // Apply hardware acceleration for smoother scrolling on mobile
+              if (screen.isMobile) {
+                containerRef.current.style.transform = 'translateZ(0)';
+                containerRef.current.style.willChange = 'transform';
+              }
+              
               containerRef.current.scrollTo({
                 top: containerRef.current.scrollHeight,
                 behavior: finalBehavior
               });
+              
+              // Schedule resetting will-change to avoid memory consumption
+              if (screen.isMobile) {
+                setTimeout(() => {
+                  if (containerRef.current) {
+                    containerRef.current.style.willChange = 'auto';
+                  }
+                }, 300);
+              }
             }
           }
-        }, maxAutoScrollFrequencyRef.current - timeSinceLastScroll);
+        }, Math.max(throttleTime, maxAutoScrollFrequencyRef.current - timeSinceLastScroll));
       }
       return;
     }
     
     // Immediate scroll when throttling not needed
     throttleState.current.lastScrollTime = now;
+    
+    // Apply hardware acceleration for smoother scrolling on mobile
+    if (screen.isMobile) {
+      container.style.transform = 'translateZ(0)';
+      container.style.willChange = 'transform';
+    }
+    
     container.scrollTo({
       top: container.scrollHeight,
       behavior: finalBehavior
     });
-  }, [containerRef, autoScrollEnabledRef, isStreaming, maxAutoScrollFrequencyRef]);
+    
+    // Schedule resetting will-change to avoid memory consumption
+    if (screen.isMobile) {
+      setTimeout(() => {
+        if (container) {
+          container.style.willChange = 'auto';
+        }
+      }, 300);
+    }
+  }, [containerRef, autoScrollEnabledRef, isStreaming, maxAutoScrollFrequencyRef, screen.isMobile]);
 
   /**
    * Enhanced scroll handler with improved user intent detection
@@ -439,9 +487,13 @@ export function useScroll({
         scrollAnimationRef.current = requestAnimationFrame(() => {
           // Small delay to let layout stabilize after resize
           setTimeout(() => {
-            scrollToBottom({ behavior: "auto" });
+            // For mobile, use 'auto' for better performance during resize events
+            scrollToBottom({ 
+              behavior: screen.isMobile ? 'auto' : "auto",
+              force: true
+            });
             scrollAnimationRef.current = null;
-          }, 100);
+          }, screen.isMobile ? 150 : 100);
         });
       }
     };
@@ -453,7 +505,7 @@ export function useScroll({
         cancelAnimationFrame(scrollAnimationRef.current);
       }
     };
-  }, [scrollToBottom]);
+  }, [scrollToBottom, screen.isMobile]);
   
   // Reset scroll position when component unmounts
   useEffect(() => {
@@ -489,9 +541,11 @@ export function useScroll({
       // Use RAF + timeout to ensure UI has updated before scrolling
       setTimeout(() => {
         requestAnimationFrame(() => {
-          scrollToBottom({ behavior: "smooth" });
+          scrollToBottom({ 
+            behavior: screen.isMobile ? 'auto' : "smooth" 
+          });
         });
-      }, 50);
+      }, screen.isMobile ? 80 : 50);
     },
     shouldAutoScroll: autoScrollEnabledRef.current,
     setShouldAutoScroll: (value: boolean) => {
