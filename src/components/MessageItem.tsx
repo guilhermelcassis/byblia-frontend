@@ -193,7 +193,7 @@ export const MessageItem: React.FC<Props> = memo(({
   };
 
   // Static properties based on message role
-  const avatarText = isUser ? 'U' : 'B';
+  const avatarText = isUser ? 'Y' : 'B';
   const avatarBg = isUser 
     ? 'bg-gray-800 text-white dark:bg-gray-600' 
     : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200';
@@ -241,12 +241,19 @@ export const MessageItem: React.FC<Props> = memo(({
               ? "bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700" 
               : "bg-gray-200 dark:bg-gray-800 border border-gray-300 dark:border-gray-700",
             isUser ? "rounded-tr-sm" : "rounded-tl-sm",
-            "pb-5"
+            "pb-5",
+            isStreaming && !isUser ? "streaming-message" : ""
           )}
           style={{
             boxShadow: isDark 
               ? '0 1px 3px rgba(0,0,0,0.2)' 
-              : '0 1px 3px rgba(0,0,0,0.1)'
+              : '0 1px 3px rgba(0,0,0,0.1)',
+            transition: 'width 0.3s ease-out, height 0.3s ease-out',
+            minHeight: isStreaming && !isUser ? '60px' : 'auto',
+            minWidth: isUser ? 'auto' : '200px',
+            transform: 'translateZ(0)',
+            backfaceVisibility: 'hidden',
+            willChange: isStreaming && !isUser ? 'contents' : 'auto'
           }}
         >
           {/* Message Content Wrapper */}
@@ -262,7 +269,14 @@ export const MessageItem: React.FC<Props> = memo(({
             </div>
 
             {/* Actual Message Content - Always render with div wrapper for consistency */}
-            <div className="mb-1 min-h-[1.5rem]">
+            <div className={cn(
+              "mb-1",
+              isStreaming && !isUser ? "streaming-content-wrapper" : "",
+              "min-h-[1.5rem]"
+            )} 
+            style={{
+              transition: isStreaming && !isUser ? 'height 0.1s ease' : 'none'
+            }}>
               {message.content ? (
                 <MessageText 
                   content={message.content} 

@@ -1012,6 +1012,7 @@
 
 /* Base styles */
 html {
+  scroll-behavior: smooth;
   height: 100%;
   box-sizing: border-box;
 }
@@ -1307,4 +1308,265 @@ body::before {
   display: block;
   height: auto;
   flex-grow: 1;
+}
+
+/* Improved streaming content stabilization */
+.streaming-message {
+  min-height: 60px;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: auto;
+  contain: content;
+  transition: none !important;
+}
+
+.streaming-content-wrapper {
+  position: relative;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: auto;
+  contain: content;
+  min-height: 1.5rem;
+}
+
+.streaming-text {
+  position: relative;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: none !important;
+  will-change: auto;
+  contain: content;
+}
+
+.message-bubble {
+  transform-style: flat;
+  will-change: auto;
+  contain: content;
+  transition: background-color 0.2s ease !important;
+}
+
+/* Disable transitions and animations when streaming for better performance */
+[data-streaming="true"] * {
+  transition: none !important;
+  animation-play-state: paused !important;
+  contain: content;
+}
+
+/* Smooth gradient pulse for new content indicator */
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.dark {
+  @keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+  }
+}
+
+/* Enhanced new message indicator */
+.fixed.bottom-28.left-1\/2.transform.-translate-x-1\/2.z-50 button {
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  animation: pulse-glow 2s infinite;
+}
+
+/* Hardware-accelerated animations for indicators */
+.w-1\.5.h-1\.5.rounded-full.animate-pulse {
+  will-change: opacity;
+  transform: translateZ(0);
+  contain: strict;
+}
+
+/* Prevent visible layout shifts */
+.message-text-content[data-streaming="true"] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  contain: content;
+  min-height: 1.5rem;
+  position: relative;
+  will-change: contents;
+  padding-right: 8px;
+}
+
+/* Better content stabilization */
+.message-wrapper {
+  contain: content;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Force hardware acceleration on message container */
+.message-container {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: auto;
+  contain: content;
+}
+
+/* Stabilize message content */
+.message-content {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: auto;
+  contain: content;
+}
+
+/* Performance optimization for scroll container */
+.scroll-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  transform: translateZ(0);
+  will-change: scroll-position;
+  contain: strict;
+}
+
+/* Ensure proper full-height layout for chat container */
+.h-full.w-full.min-h-screen {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  max-height: 100vh;
+  max-height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  position: relative;
+  contain: layout;
+}
+
+/* Fix viewport height on mobile */
+@media (max-width: 768px) {
+  :root {
+    --vh: calc(1vh);
+  }
+}
+
+/* Script to fix mobile viewport height */
+@keyframes fixVh {
+  from { opacity: 0.99; }
+  to { opacity: 1; }
+}
+
+/* Force hardware acceleration on the whole app */
+body {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: auto;
+  animation: fixVh 0.1s forwards;
+}
+
+/* Force GPU rendering for chat messages */
+.flex.flex-col.gap-4.max-w-3xl.mx-auto {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: auto;
+  contain: content;
+}
+
+/* Ensure smooth animation for new messages */
+.message-item {
+  contain: layout style;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* Reduce work for GPU by fixing animated content */
+.animate-pulse {
+  contain: strict;
+  transform: translateZ(0);
+  will-change: opacity;
+}
+
+/* Prevent jumping during first render */
+.initial-padding {
+  padding-top: 1.5rem !important;
+  transition: padding-top 0.2s ease-out;
+}
+
+/* Smoother streaming animations */
+.text-green-600.dark\:text-green-500 {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Ensure smooth performance for button click */
+button {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Style for the message container to reduce reflow during streaming */
+.message-content {
+  /* Optimize for hardware acceleration and reduced jitter */
+  transform: translateZ(0);
+  will-change: contents, height;
+  
+  /* Better animation for streaming content */
+  transition: height 0.15s ease-out;
+}
+
+/* Optimized styles for streaming content */
+.streaming-content {
+  /* Improved animation properties */
+  transition: opacity 0.15s ease-out, transform 0.1s ease-out;
+  
+  /* Enhanced hardware acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: contents;
+  
+  /* Prevent layout shifts */
+  contain: content;
+}
+
+/* Improve scrollbar appearance to provide better visual feedback */
+.chat-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-section::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-section::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.dark .chat-section::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+.chat-section::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Reduce animation intensity during scrolling to prevent jitter */
+@media (prefers-reduced-motion: no-preference) {
+  .chat-section {
+    /* Apply smoother scrolling when not reducing motion */
+    scroll-behavior: smooth;
+  }
+  
+  /* Target high-performance devices for smooth animations */
+  @supports (animation-timeline: scroll()) {
+    .streaming-content {
+      animation-timing-function: linear;
+    }
+  }
+}
+
+/* Apply reduced motion preferences for users who prefer less animation */
+@media (prefers-reduced-motion: reduce) {
+  .chat-section {
+    scroll-behavior: auto;
+  }
+  
+  .streaming-content {
+    transition: none;
+  }
 }

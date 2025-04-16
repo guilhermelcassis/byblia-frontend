@@ -19,24 +19,41 @@ const MessageText: React.FC<MessageTextProps> = memo(({
   const contentRef = useRef<HTMLDivElement>(null);
   const [processedContent, setProcessedContent] = useState<string>('');
   const prevContentLengthRef = useRef<number>(0);
+  const contentLengthStabilizer = useRef<number>(0);
   
   // Update processed content when new data is received
   useEffect(() => {
     if (!content) {
       setProcessedContent('');
       prevContentLengthRef.current = 0;
+      contentLengthStabilizer.current = 0;
       return;
     }
 
     // Only process if content has actually changed or increased
     if (content.length !== prevContentLengthRef.current) {
-      prevContentLengthRef.current = content.length;
-      
-      // Format the content with plain styling
-      const formattedContent = formatContent(content);
-      setProcessedContent(formattedContent);
+      // Stability optimization: Only update if substantial change or initial render
+      if (!isStreaming || 
+          content.length === 0 || 
+          content.length - contentLengthStabilizer.current >= 10 || 
+          !isStreaming) {
+        
+        contentLengthStabilizer.current = content.length;
+        prevContentLengthRef.current = content.length;
+        
+        // Format the content with plain styling
+        const formattedContent = formatContent(content);
+        
+        // Use requestAnimationFrame for smoother visual updates
+        window.requestAnimationFrame(() => {
+          setProcessedContent(formattedContent);
+        });
+      } else {
+        // Still track the content length for next comparison
+        prevContentLengthRef.current = content.length;
+      }
     }
-  }, [content]);
+  }, [content, isStreaming]);
   
   // Function to format content with plain styling
   const formatContent = (text: string): string => {
@@ -97,10 +114,16 @@ const MessageText: React.FC<MessageTextProps> = memo(({
       className={cn(
         "message-text-content",
         isUser ? 'user-message-content' : '',
+        isStreaming ? 'streaming-text' : '',
         "pb-1"
       )}
       data-user-message={isUser}
       data-streaming={isStreaming}
+      style={{
+        transition: isStreaming ? 'none' : 'all 0.2s ease-out',
+        willChange: isStreaming ? 'contents' : 'auto',
+        minHeight: '1.5rem'
+      }}
     >
       <div
         ref={contentRef}
@@ -111,6 +134,15 @@ const MessageText: React.FC<MessageTextProps> = memo(({
             : "text-gray-900 dark:text-white", 
           "min-h-[1.5rem]"
         )}
+        style={{
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden',
+          transition: isStreaming ? 'none' : 'all 0.2s ease-out',
+          wordBreak: 'break-word',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
+          whiteSpace: 'pre-wrap'
+        }}
         dangerouslySetInnerHTML={{ __html: processedContent }}
       />
       

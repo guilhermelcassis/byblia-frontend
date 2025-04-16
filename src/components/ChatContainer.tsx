@@ -68,7 +68,7 @@ const ChatContainer: React.FC = () => {
   const [isAtScrollTop, setIsAtScrollTop] = useState(true);
   
   // Enhanced scroll hook
-  const { containerRef, userHasScrolled, scrollToBottom, isNearBottom, hasInvisibleNewContent } = useScroll({
+  const { containerRef, userHasScrolled, scrollToBottom, isNearBottom, hasInvisibleNewContent, resetAutoScroll } = useScroll({
     isStreaming: state.isStreaming,
     messagesCount: state.messages.length,
     hasNewContent: streamHasNewContent,
@@ -79,13 +79,18 @@ const ChatContainer: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
     
+    // Apply smooth scroll CSS for better animation
+    if (containerRef.current.style) {
+      containerRef.current.style.scrollBehavior = 'smooth';
+    }
+    
     const checkScrollTop = () => {
       const scrollTop = containerRef.current?.scrollTop || 0;
       setIsAtScrollTop(scrollTop < 10); // Consider "at top" if scrolled less than 10px
     };
     
     const container = containerRef.current;
-    container.addEventListener('scroll', checkScrollTop);
+    container.addEventListener('scroll', checkScrollTop, { passive: true });
     
     // Initial check
     checkScrollTop();
@@ -133,10 +138,13 @@ const ChatContainer: React.FC = () => {
     if (!isMounted) return;
     
     if (state.currentResponse && state.currentResponse !== '') {
-      if (!userManuallyScrolled) {
-        scrollToBottom("auto");
-      }
-      setStreamHasNewContent(true);
+      // Use requestAnimationFrame for smoother updates
+      requestAnimationFrame(() => {
+        if (!userManuallyScrolled) {
+          scrollToBottom("auto");
+        }
+        setStreamHasNewContent(true);
+      });
     }
   }, [state.currentResponse, userManuallyScrolled, scrollToBottom, isMounted]);
 
@@ -145,9 +153,9 @@ const ChatContainer: React.FC = () => {
     if (!state.isStreaming && streamHasNewContent) {
       setStreamHasNewContent(false);
       
-      // Final scroll once streaming completes
+      // Final scroll once streaming completes - use a slightly longer delay
       if (!userHasScrolled) {
-        setTimeout(() => scrollToBottom("smooth"), 100);
+        setTimeout(() => scrollToBottom("smooth"), 150);
       }
     }
   }, [state.isStreaming, streamHasNewContent, userHasScrolled, scrollToBottom]);
@@ -256,11 +264,12 @@ const ChatContainer: React.FC = () => {
   // Show scroll to bottom button?
   const showScrollToBottomButton = userHasScrolled && state.messages.length > 1;
 
-  // Scroll to bottom handler
+  // Handle scrolling to the bottom - now with option to reset auto scroll
   const handleScrollToBottom = (resetScroll: boolean) => {
-    scrollToBottom("smooth");
     if (resetScroll) {
-      setUserManuallyScrolled(false);
+      resetAutoScroll(); // Use the new resetAutoScroll function
+    } else {
+      scrollToBottom("smooth");
     }
   };
 
@@ -295,12 +304,19 @@ const ChatContainer: React.FC = () => {
           "px-3 sm:px-4 pb-32 pt-0", 
           "scroll-smooth",
           "scroll-behavior-smooth",
-          "overscroll-contain",
           "bg-white dark:bg-black",
           "mt-0",
           isAtScrollTop && state.messages.length > 0 ? "initial-padding" : ""
         )}
-        style={{ scrollBehavior: 'smooth', marginTop: 0, paddingTop: isAtScrollTop && state.messages.length === 0 ? '1.5rem' : 0 }}
+        style={{ 
+          scrollBehavior: 'smooth',
+          marginTop: 0, 
+          paddingTop: isAtScrollTop && state.messages.length === 0 ? '1.5rem' : 0,
+          WebkitOverflowScrolling: 'touch', // For smooth scrolling on iOS
+          transform: 'translateZ(0)',  // Hardware acceleration
+          willChange: 'transform',     // Hint for browser optimization
+          transition: 'transform 0.2s ease-out' // Smooth transition for scrolling
+        }}
       >
         {/* If there are messages, show them */}
         {state.messages.length > 0 && (
@@ -309,12 +325,21 @@ const ChatContainer: React.FC = () => {
             variants={containerVariants}
             initial="hidden"
             animate={controls}
+            style={{
+              willChange: 'transform, opacity',
+              transformOrigin: 'top',
+              backfaceVisibility: 'hidden'
+            }}
           >
             {state.messages.map((message, index) => (
               <motion.div 
                 key={message.id || index} 
                 variants={itemVariants}
                 className={`message-wrapper ${index === 0 && isAtScrollTop ? 'mt-2' : ''}`}
+                style={{
+                  willChange: 'transform, opacity',
+                  backfaceVisibility: 'hidden'
+                }}
               >
                 <MessageItem
                   message={message}
@@ -484,7 +509,7 @@ const ChatContainer: React.FC = () => {
       
       {/* Enhanced scroll to bottom button */}
       <AnimatePresence>
-        {showScrollToBottomButton && !hasInvisibleNewContent && (
+        {(showScrollToBottomButton || (state.isStreaming && hasInvisibleNewContent)) && (
           <motion.button
             className="fixed right-4 bottom-28 p-3 rounded-full shadow-lg text-white hover:shadow-xl transition-shadow duration-200 ease-out bg-gray-800 dark:bg-black hover:bg-black dark:hover:bg-gray-900 dark:border dark:border-white/20"
             initial={{ opacity: 0, scale: 0.8 }}
@@ -492,7 +517,7 @@ const ChatContainer: React.FC = () => {
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.2 }}
             onClick={() => handleScrollToBottom(true)}
-            aria-label="Scroll to bottom"
+            aria-label="Scroll to bottom and resume auto-scroll"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
@@ -512,7 +537,7 @@ const ChatContainer: React.FC = () => {
             className="fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50"
           >
             <motion.button
-              onClick={() => scrollToBottom("smooth")}
+              onClick={() => handleScrollToBottom(true)}
               className="bg-gray-800 text-white dark:bg-gray-900 dark:text-gray-100 px-4 py-2 rounded-full shadow-md flex items-center gap-2 hover:bg-gray-700 dark:hover:bg-gray-800 transition-colors border border-gray-700 dark:border-gray-600"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
